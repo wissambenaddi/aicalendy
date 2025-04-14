@@ -32,6 +32,11 @@ const users = {
         password: "password123",
         name: "Utilisateur Test",
         role: "Utilisateur" // Exemple de rôle
+    },
+    "admin@example.com": {
+        password: "password123",
+        name: "Administrateur",
+        role: "Admin" // Exemple de rôle
     }
 };
 // -------------------------------------------------------------
