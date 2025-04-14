@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
-<head>
+<html lang="fr"> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inscription - AiCalendy</title>
@@ -11,51 +10,75 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+    <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/pages/auth.css">
 
-    </head>
+</head>
 <body>
-
-    <div class="w-full max-w-md px-8 py-10 bg-white rounded-lg shadow-lg">
+    <div class="absolute top-4 right-4 z-10">
+         <div class="flex items-center space-x-2 p-1 bg-white rounded-md shadow">
+             <button id="lang-fr" class="lang-btn active" aria-label="Français">
+                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" class="w-6 h-4 rounded-sm">
+                   <rect width="3" height="2" fill="#fff"/>
+                   <rect width="1" height="2" fill="#002654"/>
+                   <rect width="1" height="2" x="2" fill="#ce1126"/>
+                 </svg>
+             </button>
+             <button id="lang-en" class="lang-btn" aria-label="English">
+                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" class="w-6 h-4 rounded-sm" fill="none">
+                    <clipPath id="a"><path d="M0 0h60v30H0z"/></clipPath>
+                    <g clip-path="url(#a)">
+                        <path fill="#012169" d="M0 0h60v30H0z"/>
+                        <path stroke="#fff" stroke-width="6" d="m0 0 60 30m0-30L0 30"/>
+                        <path stroke="#C8102E" stroke-width="4" d="m0 0 60 30m0-30L0 30"/>
+                        <path fill="#fff" d="M30 0v30M0 15h60"/>
+                        <path stroke="#C8102E" stroke-width="6" d="M30 0v30M0 15h60"/>
+                    </g>
+                 </svg>
+             </button>
+         </div>
+     </div>
+     <div class="w-full max-w-md px-8 py-10 bg-white rounded-lg shadow-lg">
         <div class="text-center mb-8">
              <a href="index.html" class="text-3xl font-bold text-indigo-600">AiCalendy</a>
         </div>
 
-        <h2 class="text-2xl font-bold text-center text-gray-900 mb-6">
+        <h2 class="text-2xl font-bold text-center text-gray-900 mb-6" data-translate-key="create_account_title">
             Créez votre compte AiCalendy
         </h2>
 
         <div class="space-y-4 mb-6">
             <button class="social-btn">
                 <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path><path fill="none" d="M0 0h48v48H0z"></path></svg>
-                Continuer avec Google
+                <span data-translate-key="continue_with_google">Continuer avec Google</span>
             </button>
             <button class="social-btn">
                  <svg viewBox="0 0 21 21"><path fill="#0078D4" d="M0 0h10.11v10.11H0zM10.89 0h10.11v10.11H10.89zM0 10.89h10.11v10.11H0zM10.89 10.89h10.11v10.11H10.89z"></path></svg>
-                Continuer avec Outlook
+                <span data-translate-key="continue_with_outlook">Continuer avec Outlook</span>
             </button>
         </div>
 
         <div class="flex items-center mb-6">
             <hr class="flex-grow border-t border-gray-300">
-            <span class="mx-4 text-sm font-medium text-gray-500">OU</span>
+            <span class="mx-4 text-sm font-medium text-gray-500" data-translate-key="or_separator">OU</span>
             <hr class="flex-grow border-t border-gray-300">
         </div>
 
-        <form id="register-form" class="space-y-5" method="POST" action="#"> <div>
-                <label for="email" class="block text-sm font-medium text-gray-700">Adresse e-mail</label>
+        <form id="register-form" class="space-y-5" method="POST" action="#">
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700" data-translate-key="email_label">Adresse e-mail</label>
                 <input type="email" id="email" name="email" required autocomplete="email"
                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             </div>
 
             <div>
-                <label for="password" class="block text-sm font-medium text-gray-700">Mot de passe</label>
+                <label for="password" class="block text-sm font-medium text-gray-700" data-translate-key="password_label">Mot de passe</label>
                 <input type="password" id="password" name="password" required autocomplete="new-password"
                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             </div>
 
             <div>
-                <label for="confirm-password" class="block text-sm font-medium text-gray-700">Confirmer le mot de passe</label>
+                <label for="confirm-password" class="block text-sm font-medium text-gray-700" data-translate-key="confirm_password_label">Confirmer le mot de passe</label>
                 <input type="password" id="confirm-password" name="confirm-password" required autocomplete="new-password"
                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             </div>
@@ -63,26 +86,32 @@
              <div class="flex items-center">
                 <input id="terms" name="terms" type="checkbox" required class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
                 <label for="terms" class="ml-2 block text-sm text-gray-900">
-                    J'accepte les <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">Conditions d'utilisation</a> et la <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">Politique de confidentialité</a>.
+                    <span data-translate-key="terms_agree">J'accepte les</span>
+                    <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500" data-translate-key="terms_link">Conditions d'utilisation</a>
+                    et la
+                    <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500" data-translate-key="privacy_link">Politique de confidentialité</a>.
                 </label>
             </div>
 
             <div>
                 <button type="submit"
-                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        data-translate-key="create_account_button">
                     Créer mon compte
                 </button>
             </div>
         </form>
 
         <div class="mt-6 text-center text-sm">
-             <a href="connexion_account.html" class="font-medium text-indigo-600 hover:text-indigo-500">
-                Déjà un compte ? Se connecter
+            <span data-translate-key="already_have_account">Déjà un compte ?</span>
+            <a href="connexion_account.html" class="font-medium text-indigo-600 hover:text-indigo-500" data-translate-key="login_link">
+                Se connecter
             </a>
         </div>
     </div>
 
     <script type="module" src="js/modules/auth.js"></script>
+    <script type="module" src="js/modules/translator.js"></script>
 
-     </body>
+</body>
 </html>
