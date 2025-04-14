@@ -42,17 +42,19 @@ const translations = {
         footer_terms: "Conditions d'utilisation",
 
         // --- Dashboard ---
-        // === MODIFIÉ/AJOUTÉ ===
-        sidebar_dashboard: "Dashboard", // Nouveau
+        sidebar_dashboard: "Dashboard",
         sidebar_categories: "Mes Catégories",
-        sidebar_tasks: "Mes tâches", // Nouveau
+        sidebar_tasks: "Mes tâches",
         sidebar_appointments: "Mes Rendez-vous",
         sidebar_profile: "Mon Profil",
         sidebar_logout: "Se déconnecter",
-        // ========================
         header_username: "Nom Utilisateur",
         header_role: "Administrateur",
-        dashboard_title: "Mes Catégories de Rendez-vous", // Ce titre devra peut-être changer dynamiquement
+        dashboard_section_title: "Tableau de Bord Principal",
+        categories_section_title: "Mes Catégories de Rendez-vous",
+        tasks_section_title: "Mes Tâches",
+        appointments_section_title: "Mes Rendez-vous",
+        profile_section_title: "Mon Profil",
         dashboard_create_category: "Créer une catégorie",
         category1_title: "Entretien de Recrutement", // Exemple
         category1_desc: "Session de 45 minutes pour évaluer les candidats.", // Exemple
@@ -123,17 +125,19 @@ const translations = {
         footer_terms: "Terms of Use",
 
          // --- Dashboard ---
-         // === MODIFIÉ/AJOUTÉ ===
-         sidebar_dashboard: "Dashboard", // New
+         sidebar_dashboard: "Dashboard",
          sidebar_categories: "My Categories",
-         sidebar_tasks: "My Tasks", // New
+         sidebar_tasks: "My Tasks",
          sidebar_appointments: "My Appointments",
          sidebar_profile: "My Profile",
          sidebar_logout: "Logout",
-         // ========================
          header_username: "User Name",
          header_role: "Administrator",
-         dashboard_title: "My Appointment Categories", // This title might need dynamic change
+         dashboard_section_title: "Main Dashboard",
+         categories_section_title: "My Appointment Categories",
+         tasks_section_title: "My Tasks",
+         appointments_section_title: "My Appointments",
+         profile_section_title: "My Profile",
          dashboard_create_category: "Create category",
          category1_title: "Recruitment Interview", // Example
          category1_desc: "45-minute session to evaluate candidates.", // Example
@@ -174,66 +178,36 @@ const translations = {
  * @param {string} lang - La langue cible ('fr' ou 'en').
  */
 export function setLanguage(lang) {
-    // === AJOUT DE LOG ===
-    // console.log(`Setting language to: ${lang}`);
-    // =====================
-
     if (!translations[lang]) {
         console.error(`Language "${lang}" not supported.`);
         return;
     }
-
     document.documentElement.setAttribute('lang', lang);
 
     const langButtons = document.querySelectorAll('.lang-btn');
-    langButtons.forEach(btn => {
-        btn.classList.remove('active');
-    });
+    langButtons.forEach(btn => btn.classList.remove('active'));
     const activeBtn = document.getElementById(`lang-${lang}`);
-    if (activeBtn) {
-        activeBtn.classList.add('active');
-    }
+    if (activeBtn) activeBtn.classList.add('active');
 
     const elementsToTranslate = document.querySelectorAll('[data-translate-key]');
-    // === AJOUT DE LOG ===
-    // console.log(`Found ${elementsToTranslate.length} elements to translate.`);
-    // =====================
 
-    elementsToTranslate.forEach((element, index) => {
+    elementsToTranslate.forEach(element => {
         const key = element.dataset.translateKey;
         const translationText = translations[lang][key];
 
-        // === AJOUT DE LOG ===
-        // Log pour chaque élément, surtout ceux qui posent problème
-        // if (['forgot_password', 'login_button', 'no_account_yet', 'register_link'].includes(key)) {
-        //      console.log(`[${index}] Processing key: ${key}, Element:`, element);
-        // }
-        // =====================
-
-
         if (translationText !== undefined) {
-             // === AJOUT DE LOG ===
-             // if (['forgot_password', 'login_button', 'no_account_yet', 'register_link'].includes(key)) {
-             //    console.log(`   Translation found: "${translationText}"`);
-             // }
-            // =====================
-
+            // Si la clé commence par "action_", on met à jour title et aria-label
             if (key.startsWith('action_')) {
                 element.setAttribute('title', translationText);
                 element.setAttribute('aria-label', translationText);
             } else {
-                // === AJOUT DE LOG ===
-                // console.log(`   Updating innerHTML for key: ${key}`); // Optionnel: log pour tous les innerHTML
-                // =====================
+                // Pour tous les autres éléments, on met à jour le contenu HTML
                 element.innerHTML = translationText;
             }
         } else {
-            console.warn(`[${index}] Translation key "${key}" not found for language "${lang}". Element:`, element);
+            console.warn(`Translation key "${key}" not found for language "${lang}". Element:`, element);
         }
     });
-     // === AJOUT DE LOG ===
-     // console.log("Translation loop finished.");
-     // =====================
 }
 
 /**
@@ -243,23 +217,11 @@ export function initLanguageSwitcher() {
     const btnFr = document.getElementById('lang-fr');
     const btnEn = document.getElementById('lang-en');
 
-    if (btnFr) {
-        btnFr.addEventListener('click', (e) => {
-            e.preventDefault();
-            setLanguage('fr');
-        });
-    } else {
-         console.warn("Button/link with id 'lang-fr' not found.");
-    }
+    if (btnFr) btnFr.addEventListener('click', (e) => { e.preventDefault(); setLanguage('fr'); });
+    else console.warn("Button/link with id 'lang-fr' not found.");
 
-    if (btnEn) {
-        btnEn.addEventListener('click', (e) => {
-            e.preventDefault();
-            setLanguage('en');
-        });
-    } else {
-         console.warn("Button/link with id 'lang-en' not found.");
-    }
+    if (btnEn) btnEn.addEventListener('click', (e) => { e.preventDefault(); setLanguage('en'); });
+    else console.warn("Button/link with id 'lang-en' not found.");
 
     const initialLang = document.documentElement.lang || 'fr';
     const initialActiveBtn = document.getElementById(`lang-${initialLang}`);
@@ -270,11 +232,10 @@ export function initLanguageSwitcher() {
 }
 
 // --- Initialisation ---
+// Attend que le DOM soit chargé avant d'initialiser
 document.addEventListener('DOMContentLoaded', () => {
     initLanguageSwitcher();
+    // Applique la traduction initiale au chargement
     const initialLang = document.documentElement.lang || 'fr';
-    // === AJOUT DE LOG ===
-    // console.log(`Initial language check: ${initialLang}. Applying initial translation.`);
-    // =====================
     setLanguage(initialLang);
 });
