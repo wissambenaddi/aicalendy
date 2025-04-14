@@ -55,15 +55,27 @@ const translations = {
         category2_title: "Démonstration Produit", // Exemple
         category2_desc: "Présentation interactive de 30 minutes.", // Exemple
         card_actions: "Actions :",
-        // Clés pour les boutons d'action (utilisées pour title et aria-label)
         action_copy_link: "Copier le lien",
         action_view_appointments: "Voir les rendez-vous",
         action_edit: "Modifier",
         action_delete: "Supprimer",
-        // Clés pour message si vide (si ajoutées au HTML)
-        // no_categories_title: "Aucune catégorie trouvée",
-        // no_categories_desc: "Commencez par créer votre première catégorie de rendez-vous.",
-        // no_categories_button: "Nouvelle Catégorie",
+
+        // === NOUVEAU : Clés pour la page d'inscription ===
+        create_account_title: "Créez votre compte AiCalendy",
+        continue_with_google: "Continuer avec Google",
+        continue_with_outlook: "Continuer avec Outlook",
+        or_separator: "OU",
+        email_label: "Adresse e-mail",
+        password_label: "Mot de passe",
+        confirm_password_label: "Confirmer le mot de passe",
+        terms_agree: "J'accepte les",
+        terms_link: "Conditions d'utilisation",
+        privacy_link: "Politique de confidentialité",
+        create_account_button: "Créer mon compte",
+        already_have_account: "Déjà un compte ?",
+        login_link: "Se connecter",
+        // === FIN NOUVEAU ===
+
     },
     en: {
         // --- Landing Page ---
@@ -114,15 +126,26 @@ const translations = {
          category2_title: "Product Demonstration", // Example
          category2_desc: "30-minute interactive presentation.", // Example
          card_actions: "Actions:",
-         // Clés pour les boutons d'action (utilisées pour title et aria-label)
          action_copy_link: "Copy link",
          action_view_appointments: "View appointments",
          action_edit: "Edit",
          action_delete: "Delete",
-         // Clés pour message si vide (si ajoutées au HTML)
-         // no_categories_title: "No categories found",
-         // no_categories_desc: "Get started by creating your first appointment category.",
-         // no_categories_button: "New Category",
+
+         // === NOUVEAU : Clés pour la page d'inscription ===
+         create_account_title: "Create your AiCalendy account",
+         continue_with_google: "Continue with Google",
+         continue_with_outlook: "Continue with Outlook",
+         or_separator: "OR",
+         email_label: "Email address",
+         password_label: "Password",
+         confirm_password_label: "Confirm password",
+         terms_agree: "I agree to the",
+         terms_link: "Terms of Use",
+         privacy_link: "Privacy Policy",
+         create_account_button: "Create my account",
+         already_have_account: "Already have an account?",
+         login_link: "Login",
+         // === FIN NOUVEAU ===
     }
 };
 
@@ -156,7 +179,6 @@ export function setLanguage(lang) {
         const translationText = translations[lang][key];
 
         if (translationText !== undefined) {
-            // === MODIFICATION ICI ===
             // Si la clé commence par "action_", on met à jour title et aria-label
             // au lieu de remplacer le contenu (pour préserver les icônes SVG)
             if (key.startsWith('action_')) {
@@ -217,4 +239,3 @@ document.addEventListener('DOMContentLoaded', () => {
     const initialLang = document.documentElement.lang || 'fr';
     setLanguage(initialLang); // Appelons-le pour assurer la cohérence initiale des titles/aria-labels
 });
-
