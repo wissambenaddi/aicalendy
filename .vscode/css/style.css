@@ -1,0 +1,44 @@
+/* css/style.css */
+/* Styles extraits de index.html */
+
+/* Assure que la police Inter est appliquée par défaut si elle est chargée */
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Style pour le dégradé de la section "hero" */
+.hero-gradient {
+    background: linear-gradient(120deg, #f0f9ff 0%, #e0f2fe 100%);
+}
+
+/* Styles pour les boutons de sélection de langue */
+.lang-btn {
+    cursor: pointer;
+    padding: 0.25rem; /* p-1 */
+    border-radius: 0.25rem; /* rounded */
+    transition: background-color 0.2s, box-shadow 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent; /* Bordure transparente par défaut */
+}
+
+/* Style pour le bouton de langue actif */
+.lang-btn.active {
+    /* Utilise box-shadow pour simuler une bordure sans affecter la mise en page */
+    /* Correspond à focus:ring-2 focus:ring-indigo-500 avec la couleur indigo-600 (#4f46e5) */
+    box-shadow: 0 0 0 2px #4f46e5;
+}
+
+/* Style pour les boutons de langue au survol (s'ils ne sont pas actifs) */
+.lang-btn:not(.active):hover {
+     background-color: #f3f4f6; /* bg-gray-100 */
+}
+
+/* Assure que les SVG dans les boutons ne rétrécissent pas */
+.lang-btn svg {
+    flex-shrink: 0;
+}
+
+/* Ajoutez ici d'autres styles personnalisés si nécessaire */
+

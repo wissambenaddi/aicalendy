@@ -3,38 +3,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AiCalendy - Simplifiez vos prises de rendez-vous</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .hero-gradient {
-            background: linear-gradient(120deg, #f0f9ff 0%, #e0f2fe 100%);
-        }
-        .lang-btn {
-            cursor: pointer;
-            padding: 0.25rem;
-            border-radius: 0.25rem;
-            transition: background-color 0.2s, box-shadow 0.2s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid transparent;
-        }
-        .lang-btn.active {
-            box-shadow: 0 0 0 2px #4f46e5;
-        }
-        .lang-btn:not(.active):hover {
-             background-color: #f3f4f6;
-        }
-        .lang-btn svg {
-            flex-shrink: 0;
-        }
-    </style>
-</head>
+
+    <link rel="stylesheet" href="css/style.css">
+
+    </head>
 <body class="bg-white text-gray-800">
 
     <header class="bg-white shadow-sm py-4">
@@ -54,9 +32,7 @@
                      </button>
                      <button id="lang-en" class="lang-btn" aria-label="English">
                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" class="w-6 h-4 rounded-sm" fill="none">
-                            <clipPath id="a">
-                                <path d="M0 0h60v30H0z"/>
-                            </clipPath>
+                            <clipPath id="a"><path d="M0 0h60v30H0z"/></clipPath>
                             <g clip-path="url(#a)">
                                 <path fill="#012169" d="M0 0h60v30H0z"/>
                                 <path stroke="#fff" stroke-width="6" d="m0 0 60 30m0-30L0 30"/>
@@ -89,8 +65,8 @@
                 Essayer AiCalendy gratuitement
             </a>
             <div class="mt-12">
-                 <img src="https://raw.githubusercontent.com/wissambenaddi/aicalendy/main/Visualaicalendy.jpg" alt="Illustration de AiCalendy en action" class="mx-auto rounded-lg shadow-xl max-w-2xl" onerror="this.onerror=null; this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Indisponible';">
-                 </div>
+                 <img src="assets/Visualaicalendy.jpg" alt="Illustration de AiCalendy en action" class="mx-auto rounded-lg shadow-xl max-w-2xl" onerror="this.onerror=null; this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Indisponible';">
+            </div>
         </div>
     </section>
 
@@ -170,7 +146,7 @@
                         <p class="mt-1 text-gray-600" data-translate-key="feature4_desc">Connectez AiCalendy à vos calendriers existants (Google, Outlook...).</p>
                     </div>
                 </div>
-                <div class="flex items-start space-x-4">
+                 <div class="flex items-start space-x-4">
                     <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-green-100 text-green-600">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6h1.5m-1.5 3h1.5m-1.5 3h1.5M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" /></svg>
                     </div>
@@ -210,7 +186,7 @@
          </div>
      </footer>
 
-     <script src="translate.js" defer></script>
+     <script type="module" src="js/modules/translator.js"></script>
 
-</body>
-</ht
+     </body>
+</html>
