@@ -60,21 +60,27 @@ const translations = {
         action_edit: "Modifier",
         action_delete: "Supprimer",
 
-        // === NOUVEAU : Clés pour la page d'inscription ===
+        // --- Page d'inscription ---
         create_account_title: "Créez votre compte AiCalendy",
-        continue_with_google: "Continuer avec Google",
-        continue_with_outlook: "Continuer avec Outlook",
-        or_separator: "OU",
-        email_label: "Adresse e-mail",
-        password_label: "Mot de passe",
+        continue_with_google: "Continuer avec Google", // Clé réutilisée
+        continue_with_outlook: "Continuer avec Outlook", // Clé réutilisée
+        or_separator: "OU", // Clé réutilisée
+        email_label: "Adresse e-mail", // Clé réutilisée
+        password_label: "Mot de passe", // Clé réutilisée
         confirm_password_label: "Confirmer le mot de passe",
         terms_agree: "J'accepte les",
-        terms_link: "Conditions d'utilisation",
-        privacy_link: "Politique de confidentialité",
+        terms_link: "Conditions d'utilisation", // Clé réutilisée
+        privacy_link: "Politique de confidentialité", // Clé réutilisée
         create_account_button: "Créer mon compte",
         already_have_account: "Déjà un compte ?",
-        login_link: "Se connecter",
-        // === FIN NOUVEAU ===
+        login_link: "Se connecter", // Clé réutilisée
+
+        // --- Page de connexion ---
+        login_title: "Connectez-vous à AiCalendy",
+        forgot_password: "Mot de passe oublié ?",
+        login_button: "Se connecter", // Clé réutilisée (même texte que login_link)
+        no_account_yet: "Pas encore de compte ?",
+        register_link: "S'inscrire gratuitement", // Clé réutilisée (même texte que register)
 
     },
     en: {
@@ -131,21 +137,27 @@ const translations = {
          action_edit: "Edit",
          action_delete: "Delete",
 
-         // === NOUVEAU : Clés pour la page d'inscription ===
+         // --- Page d'inscription ---
          create_account_title: "Create your AiCalendy account",
-         continue_with_google: "Continue with Google",
-         continue_with_outlook: "Continue with Outlook",
-         or_separator: "OR",
-         email_label: "Email address",
-         password_label: "Password",
+         continue_with_google: "Continue with Google", // Reused key
+         continue_with_outlook: "Continue with Outlook", // Reused key
+         or_separator: "OR", // Reused key
+         email_label: "Email address", // Reused key
+         password_label: "Password", // Reused key
          confirm_password_label: "Confirm password",
          terms_agree: "I agree to the",
-         terms_link: "Terms of Use",
-         privacy_link: "Privacy Policy",
+         terms_link: "Terms of Use", // Reused key
+         privacy_link: "Privacy Policy", // Reused key
          create_account_button: "Create my account",
          already_have_account: "Already have an account?",
-         login_link: "Login",
-         // === FIN NOUVEAU ===
+         login_link: "Login", // Reused key
+
+         // --- Page de connexion ---
+         login_title: "Login to AiCalendy",
+         forgot_password: "Forgot password?",
+         login_button: "Login", // Reused key (same text as login_link)
+         no_account_yet: "No account yet?",
+         register_link: "Register for free", // Reused key (same text as register)
     }
 };
 
@@ -154,6 +166,10 @@ const translations = {
  * @param {string} lang - La langue cible ('fr' ou 'en').
  */
 export function setLanguage(lang) {
+    // === AJOUT DE LOG ===
+    console.log(`Setting language to: ${lang}`);
+    // =====================
+
     if (!translations[lang]) {
         console.error(`Language "${lang}" not supported.`);
         return;
@@ -161,7 +177,6 @@ export function setLanguage(lang) {
 
     document.documentElement.setAttribute('lang', lang);
 
-    // Met à jour le style des boutons de langue
     const langButtons = document.querySelectorAll('.lang-btn');
     langButtons.forEach(btn => {
         btn.classList.remove('active');
@@ -171,29 +186,46 @@ export function setLanguage(lang) {
         activeBtn.classList.add('active');
     }
 
-    // Sélectionne tous les éléments ayant une clé de traduction
     const elementsToTranslate = document.querySelectorAll('[data-translate-key]');
+    // === AJOUT DE LOG ===
+    console.log(`Found ${elementsToTranslate.length} elements to translate.`);
+    // =====================
 
-    elementsToTranslate.forEach(element => {
+    elementsToTranslate.forEach((element, index) => {
         const key = element.dataset.translateKey;
         const translationText = translations[lang][key];
 
+        // === AJOUT DE LOG ===
+        // Log pour chaque élément, surtout ceux qui posent problème
+        if (['forgot_password', 'login_button', 'no_account_yet', 'register_link'].includes(key)) {
+             console.log(`[${index}] Processing key: ${key}, Element:`, element);
+        }
+        // =====================
+
+
         if (translationText !== undefined) {
-            // Si la clé commence par "action_", on met à jour title et aria-label
-            // au lieu de remplacer le contenu (pour préserver les icônes SVG)
+             // === AJOUT DE LOG ===
+             if (['forgot_password', 'login_button', 'no_account_yet', 'register_link'].includes(key)) {
+                console.log(`   Translation found: "${translationText}"`);
+             }
+            // =====================
+
             if (key.startsWith('action_')) {
                 element.setAttribute('title', translationText);
                 element.setAttribute('aria-label', translationText);
-                // On ne modifie PAS element.innerHTML pour ces boutons
             } else {
-                // Pour tous les autres éléments, on met à jour le contenu HTML
+                // === AJOUT DE LOG ===
+                // console.log(`   Updating innerHTML for key: ${key}`); // Optionnel: log pour tous les innerHTML
+                // =====================
                 element.innerHTML = translationText;
             }
         } else {
-            // Avertit si une clé de traduction est manquante pour la langue actuelle
-            console.warn(`Translation key "${key}" not found for language "${lang}".`);
+            console.warn(`[${index}] Translation key "${key}" not found for language "${lang}". Element:`, element);
         }
     });
+     // === AJOUT DE LOG ===
+     console.log("Translation loop finished.");
+     // =====================
 }
 
 /**
@@ -221,7 +253,6 @@ export function initLanguageSwitcher() {
          console.warn("Button/link with id 'lang-en' not found.");
     }
 
-    // Gère l'état actif initial basé sur la langue du HTML
     const initialLang = document.documentElement.lang || 'fr';
     const initialActiveBtn = document.getElementById(`lang-${initialLang}`);
      if (initialActiveBtn) {
@@ -231,11 +262,11 @@ export function initLanguageSwitcher() {
 }
 
 // --- Initialisation ---
-// On attend que le DOM soit complètement chargé avant d'attacher les écouteurs.
 document.addEventListener('DOMContentLoaded', () => {
     initLanguageSwitcher();
-    // Optionnel: Appeler setLanguage ici si vous voulez forcer la traduction
-    // initiale basée sur l'attribut lang du HTML au chargement.
     const initialLang = document.documentElement.lang || 'fr';
-    setLanguage(initialLang); // Appelons-le pour assurer la cohérence initiale des titles/aria-labels
+    // === AJOUT DE LOG ===
+    console.log(`Initial language check: ${initialLang}. Applying initial translation.`);
+    // =====================
+    setLanguage(initialLang);
 });
