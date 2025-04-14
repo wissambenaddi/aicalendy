@@ -28,8 +28,8 @@ app.use(express.static(path.join(__dirname))); // Sert les fichiers depuis le do
 //             et stockez les mots de passe HACHÉS (avec bcrypt).
 const users = {
     // Exemple d'utilisateur (mot de passe en clair - MAUVAISE PRATIQUE !)
-    "test@example.com": {
-        password: "password123",
+    "admin": {
+        password: "admin",
         name: "Utilisateur Test",
         role: "Utilisateur" // Exemple de rôle
     }
