@@ -1,0 +1,58 @@
+/* css/pages/dashboard.css */
+/* Styles spécifiques à la page du tableau de bord */
+
+/* Styles de base pour le body sur cette page */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f9fafb; /* gray-50 */
+    /* Ajout pour correspondre au flex de la page */
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Hauteur du contenu principal pour permettre le scroll indépendant */
+/* Prend en compte la hauteur du header (h-16 -> 4rem) */
+.main-content-height {
+     height: calc(100vh - 4rem);
+     /* Note: Assurez-vous que le conteneur parent (main) a overflow-y-auto */
+}
+
+/* Styles pour les liens de la sidebar */
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem; /* py-3 px-4 */
+    border-radius: 0.375rem; /* rounded-md */
+    color: #374151; /* text-gray-700 */
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.sidebar-link:hover {
+     background-color: #f3f4f6; /* hover:bg-gray-100 */
+     color: #1f2937; /* hover:text-gray-800 */
+}
+
+/* Style pour le lien actif dans la sidebar */
+.sidebar-link.active {
+    background-color: #eef2ff; /* indigo-100 */
+    color: #4f46e5; /* indigo-600 */
+    font-weight: 600; /* semibold */
+}
+
+/* Styles pour les icônes SVG dans la sidebar */
+.sidebar-link svg {
+     margin-right: 0.75rem; /* mr-3 */
+     height: 1.25rem; /* h-5 */
+     width: 1.25rem; /* w-5 */
+     color: #6b7280; /* text-gray-500 */ /* Couleur par défaut */
+}
+
+/* Couleur de l'icône SVG pour le lien actif */
+ .sidebar-link.active svg {
+     color: #4f46e5; /* indigo-600 */
+ }
+
+/* Note : Les styles pour .lang-btn sont dans css/style.css et ne sont pas répétés ici */
+
+/* Ajoutez ici d'autres styles spécifiques au tableau de bord si nécessaire */
