@@ -1,7 +1,7 @@
 /**
  * Fichier : js/modules/auth.js
  * Description : Gère la logique côté client pour les formulaires
- * de connexion et d'inscription.
+ * de connexion et d'inscription, y compris l'appel à l'API backend.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -10,97 +10,117 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Logique pour le formulaire de connexion ---
     if (loginForm) {
-        loginForm.addEventListener('submit', (event) => {
+        loginForm.addEventListener('submit', async (event) => { // Ajout de 'async' pour utiliser 'await'
             event.preventDefault(); // Empêche l'envoi standard du formulaire
 
             const email = loginForm.email.value;
             const password = loginForm.password.value;
+            const submitButton = loginForm.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.textContent; // Sauvegarde texte initial
+
+            // Désactiver le bouton et afficher un indicateur de chargement (optionnel)
+            submitButton.disabled = true;
+            submitButton.textContent = 'Connexion...'; // Ou utiliser un spinner
 
             console.log('Tentative de connexion avec:', { email, password });
 
-            // --- À FAIRE ---
-            // 1. Ajouter la validation des champs (format email, mot de passe non vide)
-            // 2. Envoyer les données au backend (par exemple via l'API Fetch)
-            //    fetch('/api/login', {
-            //        method: 'POST',
-            //        headers: { 'Content-Type': 'application/json' },
-            //        body: JSON.stringify({ email, password })
-            //    })
-            //    .then(response => response.json())
-            //    .then(data => {
-            //        if (data.success) {
-            //            // Rediriger vers le tableau de bord ou autre page
-            //            window.location.href = '/dashboard_user.html';
-            //        } else {
-            //            // Afficher un message d'erreur
-            //            console.error('Erreur de connexion:', data.message);
-            //            alert(`Erreur de connexion: ${data.message}`); // Remplacer alert par une meilleure UI
-            //        }
-            //    })
-            //    .catch(error => {
-            //        console.error('Erreur réseau ou serveur:', error);
-            //        alert('Une erreur est survenue.'); // Remplacer alert
-            //    });
-            // --- Fin du À FAIRE ---
+            try {
+                // --- Appel à l'API Backend ---
+                const response = await fetch('/api/login', { // URL de l'API backend
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }) // Envoi des données en JSON
+                });
 
-            // Message temporaire pour le développement
-            alert('Logique de connexion à implémenter (voir console).');
+                const data = await response.json(); // Attend la réponse JSON du serveur
+
+                if (response.ok && data.success) { // Vérifie si la requête HTTP est OK et si le backend renvoie success: true
+                    console.log('Connexion réussie:', data);
+                    // --- Redirection vers le tableau de bord ---
+                    window.location.href = 'dashboard_user.html';
+                    // Optionnel: stocker le token reçu (data.token) dans localStorage/sessionStorage
+                    // localStorage.setItem('authToken', data.token);
+                } else {
+                    // Afficher l'erreur renvoyée par le backend
+                    console.error('Erreur de connexion:', data.message);
+                    alert(`Erreur de connexion: ${data.message || 'Identifiants incorrects'}`); // Utiliser une meilleure UI qu'une alerte
+                }
+
+            } catch (error) {
+                // Gérer les erreurs réseau ou autres erreurs inattendues
+                console.error('Erreur lors de la tentative de connexion:', error);
+                alert('Une erreur réseau est survenue. Veuillez réessayer.'); // Utiliser une meilleure UI
+            } finally {
+                 // Réactiver le bouton et restaurer le texte dans tous les cas
+                 submitButton.disabled = false;
+                 submitButton.textContent = originalButtonText;
+            }
+            // --- Fin de l'appel API ---
         });
     }
 
     // --- Logique pour le formulaire d'inscription ---
     if (registerForm) {
-        registerForm.addEventListener('submit', (event) => {
-            event.preventDefault(); // Empêche l'envoi standard du formulaire
+        registerForm.addEventListener('submit', async (event) => { // Ajout de 'async'
+            event.preventDefault();
 
             const email = registerForm.email.value;
             const password = registerForm.password.value;
             const confirmPassword = registerForm['confirm-password'].value;
             const termsAccepted = registerForm.terms.checked;
+            const submitButton = registerForm.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.textContent;
 
-            console.log('Tentative d\'inscription avec:', { email, password, confirmPassword, termsAccepted });
+            console.log('Tentative d\'inscription avec:', { email, password: '***', confirmPassword: '***', termsAccepted }); // Ne pas logger les mots de passe
 
-            // --- À FAIRE ---
-            // 1. Ajouter la validation des champs :
-            //    - Format email valide
-            //    - Mot de passe non vide et respectant des critères (longueur, etc.)
-            //    - Mot de passe et confirmation identiques
-            //    - Conditions acceptées
+            // --- Validation Côté Client ---
             if (password !== confirmPassword) {
                 alert('Les mots de passe ne correspondent pas.'); // Remplacer alert
-                return; // Arrêter le processus
+                return;
             }
             if (!termsAccepted) {
                  alert('Vous devez accepter les conditions d\'utilisation.'); // Remplacer alert
-                 return; // Arrêter le processus
+                 return;
             }
-            // 2. Envoyer les données au backend (via Fetch API)
-            //    fetch('/api/register', { /* ... */ })
-            //    .then(response => response.json())
-            //    .then(data => {
-            //        if (data.success) {
-            //            // Rediriger vers la page de connexion ou le tableau de bord
-            //             window.location.href = '/connexion_account.html'; // ou dashboard
-            //        } else {
-            //            // Afficher un message d'erreur (ex: email déjà utilisé)
-            //            console.error('Erreur d\'inscription:', data.message);
-            //            alert(`Erreur d'inscription: ${data.message}`); // Remplacer alert
-            //        }
-            //    })
-            //    .catch(error => { /* ... gestion erreur réseau ... */ });
-            // --- Fin du À FAIRE ---
+            // Ajouter d'autres validations si nécessaire (longueur mdp, format email...)
+            // --- Fin Validation ---
 
-             // Message temporaire pour le développement
-             alert('Logique d\'inscription à implémenter (voir console).');
+             // Désactiver bouton / Afficher chargement
+             submitButton.disabled = true;
+             submitButton.textContent = 'Création...';
+
+            try {
+                 // --- Appel à l'API Backend pour l'inscription ---
+                 const response = await fetch('/api/register', { // URL de l'API backend pour l'inscription
+                     method: 'POST',
+                     headers: { 'Content-Type': 'application/json' },
+                     body: JSON.stringify({ email, password }) // N'envoyer que le nécessaire
+                 });
+
+                 const data = await response.json();
+
+                 if (response.ok && data.success) {
+                     console.log('Inscription réussie:', data);
+                     alert('Compte créé avec succès ! Vous pouvez maintenant vous connecter.'); // Remplacer alert
+                     // Rediriger vers la page de connexion
+                     window.location.href = 'connexion_account.html';
+                 } else {
+                     console.error('Erreur d\'inscription:', data.message);
+                     alert(`Erreur d'inscription: ${data.message || 'Impossible de créer le compte'}`); // Remplacer alert
+                 }
+
+            } catch (error) {
+                 console.error('Erreur lors de la tentative d\'inscription:', error);
+                 alert('Une erreur réseau est survenue lors de l\'inscription.'); // Remplacer alert
+            } finally {
+                 // Réactiver le bouton / Restaurer texte
+                 submitButton.disabled = false;
+                 submitButton.textContent = originalButtonText;
+            }
+             // --- Fin Appel API ---
         });
     }
 
-    // --- Autre logique JS pour l'authentification si nécessaire ---
-    // Par exemple, gestion du bouton "Mot de passe oublié ?"
-
 }); // Fin de DOMContentLoaded
-
-// Note: Si vous voulez utiliser les traductions de translator.js ici,
-// il faudrait importer les fonctions nécessaires :
-// import { setLanguage, initLanguageSwitcher } from './translator.js';
-// et ajouter les attributs data-translate-key aux éléments HTML correspondants.
