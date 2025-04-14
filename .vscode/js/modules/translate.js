@@ -1,6 +1,7 @@
 /**
- * Fichier : translate.js
+ * Fichier : js/modules/translator.js
  * Description : Gère la traduction du contenu textuel de la page entre le français et l'anglais.
+ * Ce fichier est maintenant un module ES6.
  */
 
 // 1. Définir les traductions pour chaque clé et chaque langue supportée
@@ -41,28 +42,24 @@ const translations = {
         footer_terms: "Conditions d'utilisation",
 
         // --- Dashboard ---
+        // (Traductions du dashboard conservées ici pour l'instant)
         sidebar_categories: "Mes Catégories",
         sidebar_appointments: "Mes Rendez-vous",
         sidebar_profile: "Mon Profil",
         sidebar_logout: "Se déconnecter",
-        header_username: "Nom Utilisateur", // Remplacer par la vraie donnée si possible
-        header_role: "Administrateur", // Remplacer par la vraie donnée si possible
+        header_username: "Nom Utilisateur",
+        header_role: "Administrateur",
         dashboard_title: "Mes Catégories de Rendez-vous",
         dashboard_create_category: "Créer une catégorie",
-        category1_title: "Entretien de Recrutement", // Exemple
-        category1_desc: "Session de 45 minutes pour évaluer les candidats.", // Exemple
-        category2_title: "Démonstration Produit", // Exemple
-        category2_desc: "Présentation interactive de 30 minutes.", // Exemple
+        category1_title: "Entretien de Recrutement",
+        category1_desc: "Session de 45 minutes pour évaluer les candidats.",
+        category2_title: "Démonstration Produit",
+        category2_desc: "Présentation interactive de 30 minutes.",
         card_actions: "Actions :",
         action_copy_link: "Copier le lien",
         action_view_appointments: "Voir les rendez-vous",
         action_edit: "Modifier",
         action_delete: "Supprimer",
-        // Clé pour le message si aucune catégorie (à ajouter dans le HTML si nécessaire)
-        // no_categories_title: "Aucune catégorie trouvée",
-        // no_categories_desc: "Commencez par créer votre première catégorie de rendez-vous.",
-        // no_categories_button: "Nouvelle Catégorie",
-
     },
     en: {
         // --- Landing Page ---
@@ -100,27 +97,24 @@ const translations = {
         footer_terms: "Terms of Use",
 
          // --- Dashboard ---
+         // (Dashboard translations kept here for now)
          sidebar_categories: "My Categories",
          sidebar_appointments: "My Appointments",
          sidebar_profile: "My Profile",
          sidebar_logout: "Logout",
-         header_username: "User Name", // Replace with real data if possible
-         header_role: "Administrator", // Replace with real data if possible
+         header_username: "User Name",
+         header_role: "Administrator",
          dashboard_title: "My Appointment Categories",
          dashboard_create_category: "Create category",
-         category1_title: "Recruitment Interview", // Example
-         category1_desc: "45-minute session to evaluate candidates.", // Example
-         category2_title: "Product Demonstration", // Example
-         category2_desc: "30-minute interactive presentation.", // Example
+         category1_title: "Recruitment Interview",
+         category1_desc: "45-minute session to evaluate candidates.",
+         category2_title: "Product Demonstration",
+         category2_desc: "30-minute interactive presentation.",
          card_actions: "Actions:",
          action_copy_link: "Copy link",
          action_view_appointments: "View appointments",
          action_edit: "Edit",
          action_delete: "Delete",
-         // Key for the message if no categories (to be added in HTML if needed)
-         // no_categories_title: "No categories found",
-         // no_categories_desc: "Get started by creating your first appointment category.",
-         // no_categories_button: "New Category",
     }
 };
 
@@ -128,17 +122,14 @@ const translations = {
  * Met à jour le contenu textuel de la page en fonction de la langue sélectionnée.
  * @param {string} lang - La langue cible ('fr' ou 'en').
  */
-function setLanguage(lang) {
-    // Vérifie si la langue demandée existe dans les traductions
+export function setLanguage(lang) {
     if (!translations[lang]) {
         console.error(`Language "${lang}" not supported.`);
         return;
     }
 
-    // Met à jour l'attribut lang de la balise <html>
     document.documentElement.setAttribute('lang', lang);
 
-    // Met à jour le style des boutons de langue
     const langButtons = document.querySelectorAll('.lang-btn');
     langButtons.forEach(btn => {
         btn.classList.remove('active');
@@ -148,30 +139,27 @@ function setLanguage(lang) {
         activeBtn.classList.add('active');
     }
 
-    // Sélectionne tous les éléments ayant une clé de traduction
     const elementsToTranslate = document.querySelectorAll('[data-translate-key]');
-
     elementsToTranslate.forEach(element => {
         const key = element.dataset.translateKey;
-        // Vérifie si la traduction existe pour cette clé et cette langue
         if (translations[lang][key] !== undefined) {
-            // Utilise innerHTML pour permettre l'interprétation des entités HTML (ex: &copy;)
             element.innerHTML = translations[lang][key];
         } else {
-            // Avertit si une clé de traduction est manquante pour la langue actuelle
             console.warn(`Translation key "${key}" not found for language "${lang}".`);
         }
     });
 }
 
-// 3. Ajouter les écouteurs d'événements aux boutons une fois le DOM chargé
-document.addEventListener('DOMContentLoaded', () => {
+/**
+ * Initialise les écouteurs d'événements pour les boutons de langue.
+ */
+export function initLanguageSwitcher() {
     const btnFr = document.getElementById('lang-fr');
     const btnEn = document.getElementById('lang-en');
 
     if (btnFr) {
         btnFr.addEventListener('click', (e) => {
-            e.preventDefault(); // Empêche le comportement par défaut si c'est un lien
+            e.preventDefault();
             setLanguage('fr');
         });
     } else {
@@ -180,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (btnEn) {
         btnEn.addEventListener('click', (e) => {
-            e.preventDefault(); // Empêche le comportement par défaut si c'est un lien
+            e.preventDefault();
             setLanguage('en');
         });
     } else {
@@ -194,7 +182,20 @@ document.addEventListener('DOMContentLoaded', () => {
          document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
          initialActiveBtn.classList.add('active');
      }
-     // Appelle setLanguage une fois au chargement pour s'assurer que le contenu correspond à la langue initiale
-     // (utile si le HTML par défaut n'est pas en 'fr' ou pour rafraîchir le contenu)
-     // setLanguage(initialLang); // Décommenter si nécessaire
+     // Optionnel: Appeler setLanguage au chargement pour garantir la cohérence initiale
+     // setLanguage(initialLang);
+}
+
+// --- Initialisation ---
+// === MODIFIÉ ===
+// On attend que le DOM soit complètement chargé avant d'attacher les écouteurs.
+// C'est une approche plus sûre.
+document.addEventListener('DOMContentLoaded', () => {
+    initLanguageSwitcher();
+    // Optionnel: Appeler setLanguage ici si vous voulez forcer la traduction
+    // initiale basée sur l'attribut lang du HTML au chargement.
+    // const initialLang = document.documentElement.lang || 'fr';
+    // setLanguage(initialLang);
 });
+
+// L'appel direct 'initLanguageSwitcher();' a été supprimé d'ici.
