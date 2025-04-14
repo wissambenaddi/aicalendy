@@ -42,13 +42,17 @@ const translations = {
         footer_terms: "Conditions d'utilisation",
 
         // --- Dashboard ---
+        // === MODIFIÉ/AJOUTÉ ===
+        sidebar_dashboard: "Dashboard", // Nouveau
         sidebar_categories: "Mes Catégories",
+        sidebar_tasks: "Mes tâches", // Nouveau
         sidebar_appointments: "Mes Rendez-vous",
         sidebar_profile: "Mon Profil",
         sidebar_logout: "Se déconnecter",
+        // ========================
         header_username: "Nom Utilisateur",
         header_role: "Administrateur",
-        dashboard_title: "Mes Catégories de Rendez-vous",
+        dashboard_title: "Mes Catégories de Rendez-vous", // Ce titre devra peut-être changer dynamiquement
         dashboard_create_category: "Créer une catégorie",
         category1_title: "Entretien de Recrutement", // Exemple
         category1_desc: "Session de 45 minutes pour évaluer les candidats.", // Exemple
@@ -62,25 +66,25 @@ const translations = {
 
         // --- Page d'inscription ---
         create_account_title: "Créez votre compte AiCalendy",
-        continue_with_google: "Continuer avec Google", // Clé réutilisée
-        continue_with_outlook: "Continuer avec Outlook", // Clé réutilisée
-        or_separator: "OU", // Clé réutilisée
-        email_label: "Adresse e-mail", // Clé réutilisée
-        password_label: "Mot de passe", // Clé réutilisée
+        continue_with_google: "Continuer avec Google",
+        continue_with_outlook: "Continuer avec Outlook",
+        or_separator: "OU",
+        email_label: "Adresse e-mail",
+        password_label: "Mot de passe",
         confirm_password_label: "Confirmer le mot de passe",
         terms_agree: "J'accepte les",
-        terms_link: "Conditions d'utilisation", // Clé réutilisée
-        privacy_link: "Politique de confidentialité", // Clé réutilisée
+        terms_link: "Conditions d'utilisation",
+        privacy_link: "Politique de confidentialité",
         create_account_button: "Créer mon compte",
         already_have_account: "Déjà un compte ?",
-        login_link: "Se connecter", // Clé réutilisée
+        login_link: "Se connecter",
 
         // --- Page de connexion ---
         login_title: "Connectez-vous à AiCalendy",
         forgot_password: "Mot de passe oublié ?",
-        login_button: "Se connecter", // Clé réutilisée (même texte que login_link)
+        login_button: "Se connecter",
         no_account_yet: "Pas encore de compte ?",
-        register_link: "S'inscrire gratuitement", // Clé réutilisée (même texte que register)
+        register_link: "S'inscrire gratuitement",
 
     },
     en: {
@@ -119,13 +123,17 @@ const translations = {
         footer_terms: "Terms of Use",
 
          // --- Dashboard ---
+         // === MODIFIÉ/AJOUTÉ ===
+         sidebar_dashboard: "Dashboard", // New
          sidebar_categories: "My Categories",
+         sidebar_tasks: "My Tasks", // New
          sidebar_appointments: "My Appointments",
          sidebar_profile: "My Profile",
          sidebar_logout: "Logout",
+         // ========================
          header_username: "User Name",
          header_role: "Administrator",
-         dashboard_title: "My Appointment Categories",
+         dashboard_title: "My Appointment Categories", // This title might need dynamic change
          dashboard_create_category: "Create category",
          category1_title: "Recruitment Interview", // Example
          category1_desc: "45-minute session to evaluate candidates.", // Example
@@ -139,25 +147,25 @@ const translations = {
 
          // --- Page d'inscription ---
          create_account_title: "Create your AiCalendy account",
-         continue_with_google: "Continue with Google", // Reused key
-         continue_with_outlook: "Continue with Outlook", // Reused key
-         or_separator: "OR", // Reused key
-         email_label: "Email address", // Reused key
-         password_label: "Password", // Reused key
+         continue_with_google: "Continue with Google",
+         continue_with_outlook: "Continue with Outlook",
+         or_separator: "OR",
+         email_label: "Email address",
+         password_label: "Password",
          confirm_password_label: "Confirm password",
          terms_agree: "I agree to the",
-         terms_link: "Terms of Use", // Reused key
-         privacy_link: "Privacy Policy", // Reused key
+         terms_link: "Terms of Use",
+         privacy_link: "Privacy Policy",
          create_account_button: "Create my account",
          already_have_account: "Already have an account?",
-         login_link: "Login", // Reused key
+         login_link: "Login",
 
          // --- Page de connexion ---
          login_title: "Login to AiCalendy",
          forgot_password: "Forgot password?",
-         login_button: "Login", // Reused key (same text as login_link)
+         login_button: "Login",
          no_account_yet: "No account yet?",
-         register_link: "Register for free", // Reused key (same text as register)
+         register_link: "Register for free",
     }
 };
 
@@ -167,7 +175,7 @@ const translations = {
  */
 export function setLanguage(lang) {
     // === AJOUT DE LOG ===
-    console.log(`Setting language to: ${lang}`);
+    // console.log(`Setting language to: ${lang}`);
     // =====================
 
     if (!translations[lang]) {
@@ -188,7 +196,7 @@ export function setLanguage(lang) {
 
     const elementsToTranslate = document.querySelectorAll('[data-translate-key]');
     // === AJOUT DE LOG ===
-    console.log(`Found ${elementsToTranslate.length} elements to translate.`);
+    // console.log(`Found ${elementsToTranslate.length} elements to translate.`);
     // =====================
 
     elementsToTranslate.forEach((element, index) => {
@@ -197,17 +205,17 @@ export function setLanguage(lang) {
 
         // === AJOUT DE LOG ===
         // Log pour chaque élément, surtout ceux qui posent problème
-        if (['forgot_password', 'login_button', 'no_account_yet', 'register_link'].includes(key)) {
-             console.log(`[${index}] Processing key: ${key}, Element:`, element);
-        }
+        // if (['forgot_password', 'login_button', 'no_account_yet', 'register_link'].includes(key)) {
+        //      console.log(`[${index}] Processing key: ${key}, Element:`, element);
+        // }
         // =====================
 
 
         if (translationText !== undefined) {
              // === AJOUT DE LOG ===
-             if (['forgot_password', 'login_button', 'no_account_yet', 'register_link'].includes(key)) {
-                console.log(`   Translation found: "${translationText}"`);
-             }
+             // if (['forgot_password', 'login_button', 'no_account_yet', 'register_link'].includes(key)) {
+             //    console.log(`   Translation found: "${translationText}"`);
+             // }
             // =====================
 
             if (key.startsWith('action_')) {
@@ -224,7 +232,7 @@ export function setLanguage(lang) {
         }
     });
      // === AJOUT DE LOG ===
-     console.log("Translation loop finished.");
+     // console.log("Translation loop finished.");
      // =====================
 }
 
@@ -266,7 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initLanguageSwitcher();
     const initialLang = document.documentElement.lang || 'fr';
     // === AJOUT DE LOG ===
-    console.log(`Initial language check: ${initialLang}. Applying initial translation.`);
+    // console.log(`Initial language check: ${initialLang}. Applying initial translation.`);
     // =====================
     setLanguage(initialLang);
 });
