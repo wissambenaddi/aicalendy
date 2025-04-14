@@ -71,7 +71,7 @@ const translations = {
         continue_with_google: "Continuer avec Google",
         continue_with_outlook: "Continuer avec Outlook",
         or_separator: "OU",
-        email_label: "Adresse e-mail",
+        email_label: "Adresse e-mail", // Pour l'inscription
         password_label: "Mot de passe",
         confirm_password_label: "Confirmer le mot de passe",
         terms_agree: "J'accepte les",
@@ -79,12 +79,13 @@ const translations = {
         privacy_link: "Politique de confidentialité",
         create_account_button: "Créer mon compte",
         already_have_account: "Déjà un compte ?",
-        login_link: "Se connecter",
+        login_link: "Se connecter", // Utilisé aussi comme clé pour le bouton de connexion
 
         // --- Page de connexion ---
         login_title: "Connectez-vous à AiCalendy",
+        login_identifier_label: "Identifiant ou Email", // Nouveau label
         forgot_password: "Mot de passe oublié ?",
-        login_button: "Se connecter",
+        login_button: "Se connecter", // Clé réutilisée
         no_account_yet: "Pas encore de compte ?",
         register_link: "S'inscrire gratuitement",
 
@@ -154,7 +155,7 @@ const translations = {
          continue_with_google: "Continue with Google",
          continue_with_outlook: "Continue with Outlook",
          or_separator: "OR",
-         email_label: "Email address",
+         email_label: "Email address", // For registration
          password_label: "Password",
          confirm_password_label: "Confirm password",
          terms_agree: "I agree to the",
@@ -162,14 +163,15 @@ const translations = {
          privacy_link: "Privacy Policy",
          create_account_button: "Create my account",
          already_have_account: "Already have an account?",
-         login_link: "Login",
+         login_link: "Login", // Reused key
 
          // --- Page de connexion ---
          login_title: "Login to AiCalendy",
+         login_identifier_label: "Username or Email", // New label
          forgot_password: "Forgot password?",
-         login_button: "Login",
+         login_button: "Login", // Reused key
          no_account_yet: "No account yet?",
-         register_link: "Register for free",
+         register_link: "Register for free", // Reused key
     }
 };
 
@@ -205,6 +207,7 @@ export function setLanguage(lang) {
                 element.innerHTML = translationText;
             }
         } else {
+            // Avertit si une clé de traduction est manquante pour la langue actuelle
             console.warn(`Translation key "${key}" not found for language "${lang}". Element:`, element);
         }
     });

@@ -2,6 +2,7 @@
  * Fichier : js/modules/auth.js
  * Description : Gère la logique côté client pour les formulaires
  * de connexion et d'inscription, y compris l'appel à l'API backend.
+ * Utilise maintenant 'loginIdentifier' (identifiant ou email) pour la connexion.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -10,60 +11,67 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Logique pour le formulaire de connexion ---
     if (loginForm) {
-        loginForm.addEventListener('submit', async (event) => { // Ajout de 'async' pour utiliser 'await'
+        loginForm.addEventListener('submit', async (event) => { // Utilisation de async pour await
             event.preventDefault(); // Empêche l'envoi standard du formulaire
 
-            const email = loginForm.email.value;
+            // Lire la valeur du champ 'Identifiant ou Email'
+            const loginIdentifier = loginForm.loginIdentifier.value; // Utilise le nouvel ID/nom
             const password = loginForm.password.value;
             const submitButton = loginForm.querySelector('button[type="submit"]');
-            const originalButtonText = submitButton.textContent; // Sauvegarde texte initial
+            // Sauvegarde du texte original du bouton pour le restaurer après la requête
+            const originalButtonText = submitButton.textContent;
 
-            // Désactiver le bouton et afficher un indicateur de chargement (optionnel)
+            // Désactiver le bouton et afficher un état de chargement
             submitButton.disabled = true;
-            submitButton.textContent = 'Connexion...'; // Ou utiliser un spinner
+            submitButton.textContent = 'Connexion...'; // Texte temporaire pendant le chargement
 
-            console.log('Tentative de connexion avec:', { email, password });
+            console.log('Tentative de connexion avec:', { loginIdentifier, password: '***' }); // Ne pas afficher le mot de passe dans les logs
 
             try {
-                // --- Appel à l'API Backend ---
+                // Appel à l'API Backend pour la connexion
                 const response = await fetch('/api/login', { // URL de l'API backend
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json', // Indique qu'on envoie du JSON
                     },
-                    body: JSON.stringify({ email, password }) // Envoi des données en JSON
+                    // Envoyer l'identifiant (ou email) et le mot de passe
+                    body: JSON.stringify({ loginIdentifier, password })
                 });
 
-                const data = await response.json(); // Attend la réponse JSON du serveur
+                // Attendre et parser la réponse JSON du serveur
+                const data = await response.json();
 
-                if (response.ok && data.success) { // Vérifie si la requête HTTP est OK et si le backend renvoie success: true
+                // Vérifier si la requête HTTP a réussi (status 2xx) ET si le backend confirme le succès
+                if (response.ok && data.success) {
                     console.log('Connexion réussie:', data);
                     // --- Redirection vers le tableau de bord ---
                     window.location.href = 'dashboard_user.html';
-                    // Optionnel: stocker le token reçu (data.token) dans localStorage/sessionStorage
-                    // localStorage.setItem('authToken', data.token);
+                    // Optionnel: stocker le token reçu pour les futures requêtes authentifiées
+                    // if(data.token) {
+                    //     localStorage.setItem('authToken', data.token);
+                    // }
                 } else {
-                    // Afficher l'erreur renvoyée par le backend
+                    // Afficher le message d'erreur renvoyé par le backend ou un message générique
                     console.error('Erreur de connexion:', data.message);
-                    alert(`Erreur de connexion: ${data.message || 'Identifiants incorrects'}`); // Utiliser une meilleure UI qu'une alerte
+                    alert(`Erreur de connexion: ${data.message || 'Identifiant/Email ou mot de passe incorrect.'}`); // Remplacer alert par une meilleure UI
                 }
 
             } catch (error) {
-                // Gérer les erreurs réseau ou autres erreurs inattendues
-                console.error('Erreur lors de la tentative de connexion:', error);
-                alert('Une erreur réseau est survenue. Veuillez réessayer.'); // Utiliser une meilleure UI
+                // Gérer les erreurs réseau (serveur inaccessible, pas de connexion internet, etc.)
+                console.error('Erreur lors de la tentative de connexion (réseau ou autre):', error);
+                alert('Une erreur réseau est survenue. Veuillez réessayer.'); // Remplacer alert
             } finally {
-                 // Réactiver le bouton et restaurer le texte dans tous les cas
+                 // Dans tous les cas (succès ou échec), réactiver le bouton et restaurer son texte
                  submitButton.disabled = false;
                  submitButton.textContent = originalButtonText;
             }
-            // --- Fin de l'appel API ---
         });
     }
 
     // --- Logique pour le formulaire d'inscription ---
+    // Cette partie utilise toujours l'email pour l'inscription pour l'instant
     if (registerForm) {
-        registerForm.addEventListener('submit', async (event) => { // Ajout de 'async'
+        registerForm.addEventListener('submit', async (event) => { // Utilisation de async
             event.preventDefault();
 
             const email = registerForm.email.value;
@@ -73,30 +81,30 @@ document.addEventListener('DOMContentLoaded', () => {
             const submitButton = registerForm.querySelector('button[type="submit"]');
             const originalButtonText = submitButton.textContent;
 
-            console.log('Tentative d\'inscription avec:', { email, password: '***', confirmPassword: '***', termsAccepted }); // Ne pas logger les mots de passe
+            console.log('Tentative d\'inscription avec:', { email, password: '***', confirmPassword: '***', termsAccepted });
 
-            // --- Validation Côté Client ---
+            // Validations côté client basiques
             if (password !== confirmPassword) {
                 alert('Les mots de passe ne correspondent pas.'); // Remplacer alert
-                return;
+                return; // Arrêter si invalide
             }
             if (!termsAccepted) {
                  alert('Vous devez accepter les conditions d\'utilisation.'); // Remplacer alert
-                 return;
+                 return; // Arrêter si invalide
             }
-            // Ajouter d'autres validations si nécessaire (longueur mdp, format email...)
-            // --- Fin Validation ---
+            // Ajouter d'autres validations ici si nécessaire (ex: format email, force mdp)
 
              // Désactiver bouton / Afficher chargement
              submitButton.disabled = true;
              submitButton.textContent = 'Création...';
 
             try {
-                 // --- Appel à l'API Backend pour l'inscription ---
-                 const response = await fetch('/api/register', { // URL de l'API backend pour l'inscription
+                 // Appel à l'API Backend pour l'inscription
+                 const response = await fetch('/api/register', { // URL différente pour l'inscription
                      method: 'POST',
                      headers: { 'Content-Type': 'application/json' },
-                     body: JSON.stringify({ email, password }) // N'envoyer que le nécessaire
+                     // Envoyer email et mot de passe (le backend gère le reste)
+                     body: JSON.stringify({ email, password })
                  });
 
                  const data = await response.json();
@@ -104,23 +112,24 @@ document.addEventListener('DOMContentLoaded', () => {
                  if (response.ok && data.success) {
                      console.log('Inscription réussie:', data);
                      alert('Compte créé avec succès ! Vous pouvez maintenant vous connecter.'); // Remplacer alert
-                     // Rediriger vers la page de connexion
+                     // Rediriger vers la page de connexion après inscription réussie
                      window.location.href = 'connexion_account.html';
                  } else {
+                     // Afficher l'erreur du backend (ex: email déjà pris)
                      console.error('Erreur d\'inscription:', data.message);
                      alert(`Erreur d'inscription: ${data.message || 'Impossible de créer le compte'}`); // Remplacer alert
                  }
 
             } catch (error) {
-                 console.error('Erreur lors de la tentative d\'inscription:', error);
+                 // Gérer les erreurs réseau
+                 console.error('Erreur lors de la tentative d\'inscription (réseau ou autre):', error);
                  alert('Une erreur réseau est survenue lors de l\'inscription.'); // Remplacer alert
             } finally {
                  // Réactiver le bouton / Restaurer texte
                  submitButton.disabled = false;
                  submitButton.textContent = originalButtonText;
             }
-             // --- Fin Appel API ---
         });
     }
 
-}); // Fin de DOMContentLoaded
+}); // Fin de l'écouteur DOMContentLoaded
