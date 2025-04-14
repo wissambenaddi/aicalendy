@@ -9,14 +9,36 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Appliquer la police Inter par défaut */
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Style pour un dégradé subtil si souhaité */
         .hero-gradient {
-            background: linear-gradient(120deg, #f0f9ff 0%, #e0f2fe 100%); /* Exemple de dégradé bleu très clair */
+            background: linear-gradient(120deg, #f0f9ff 0%, #e0f2fe 100%);
         }
+        /* Style pour les boutons de langue actifs/inactifs */
+        .lang-btn {
+            cursor: pointer;
+            padding: 0.25rem; /* Réduit un peu le padding pour les drapeaux */
+            border-radius: 0.25rem;
+            /* font-weight: 500; Moins pertinent pour les images */
+            transition: background-color 0.2s, box-shadow 0.2s;
+            display: inline-flex; /* Pour bien contenir le SVG */
+            align-items: center;
+            justify-content: center;
+            border: 1px solid transparent; /* Bordure transparente par défaut */
+        }
+        .lang-btn.active {
+            /* background-color: #e0e7ff; /* Optionnel: fond pour le bouton actif */
+            box-shadow: 0 0 0 2px #4f46e5; /* Anneau indigo pour indiquer l'activité */
+        }
+        .lang-btn:not(.active):hover {
+             background-color: #f3f4f6; /* gray-100 */
+        }
+        /* Assurer que le SVG dans le bouton ne rétrécit pas */
+        .lang-btn svg {
+            flex-shrink: 0;
+        }
+
     </style>
 </head>
 <body class="bg-white text-gray-800">
@@ -28,10 +50,33 @@
             </a>
 
             <div class="flex items-center space-x-4">
-                 <a href="connexion_account.html" class="text-sm font-medium text-gray-600 hover:text-indigo-600">
+                 <div class="flex items-center space-x-2 border-r border-gray-300 pr-4 mr-2">
+                     <button id="lang-fr" class="lang-btn active" aria-label="Français">
+                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" class="w-6 h-4 rounded-sm">
+                           <rect width="3" height="2" fill="#fff"/>
+                           <rect width="1" height="2" fill="#002654"/>
+                           <rect width="1" height="2" x="2" fill="#ce1126"/>
+                         </svg>
+                     </button>
+                     <button id="lang-en" class="lang-btn" aria-label="English">
+                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" class="w-6 h-4 rounded-sm" fill="none">
+                            <clipPath id="a">
+                                <path d="M0 0h60v30H0z"/>
+                            </clipPath>
+                            <g clip-path="url(#a)">
+                                <path fill="#012169" d="M0 0h60v30H0z"/>
+                                <path stroke="#fff" stroke-width="6" d="m0 0 60 30m0-30L0 30"/>
+                                <path stroke="#C8102E" stroke-width="4" d="m0 0 60 30m0-30L0 30"/>
+                                <path fill="#fff" d="M30 0v30M0 15h60"/>
+                                <path stroke="#C8102E" stroke-width="6" d="M30 0v30M0 15h60"/>
+                            </g>
+                         </svg>
+                     </button>
+                 </div>
+                 <a href="connexion_account.html" class="text-sm font-medium text-gray-600 hover:text-indigo-600" data-translate-key="login">
                     Se connecter
                 </a>
-                 <a href="create_account.html" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                 <a href="create_account.html" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" data-translate-key="register">
                     S'enregistrer
                 </a>
             </div>
@@ -40,55 +85,52 @@
 
     <section class="py-20 md:py-32 hero-gradient">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 class="text-4xl md:text-6xl font-bold tracking-tight text-gray-900 mb-4">
+            <h1 class="text-4xl md:text-6xl font-bold tracking-tight text-gray-900 mb-4" data-translate-key="hero_title">
                 Simplifiez la planification de vos rendez-vous, quelle que soit votre activité.
             </h1>
-            <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+            <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-8" data-translate-key="hero_subtitle">
                 Créez des calendriers personnalisés pour vos entretiens, démos, consultations et plus encore, et laissez vos invités choisir leur créneau idéal.
             </p>
-            <a href="create_account.html" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10 shadow-lg transform transition hover:scale-105">
+            <a href="create_account.html" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10 shadow-lg transform transition hover:scale-105" data-translate-key="cta_try_free">
                 Essayer AiCalendy gratuitement
             </a>
             <div class="mt-12">
-                <img src="https://raw.githubusercontent.com/wissambenaddi/aicalendy/main/Visualaicalendy.jpg"
-                     alt="Illustration de AiCalendy en action"
-                     class="mx-auto rounded-lg shadow-xl max-w-2xl"
-                     onerror="this.onerror=null; this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Indisponible';">
-            </div>
+                 <img src="https://raw.githubusercontent.com/wissambenaddi/aicalendy/main/Visualaicalendy.jpg" alt="Illustration de AiCalendy en action" class="mx-auto rounded-lg shadow-xl max-w-2xl" onerror="this.onerror=null; this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Indisponible';">
+                 </div>
         </div>
     </section>
 
     <section id="how-it-works" class="py-16 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Comment ça marche ?</h2>
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-12" data-translate-key="how_it_works_title">Comment ça marche ?</h2>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
                 <div class="p-6 bg-white rounded-lg shadow-md">
                     <div class="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-100 text-indigo-600 mx-auto mb-4">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
                     </div>
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">1. Créer une catégorie</h3>
-                    <p class="text-gray-600">Définissez le type de rendez-vous (entretien, démo...).</p>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2" data-translate-key="step1_title">1. Créer une catégorie</h3>
+                    <p class="text-gray-600" data-translate-key="step1_desc">Définissez le type de rendez-vous (entretien, démo...).</p>
                 </div>
                 <div class="p-6 bg-white rounded-lg shadow-md">
                     <div class="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-100 text-indigo-600 mx-auto mb-4">
                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z" /></svg>
                     </div>
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">2. Définir ses disponibilités</h3>
-                    <p class="text-gray-600">Indiquez vos jours et heures libres pour cette catégorie.</p>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2" data-translate-key="step2_title">2. Définir ses disponibilités</h3>
+                    <p class="text-gray-600" data-translate-key="step2_desc">Indiquez vos jours et heures libres pour cette catégorie.</p>
                 </div>
                 <div class="p-6 bg-white rounded-lg shadow-md">
                     <div class="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-100 text-indigo-600 mx-auto mb-4">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" /></svg>
                     </div>
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">3. Partager le lien</h3>
-                    <p class="text-gray-600">Obtenez un lien unique à envoyer à vos invités.</p>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2" data-translate-key="step3_title">3. Partager le lien</h3>
+                    <p class="text-gray-600" data-translate-key="step3_desc">Obtenez un lien unique à envoyer à vos invités.</p>
                 </div>
                 <div class="p-6 bg-white rounded-lg shadow-md">
                      <div class="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-100 text-indigo-600 mx-auto mb-4">
                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
                      </div>
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">4. Recevoir les réservations</h3>
-                    <p class="text-gray-600">Les rendez-vous s'ajoutent automatiquement.</p>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2" data-translate-key="step4_title">4. Recevoir les réservations</h3>
+                    <p class="text-gray-600" data-translate-key="step4_desc">Les rendez-vous s'ajoutent automatiquement.</p>
                 </div>
             </div>
         </div>
@@ -96,15 +138,15 @@
 
     <section id="features" class="py-16 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-             <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Pourquoi choisir AiCalendy ?</h2>
+             <h2 class="text-3xl font-bold text-center text-gray-900 mb-12" data-translate-key="features_title">Pourquoi choisir AiCalendy ?</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                  <div class="flex items-start space-x-4">
                     <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-green-100 text-green-600">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" /></svg>
                     </div>
                     <div>
-                        <h3 class="text-lg font-medium text-gray-900">Flexibilité totale</h3>
-                        <p class="mt-1 text-gray-600">Créez autant de catégories de calendriers que nécessaire, adaptées à chaque besoin.</p>
+                        <h3 class="text-lg font-medium text-gray-900" data-translate-key="feature1_title">Flexibilité totale</h3>
+                        <p class="mt-1 text-gray-600" data-translate-key="feature1_desc">Créez autant de catégories de calendriers que nécessaire, adaptées à chaque besoin.</p>
                     </div>
                 </div>
                  <div class="flex items-start space-x-4">
@@ -112,8 +154,8 @@
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
                     </div>
                     <div>
-                        <h3 class="text-lg font-medium text-gray-900">Gain de temps considérable</h3>
-                        <p class="mt-1 text-gray-600">Éliminez les allers-retours pour trouver le bon créneau.</p>
+                        <h3 class="text-lg font-medium text-gray-900" data-translate-key="feature2_title">Gain de temps considérable</h3>
+                        <p class="mt-1 text-gray-600" data-translate-key="feature2_desc">Éliminez les allers-retours pour trouver le bon créneau.</p>
                     </div>
                 </div>
                  <div class="flex items-start space-x-4">
@@ -121,8 +163,8 @@
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
                     </div>
                     <div>
-                        <h3 class="text-lg font-medium text-gray-900">Expérience fluide pour vos invités</h3>
-                        <p class="mt-1 text-gray-600">Interface simple et intuitive pour choisir un créneau.</p>
+                        <h3 class="text-lg font-medium text-gray-900" data-translate-key="feature3_title">Expérience fluide pour vos invités</h3>
+                        <p class="mt-1 text-gray-600" data-translate-key="feature3_desc">Interface simple et intuitive pour choisir un créneau.</p>
                     </div>
                 </div>
                  <div class="flex items-start space-x-4">
@@ -130,8 +172,8 @@
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 0 0 2.25-2.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v2.25A2.25 2.25 0 0 0 6 10.5Zm0 9.75h2.25A2.25 2.25 0 0 0 10.5 18v-2.25a2.25 2.25 0 0 0-2.25-2.25H6a2.25 2.25 0 0 0-2.25 2.25V18A2.25 2.25 0 0 0 6 20.25Z" /></svg>
                     </div>
                     <div>
-                        <h3 class="text-lg font-medium text-gray-900">Intégration facile</h3>
-                        <p class="mt-1 text-gray-600">Connectez AiCalendy à vos calendriers existants (Google, Outlook...).</p>
+                        <h3 class="text-lg font-medium text-gray-900" data-translate-key="feature4_title">Intégration facile</h3>
+                        <p class="mt-1 text-gray-600" data-translate-key="feature4_desc">Connectez AiCalendy à vos calendriers existants (Google, Outlook...).</p>
                     </div>
                 </div>
                 <div class="flex items-start space-x-4">
@@ -139,8 +181,8 @@
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6h1.5m-1.5 3h1.5m-1.5 3h1.5M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" /></svg>
                     </div>
                     <div>
-                        <h3 class="text-lg font-medium text-gray-900">Adapté à tous les métiers</h3>
-                        <p class="mt-1 text-gray-600">Idéal pour les RH, la vente, le marketing, les consultants, etc.</p>
+                        <h3 class="text-lg font-medium text-gray-900" data-translate-key="feature5_title">Adapté à tous les métiers</h3>
+                        <p class="mt-1 text-gray-600" data-translate-key="feature5_desc">Idéal pour les RH, la vente, le marketing, les consultants, etc.</p>
                     </div>
                 </div>
             </div>
@@ -150,13 +192,13 @@
     <section class="bg-indigo-700">
         <div class="max-w-2xl mx-auto text-center py-16 px-4 sm:py-20 sm:px-6 lg:px-8">
             <h2 class="text-3xl font-bold sm:text-4xl text-white">
-                <span class="block">Prêt à simplifier votre planification ?</span>
+                <span class="block" data-translate-key="cta_bottom_title">Prêt à simplifier votre planification ?</span>
             </h2>
-             <p class="mt-4 text-lg leading-6 text-indigo-200">Rejoignez des milliers de professionnels qui gagnent du temps avec AiCalendy.</p>
-            <a href="create_account.html" class="mt-8 w-full inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-indigo-50 sm:w-auto">
+             <p class="mt-4 text-lg leading-6 text-indigo-200" data-translate-key="cta_bottom_subtitle">Rejoignez des milliers de professionnels qui gagnent du temps avec AiCalendy.</p>
+            <a href="create_account.html" class="mt-8 w-full inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-indigo-50 sm:w-auto" data-translate-key="cta_bottom_button1">
                  Démarrer mon essai gratuit
             </a>
-             <a href="#features" class="mt-4 sm:mt-8 w-full inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white hover:bg-indigo-600 sm:w-auto sm:ml-4">
+             <a href="#features" class="mt-4 sm:mt-8 w-full inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white hover:bg-indigo-600 sm:w-auto sm:ml-4" data-translate-key="cta_bottom_button2">
                  Découvrir les fonctionnalités
             </a>
         </div>
@@ -165,14 +207,127 @@
     <footer class="bg-gray-800">
         <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
             <div class="text-center">
-                 <p class="text-base text-gray-400">&copy; 2025 AiCalendy. Tous droits réservés.</p>
+                 <p class="text-base text-gray-400" data-translate-key="footer_copyright">&copy; 2025 AiCalendy. Tous droits réservés.</p>
                  <div class="mt-4 flex justify-center space-x-6">
-                     <a href="#" class="text-gray-400 hover:text-gray-300">Politique de confidentialité</a>
-                     <a href="#" class="text-gray-400 hover:text-gray-300">Conditions d'utilisation</a>
+                     <a href="#" class="text-gray-400 hover:text-gray-300" data-translate-key="footer_privacy">Politique de confidentialité</a>
+                     <a href="#" class="text-gray-400 hover:text-gray-300" data-translate-key="footer_terms">Conditions d'utilisation</a>
                  </div>
              </div>
          </div>
      </footer>
+
+     <script>
+        // 1. Définir les traductions
+        const translations = {
+            fr: {
+                login: "Se connecter",
+                register: "S'enregistrer",
+                hero_title: "Simplifiez la planification de vos rendez-vous, quelle que soit votre activité.",
+                hero_subtitle: "Créez des calendriers personnalisés pour vos entretiens, démos, consultations et plus encore, et laissez vos invités choisir leur créneau idéal.",
+                cta_try_free: "Essayer AiCalendy gratuitement",
+                how_it_works_title: "Comment ça marche ?",
+                step1_title: "1. Créer une catégorie",
+                step1_desc: "Définissez le type de rendez-vous (entretien, démo...).",
+                step2_title: "2. Définir ses disponibilités",
+                step2_desc: "Indiquez vos jours et heures libres pour cette catégorie.",
+                step3_title: "3. Partager le lien",
+                step3_desc: "Obtenez un lien unique à envoyer à vos invités.",
+                step4_title: "4. Recevoir les réservations",
+                step4_desc: "Les rendez-vous s'ajoutent automatiquement.",
+                features_title: "Pourquoi choisir AiCalendy ?",
+                feature1_title: "Flexibilité totale",
+                feature1_desc: "Créez autant de catégories de calendriers que nécessaire, adaptées à chaque besoin.",
+                feature2_title: "Gain de temps considérable",
+                feature2_desc: "Éliminez les allers-retours pour trouver le bon créneau.",
+                feature3_title: "Expérience fluide pour vos invités",
+                feature3_desc: "Interface simple et intuitive pour choisir un créneau.",
+                feature4_title: "Intégration facile",
+                feature4_desc: "Connectez AiCalendy à vos calendriers existants (Google, Outlook...).",
+                feature5_title: "Adapté à tous les métiers",
+                feature5_desc: "Idéal pour les RH, la vente, le marketing, les consultants, etc.",
+                cta_bottom_title: "Prêt à simplifier votre planification ?",
+                cta_bottom_subtitle: "Rejoignez des milliers de professionnels qui gagnent du temps avec AiCalendy.",
+                cta_bottom_button1: "Démarrer mon essai gratuit",
+                cta_bottom_button2: "Découvrir les fonctionnalités",
+                footer_copyright: "&copy; 2025 AiCalendy. Tous droits réservés.", // Attention: &copy; est une entité HTML
+                footer_privacy: "Politique de confidentialité",
+                footer_terms: "Conditions d'utilisation"
+            },
+            en: {
+                login: "Login",
+                register: "Register",
+                hero_title: "Simplify scheduling your appointments, whatever your business.",
+                hero_subtitle: "Create custom calendars for your interviews, demos, consultations, and more, and let your guests choose their ideal slot.",
+                cta_try_free: "Try AiCalendy for free",
+                how_it_works_title: "How does it work?",
+                step1_title: "1. Create a category",
+                step1_desc: "Define the type of appointment (interview, demo...).",
+                step2_title: "2. Set your availability",
+                step2_desc: "Indicate your available days and times for this category.",
+                step3_title: "3. Share the link",
+                step3_desc: "Get a unique link to send to your guests.",
+                step4_title: "4. Receive bookings",
+                step4_desc: "Appointments are added automatically.",
+                features_title: "Why choose AiCalendy?",
+                feature1_title: "Total flexibility",
+                feature1_desc: "Create as many calendar categories as needed, tailored to each requirement.",
+                feature2_title: "Significant time savings",
+                feature2_desc: "Eliminate back-and-forth emails to find the right time slot.",
+                feature3_title: "Smooth experience for your guests",
+                feature3_desc: "Simple and intuitive interface to choose a time slot.",
+                feature4_title: "Easy integration",
+                feature4_desc: "Connect AiCalendy to your existing calendars (Google, Outlook...).",
+                feature5_title: "Suitable for all professions",
+                feature5_desc: "Ideal for HR, sales, marketing, consultants, etc.",
+                cta_bottom_title: "Ready to simplify your scheduling?",
+                cta_bottom_subtitle: "Join thousands of professionals saving time with AiCalendy.",
+                cta_bottom_button1: "Start my free trial",
+                cta_bottom_button2: "Discover features",
+                footer_copyright: "&copy; 2025 AiCalendy. All rights reserved.",
+                footer_privacy: "Privacy Policy",
+                footer_terms: "Terms of Use"
+            }
+        };
+
+        // 2. Fonction pour changer la langue
+        function setLanguage(lang) {
+            // Met à jour l'attribut lang de la balise <html>
+            document.documentElement.setAttribute('lang', lang);
+
+            // Met à jour le style des boutons de langue
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`lang-${lang}`).classList.add('active');
+
+
+            // Sélectionne tous les éléments avec l'attribut data-translate-key
+            const elementsToTranslate = document.querySelectorAll('[data-translate-key]');
+
+            elementsToTranslate.forEach(element => {
+                const key = element.dataset.translateKey;
+                // Vérifie si la traduction existe pour cette clé et cette langue
+                if (translations[lang] && translations[lang][key]) {
+                    // Utilise innerHTML pour interpréter les entités HTML comme &copy;
+                    element.innerHTML = translations[lang][key];
+                }
+            });
+        }
+
+        // 3. Ajouter les écouteurs d'événements aux boutons
+        const btnFr = document.getElementById('lang-fr');
+        const btnEn = document.getElementById('lang-en');
+
+        if (btnFr && btnEn) {
+            btnFr.addEventListener('click', () => setLanguage('fr'));
+            btnEn.addEventListener('click', () => setLanguage('en'));
+        }
+
+        // Optionnel : Définir la langue initiale au chargement (par défaut 'fr' ici)
+        // Pour une solution plus robuste, vous pourriez vérifier le localStorage ou les préférences navigateur
+        // setLanguage('fr'); // Déjà en français par défaut dans le HTML initial
+
+     </script>
 
 </body>
 </html>
