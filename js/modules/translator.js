@@ -42,7 +42,6 @@ const translations = {
         footer_terms: "Conditions d'utilisation",
 
         // --- Dashboard ---
-        // (Traductions du dashboard conservées ici pour l'instant)
         sidebar_categories: "Mes Catégories",
         sidebar_appointments: "Mes Rendez-vous",
         sidebar_profile: "Mon Profil",
@@ -51,15 +50,20 @@ const translations = {
         header_role: "Administrateur",
         dashboard_title: "Mes Catégories de Rendez-vous",
         dashboard_create_category: "Créer une catégorie",
-        category1_title: "Entretien de Recrutement",
-        category1_desc: "Session de 45 minutes pour évaluer les candidats.",
-        category2_title: "Démonstration Produit",
-        category2_desc: "Présentation interactive de 30 minutes.",
+        category1_title: "Entretien de Recrutement", // Exemple
+        category1_desc: "Session de 45 minutes pour évaluer les candidats.", // Exemple
+        category2_title: "Démonstration Produit", // Exemple
+        category2_desc: "Présentation interactive de 30 minutes.", // Exemple
         card_actions: "Actions :",
+        // Clés pour les boutons d'action (utilisées pour title et aria-label)
         action_copy_link: "Copier le lien",
         action_view_appointments: "Voir les rendez-vous",
         action_edit: "Modifier",
         action_delete: "Supprimer",
+        // Clés pour message si vide (si ajoutées au HTML)
+        // no_categories_title: "Aucune catégorie trouvée",
+        // no_categories_desc: "Commencez par créer votre première catégorie de rendez-vous.",
+        // no_categories_button: "Nouvelle Catégorie",
     },
     en: {
         // --- Landing Page ---
@@ -97,7 +101,6 @@ const translations = {
         footer_terms: "Terms of Use",
 
          // --- Dashboard ---
-         // (Dashboard translations kept here for now)
          sidebar_categories: "My Categories",
          sidebar_appointments: "My Appointments",
          sidebar_profile: "My Profile",
@@ -106,15 +109,20 @@ const translations = {
          header_role: "Administrator",
          dashboard_title: "My Appointment Categories",
          dashboard_create_category: "Create category",
-         category1_title: "Recruitment Interview",
-         category1_desc: "45-minute session to evaluate candidates.",
-         category2_title: "Product Demonstration",
-         category2_desc: "30-minute interactive presentation.",
+         category1_title: "Recruitment Interview", // Example
+         category1_desc: "45-minute session to evaluate candidates.", // Example
+         category2_title: "Product Demonstration", // Example
+         category2_desc: "30-minute interactive presentation.", // Example
          card_actions: "Actions:",
+         // Clés pour les boutons d'action (utilisées pour title et aria-label)
          action_copy_link: "Copy link",
          action_view_appointments: "View appointments",
          action_edit: "Edit",
          action_delete: "Delete",
+         // Clés pour message si vide (si ajoutées au HTML)
+         // no_categories_title: "No categories found",
+         // no_categories_desc: "Get started by creating your first appointment category.",
+         // no_categories_button: "New Category",
     }
 };
 
@@ -130,6 +138,7 @@ export function setLanguage(lang) {
 
     document.documentElement.setAttribute('lang', lang);
 
+    // Met à jour le style des boutons de langue
     const langButtons = document.querySelectorAll('.lang-btn');
     langButtons.forEach(btn => {
         btn.classList.remove('active');
@@ -139,12 +148,27 @@ export function setLanguage(lang) {
         activeBtn.classList.add('active');
     }
 
+    // Sélectionne tous les éléments ayant une clé de traduction
     const elementsToTranslate = document.querySelectorAll('[data-translate-key]');
+
     elementsToTranslate.forEach(element => {
         const key = element.dataset.translateKey;
-        if (translations[lang][key] !== undefined) {
-            element.innerHTML = translations[lang][key];
+        const translationText = translations[lang][key];
+
+        if (translationText !== undefined) {
+            // === MODIFICATION ICI ===
+            // Si la clé commence par "action_", on met à jour title et aria-label
+            // au lieu de remplacer le contenu (pour préserver les icônes SVG)
+            if (key.startsWith('action_')) {
+                element.setAttribute('title', translationText);
+                element.setAttribute('aria-label', translationText);
+                // On ne modifie PAS element.innerHTML pour ces boutons
+            } else {
+                // Pour tous les autres éléments, on met à jour le contenu HTML
+                element.innerHTML = translationText;
+            }
         } else {
+            // Avertit si une clé de traduction est manquante pour la langue actuelle
             console.warn(`Translation key "${key}" not found for language "${lang}".`);
         }
     });
@@ -182,20 +206,15 @@ export function initLanguageSwitcher() {
          document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
          initialActiveBtn.classList.add('active');
      }
-     // Optionnel: Appeler setLanguage au chargement pour garantir la cohérence initiale
-     // setLanguage(initialLang);
 }
 
 // --- Initialisation ---
-// === MODIFIÉ ===
 // On attend que le DOM soit complètement chargé avant d'attacher les écouteurs.
-// C'est une approche plus sûre.
 document.addEventListener('DOMContentLoaded', () => {
     initLanguageSwitcher();
     // Optionnel: Appeler setLanguage ici si vous voulez forcer la traduction
     // initiale basée sur l'attribut lang du HTML au chargement.
-    // const initialLang = document.documentElement.lang || 'fr';
-    // setLanguage(initialLang);
+    const initialLang = document.documentElement.lang || 'fr';
+    setLanguage(initialLang); // Appelons-le pour assurer la cohérence initiale des titles/aria-labels
 });
 
-// L'appel direct 'initLanguageSwitcher();' a été supprimé d'ici.
