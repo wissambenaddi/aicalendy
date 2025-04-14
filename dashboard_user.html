@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
-<head>
+<html lang="fr"> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tableau de Bord - AiCalendy</title>
@@ -9,16 +8,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Appliquer la police Inter par défaut */
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f9fafb; /* gray-50 */
         }
-        /* Style pour s'assurer que le contenu principal prend la hauteur restante */
         .main-content-height {
-             height: calc(100vh - 4rem); /* 100% de la hauteur de la vue moins la hauteur de l'en-tête */
+             height: calc(100vh - 4rem);
         }
-        /* Style pour la barre de navigation active */
         .sidebar-link.active {
             background-color: #eef2ff; /* indigo-100 */
             color: #4f46e5; /* indigo-600 */
@@ -27,8 +23,8 @@
         .sidebar-link {
             display: flex;
             align-items: center;
-            padding: 0.75rem 1rem; /* py-3 px-4 */
-            border-radius: 0.375rem; /* rounded-md */
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
             color: #374151; /* gray-700 */
             transition: background-color 0.2s, color 0.2s;
         }
@@ -37,67 +33,108 @@
              color: #1f2937; /* gray-800 */
         }
         .sidebar-link svg {
-             margin-right: 0.75rem; /* mr-3 */
-             height: 1.25rem; /* h-5 */
-             width: 1.25rem; /* w-5 */
+             margin-right: 0.75rem;
+             height: 1.25rem;
+             width: 1.25rem;
              color: #6b7280; /* gray-500 */
         }
          .sidebar-link.active svg {
              color: #4f46e5; /* indigo-600 */
          }
+         /* Styles pour les boutons de langue (copiés depuis landing page) */
+        .lang-btn {
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 0.25rem;
+            transition: background-color 0.2s, box-shadow 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid transparent;
+        }
+        .lang-btn.active {
+            box-shadow: 0 0 0 2px #4f46e5;
+        }
+        .lang-btn:not(.active):hover {
+             background-color: #f3f4f6;
+        }
+        .lang-btn svg {
+            flex-shrink: 0;
+            /* Retiré margin-right spécifique aux icônes de sidebar */
+        }
     </style>
 </head>
 <body class="flex h-screen overflow-hidden">
 
     <aside class="w-64 bg-white border-r border-gray-200 flex flex-col fixed inset-y-0 left-0 z-10">
-        <div class="h-16 flex items-center justify-center border-b border-gray-200 flex-shrink-0 px-4">
-             <span class="text-2xl font-bold text-indigo-600">AiCalendy</span>
-             </div>
-
-        <nav class="flex-grow p-4 space-y-2 overflow-y-auto">
+        <div class="h-16 border-b border-gray-200 flex-shrink-0"></div> <nav class="flex-grow p-4 space-y-2 overflow-y-auto">
             <a href="#" class="sidebar-link active">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
-                Mes Catégories
+                <span data-translate-key="sidebar_categories">Mes Catégories</span>
             </a>
             <a href="#" class="sidebar-link">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>
-                Mes Rendez-vous
+                <span data-translate-key="sidebar_appointments">Mes Rendez-vous</span>
             </a>
             <a href="#" class="sidebar-link">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
-                Mon Profil
+                <span data-translate-key="sidebar_profile">Mon Profil</span>
             </a>
         </nav>
 
         <div class="p-4 border-t border-gray-200 mt-auto">
             <a href="#" class="sidebar-link">
                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" /></svg>
-                Se déconnecter
+                <span data-translate-key="sidebar_logout">Se déconnecter</span>
             </a>
         </div>
     </aside>
 
-    <div class="flex-1 flex flex-col ml-64"> <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-end px-6 flex-shrink-0">
-            <div class="flex items-center space-x-3">
-                 <img class="h-8 w-8 rounded-full object-cover" src="https://placehold.co/40x40/e0e7ff/4f46e5?text=AV" alt="Avatar utilisateur">
-                <div>
-                    <div class="text-sm font-medium text-gray-900">Nom Utilisateur</div>
-                    <div class="text-xs text-gray-500">Administrateur</div>
+    <div class="flex-1 flex flex-col ml-64">
+
+        <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 flex-shrink-0">
+             <a href="#" class="text-2xl font-bold text-indigo-600">
+                AiCalendy
+            </a>
+
+            <div class="flex items-center space-x-4">
+                 <div class="flex items-center space-x-2">
+                     <button id="lang-fr" class="lang-btn active" aria-label="Français">
+                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" class="w-6 h-4 rounded-sm">
+                           <rect width="3" height="2" fill="#fff"/>
+                           <rect width="1" height="2" fill="#002654"/>
+                           <rect width="1" height="2" x="2" fill="#ce1126"/>
+                         </svg>
+                     </button>
+                     <button id="lang-en" class="lang-btn" aria-label="English">
+                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" class="w-6 h-4 rounded-sm" fill="none">
+                            <clipPath id="b"> <path d="M0 0h60v30H0z"/> </clipPath>
+                            <g clip-path="url(#b)"> <path fill="#012169" d="M0 0h60v30H0z"/> <path stroke="#fff" stroke-width="6" d="m0 0 60 30m0-30L0 30"/> <path stroke="#C8102E" stroke-width="4" d="m0 0 60 30m0-30L0 30"/> <path fill="#fff" d="M30 0v30M0 15h60"/> <path stroke="#C8102E" stroke-width="6" d="M30 0v30M0 15h60"/> </g>
+                         </svg>
+                     </button>
+                 </div>
+                 <div class="h-6 w-px bg-gray-300"></div>
+                 <div class="flex items-center space-x-3">
+                    <img class="h-8 w-8 rounded-full object-cover" src="https://placehold.co/40x40/e0e7ff/4f46e5?text=AV" alt="Avatar utilisateur">
+                    <div>
+                        <div class="text-sm font-medium text-gray-900" data-translate-key="header_username">Nom Utilisateur</div>
+                        <div class="text-xs text-gray-500" data-translate-key="header_role">Administrateur</div>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-gray-400 cursor-pointer">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                    </svg>
                 </div>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-gray-400 cursor-pointer">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                </svg>
-                </div>
+            </div>
         </header>
 
         <main class="flex-1 overflow-y-auto p-6 md:p-8">
             <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Mes Catégories de Rendez-vous</h1>
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-900" data-translate-key="dashboard_title">Mes Catégories de Rendez-vous</h1>
                 <button class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-800 focus:outline-none focus:border-indigo-800 focus:ring focus:ring-indigo-300 disabled:opacity-25 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 mr-2 -ml-1">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
-                    Créer une catégorie
+                    <span data-translate-key="dashboard_create_category">Créer une catégorie</span>
                 </button>
             </div>
 
@@ -105,22 +142,22 @@
 
                 <div class="bg-white rounded-lg shadow-md overflow-hidden">
                     <div class="p-5">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-1">Entretien de Recrutement</h3>
-                        <p class="text-sm text-gray-600 mb-4">Session de 45 minutes pour évaluer les candidats.</p>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-1" data-translate-key="category1_title">Entretien de Recrutement</h3>
+                        <p class="text-sm text-gray-600 mb-4" data-translate-key="category1_desc">Session de 45 minutes pour évaluer les candidats.</p>
                     </div>
                     <div class="bg-gray-50 px-5 py-3 flex items-center justify-between space-x-2 border-t border-gray-200">
-                        <span class="text-xs text-gray-500">Actions :</span>
+                        <span class="text-xs text-gray-500" data-translate-key="card_actions">Actions :</span>
                         <div class="flex space-x-2">
-                            <button title="Copier le lien" class="p-1 text-gray-500 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded-full hover:bg-gray-100">
+                            <button title="Copier le lien" data-translate-key="action_copy_link" aria-label="Copier le lien" class="p-1 text-gray-500 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded-full hover:bg-gray-100">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" /></svg>
                             </button>
-                             <button title="Voir les rendez-vous" class="p-1 text-gray-500 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded-full hover:bg-gray-100">
+                             <button title="Voir les rendez-vous" data-translate-key="action_view_appointments" aria-label="Voir les rendez-vous" class="p-1 text-gray-500 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded-full hover:bg-gray-100">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>
                             </button>
-                            <button title="Modifier" class="p-1 text-gray-500 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded-full hover:bg-gray-100">
+                            <button title="Modifier" data-translate-key="action_edit" aria-label="Modifier" class="p-1 text-gray-500 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded-full hover:bg-gray-100">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" /></svg>
                             </button>
-                            <button title="Supprimer" class="p-1 text-red-500 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 rounded-full hover:bg-red-50">
+                            <button title="Supprimer" data-translate-key="action_delete" aria-label="Supprimer" class="p-1 text-red-500 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 rounded-full hover:bg-red-50">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>
                             </button>
                         </div>
@@ -129,31 +166,32 @@
 
                  <div class="bg-white rounded-lg shadow-md overflow-hidden">
                     <div class="p-5">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-1">Démonstration Produit</h3>
-                        <p class="text-sm text-gray-600 mb-4">Présentation interactive de 30 minutes.</p>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-1" data-translate-key="category2_title">Démonstration Produit</h3>
+                        <p class="text-sm text-gray-600 mb-4" data-translate-key="category2_desc">Présentation interactive de 30 minutes.</p>
                     </div>
                      <div class="bg-gray-50 px-5 py-3 flex items-center justify-between space-x-2 border-t border-gray-200">
-                        <span class="text-xs text-gray-500">Actions :</span>
+                        <span class="text-xs text-gray-500" data-translate-key="card_actions">Actions :</span>
                          <div class="flex space-x-2">
-                            <button title="Copier le lien" class="p-1 text-gray-500 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded-full hover:bg-gray-100">
+                             <button title="Copier le lien" data-translate-key="action_copy_link" aria-label="Copier le lien" class="p-1 text-gray-500 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded-full hover:bg-gray-100">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" /></svg>
                             </button>
-                             <button title="Voir les rendez-vous" class="p-1 text-gray-500 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded-full hover:bg-gray-100">
+                             <button title="Voir les rendez-vous" data-translate-key="action_view_appointments" aria-label="Voir les rendez-vous" class="p-1 text-gray-500 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded-full hover:bg-gray-100">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>
                             </button>
-                            <button title="Modifier" class="p-1 text-gray-500 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded-full hover:bg-gray-100">
+                            <button title="Modifier" data-translate-key="action_edit" aria-label="Modifier" class="p-1 text-gray-500 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded-full hover:bg-gray-100">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" /></svg>
                             </button>
-                            <button title="Supprimer" class="p-1 text-red-500 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 rounded-full hover:bg-red-50">
+                            <button title="Supprimer" data-translate-key="action_delete" aria-label="Supprimer" class="p-1 text-red-500 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 rounded-full hover:bg-red-50">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>
                             </button>
                         </div>
                     </div>
                 </div>
-
                 </div>
         </main>
     </div>
+
+    <script src="translate.js" defer></script>
 
 </body>
 </html>
