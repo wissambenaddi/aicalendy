@@ -6,6 +6,7 @@
 // 1. Définir les traductions pour chaque clé et chaque langue supportée
 const translations = {
     fr: {
+        // --- Landing Page ---
         login: "Se connecter",
         register: "S'enregistrer",
         hero_title: "Simplifiez la planification de vos rendez-vous, quelle que soit votre activité.",
@@ -35,11 +36,36 @@ const translations = {
         cta_bottom_subtitle: "Rejoignez des milliers de professionnels qui gagnent du temps avec AiCalendy.",
         cta_bottom_button1: "Démarrer mon essai gratuit",
         cta_bottom_button2: "Découvrir les fonctionnalités",
-        footer_copyright: "&copy; 2025 AiCalendy. Tous droits réservés.", // Utilise innerHTML, donc l'entité fonctionne
+        footer_copyright: "&copy; 2025 AiCalendy. Tous droits réservés.",
         footer_privacy: "Politique de confidentialité",
-        footer_terms: "Conditions d'utilisation"
+        footer_terms: "Conditions d'utilisation",
+
+        // --- Dashboard ---
+        sidebar_categories: "Mes Catégories",
+        sidebar_appointments: "Mes Rendez-vous",
+        sidebar_profile: "Mon Profil",
+        sidebar_logout: "Se déconnecter",
+        header_username: "Nom Utilisateur", // Remplacer par la vraie donnée si possible
+        header_role: "Administrateur", // Remplacer par la vraie donnée si possible
+        dashboard_title: "Mes Catégories de Rendez-vous",
+        dashboard_create_category: "Créer une catégorie",
+        category1_title: "Entretien de Recrutement", // Exemple
+        category1_desc: "Session de 45 minutes pour évaluer les candidats.", // Exemple
+        category2_title: "Démonstration Produit", // Exemple
+        category2_desc: "Présentation interactive de 30 minutes.", // Exemple
+        card_actions: "Actions :",
+        action_copy_link: "Copier le lien",
+        action_view_appointments: "Voir les rendez-vous",
+        action_edit: "Modifier",
+        action_delete: "Supprimer",
+        // Clé pour le message si aucune catégorie (à ajouter dans le HTML si nécessaire)
+        // no_categories_title: "Aucune catégorie trouvée",
+        // no_categories_desc: "Commencez par créer votre première catégorie de rendez-vous.",
+        // no_categories_button: "Nouvelle Catégorie",
+
     },
     en: {
+        // --- Landing Page ---
         login: "Login",
         register: "Register",
         hero_title: "Simplify scheduling your appointments, whatever your business.",
@@ -71,7 +97,30 @@ const translations = {
         cta_bottom_button2: "Discover features",
         footer_copyright: "&copy; 2025 AiCalendy. All rights reserved.",
         footer_privacy: "Privacy Policy",
-        footer_terms: "Terms of Use"
+        footer_terms: "Terms of Use",
+
+         // --- Dashboard ---
+         sidebar_categories: "My Categories",
+         sidebar_appointments: "My Appointments",
+         sidebar_profile: "My Profile",
+         sidebar_logout: "Logout",
+         header_username: "User Name", // Replace with real data if possible
+         header_role: "Administrator", // Replace with real data if possible
+         dashboard_title: "My Appointment Categories",
+         dashboard_create_category: "Create category",
+         category1_title: "Recruitment Interview", // Example
+         category1_desc: "45-minute session to evaluate candidates.", // Example
+         category2_title: "Product Demonstration", // Example
+         category2_desc: "30-minute interactive presentation.", // Example
+         card_actions: "Actions:",
+         action_copy_link: "Copy link",
+         action_view_appointments: "View appointments",
+         action_edit: "Edit",
+         action_delete: "Delete",
+         // Key for the message if no categories (to be added in HTML if needed)
+         // no_categories_title: "No categories found",
+         // no_categories_desc: "Get started by creating your first appointment category.",
+         // no_categories_button: "New Category",
     }
 };
 
@@ -109,39 +158,43 @@ function setLanguage(lang) {
             // Utilise innerHTML pour permettre l'interprétation des entités HTML (ex: &copy;)
             element.innerHTML = translations[lang][key];
         } else {
+            // Avertit si une clé de traduction est manquante pour la langue actuelle
             console.warn(`Translation key "${key}" not found for language "${lang}".`);
         }
     });
 }
 
 // 3. Ajouter les écouteurs d'événements aux boutons une fois le DOM chargé
-// Utilisation de DOMContentLoaded pour s'assurer que les boutons existent
 document.addEventListener('DOMContentLoaded', () => {
     const btnFr = document.getElementById('lang-fr');
     const btnEn = document.getElementById('lang-en');
 
     if (btnFr) {
-        btnFr.addEventListener('click', () => setLanguage('fr'));
+        btnFr.addEventListener('click', (e) => {
+            e.preventDefault(); // Empêche le comportement par défaut si c'est un lien
+            setLanguage('fr');
+        });
     } else {
-         console.warn("Button with id 'lang-fr' not found.");
+         console.warn("Button/link with id 'lang-fr' not found.");
     }
 
     if (btnEn) {
-        btnEn.addEventListener('click', () => setLanguage('en'));
+        btnEn.addEventListener('click', (e) => {
+            e.preventDefault(); // Empêche le comportement par défaut si c'est un lien
+            setLanguage('en');
+        });
     } else {
-         console.warn("Button with id 'lang-en' not found.");
+         console.warn("Button/link with id 'lang-en' not found.");
     }
 
-    // Optionnel : Définir la langue initiale au chargement.
-    // Ici, on pourrait vérifier une préférence stockée (localStorage) ou la langue du navigateur.
-    // Par défaut, on suppose que le HTML est en français, donc on active le bouton FR visuellement.
-    // Si le HTML initial était en anglais, il faudrait appeler setLanguage('en') ici.
-    const initialLang = document.documentElement.lang || 'fr'; // Prend la langue du HTML ou 'fr' par défaut
+    // Gère l'état actif initial basé sur la langue du HTML
+    const initialLang = document.documentElement.lang || 'fr';
     const initialActiveBtn = document.getElementById(`lang-${initialLang}`);
      if (initialActiveBtn) {
-         // S'assure que seul le bouton initial est actif visuellement au cas où le HTML change
          document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
          initialActiveBtn.classList.add('active');
      }
-     // Note: Pas besoin d'appeler setLanguage() ici si le HTML est déjà dans la langue par défaut.
+     // Appelle setLanguage une fois au chargement pour s'assurer que le contenu correspond à la langue initiale
+     // (utile si le HTML par défaut n'est pas en 'fr' ou pour rafraîchir le contenu)
+     // setLanguage(initialLang); // Décommenter si nécessaire
 });
