@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
-<head>
+<html lang="fr"> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AiCalendy - Simplifiez vos prises de rendez-vous</title>
@@ -15,30 +14,25 @@
         .hero-gradient {
             background: linear-gradient(120deg, #f0f9ff 0%, #e0f2fe 100%);
         }
-        /* Style pour les boutons de langue actifs/inactifs */
         .lang-btn {
             cursor: pointer;
-            padding: 0.25rem; /* Réduit un peu le padding pour les drapeaux */
+            padding: 0.25rem;
             border-radius: 0.25rem;
-            /* font-weight: 500; Moins pertinent pour les images */
             transition: background-color 0.2s, box-shadow 0.2s;
-            display: inline-flex; /* Pour bien contenir le SVG */
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid transparent; /* Bordure transparente par défaut */
+            border: 1px solid transparent;
         }
         .lang-btn.active {
-            /* background-color: #e0e7ff; /* Optionnel: fond pour le bouton actif */
-            box-shadow: 0 0 0 2px #4f46e5; /* Anneau indigo pour indiquer l'activité */
+            box-shadow: 0 0 0 2px #4f46e5;
         }
         .lang-btn:not(.active):hover {
-             background-color: #f3f4f6; /* gray-100 */
+             background-color: #f3f4f6;
         }
-        /* Assurer que le SVG dans le bouton ne rétrécit pas */
         .lang-btn svg {
             flex-shrink: 0;
         }
-
     </style>
 </head>
 <body class="bg-white text-gray-800">
@@ -216,118 +210,7 @@
          </div>
      </footer>
 
-     <script>
-        // 1. Définir les traductions
-        const translations = {
-            fr: {
-                login: "Se connecter",
-                register: "S'enregistrer",
-                hero_title: "Simplifiez la planification de vos rendez-vous, quelle que soit votre activité.",
-                hero_subtitle: "Créez des calendriers personnalisés pour vos entretiens, démos, consultations et plus encore, et laissez vos invités choisir leur créneau idéal.",
-                cta_try_free: "Essayer AiCalendy gratuitement",
-                how_it_works_title: "Comment ça marche ?",
-                step1_title: "1. Créer une catégorie",
-                step1_desc: "Définissez le type de rendez-vous (entretien, démo...).",
-                step2_title: "2. Définir ses disponibilités",
-                step2_desc: "Indiquez vos jours et heures libres pour cette catégorie.",
-                step3_title: "3. Partager le lien",
-                step3_desc: "Obtenez un lien unique à envoyer à vos invités.",
-                step4_title: "4. Recevoir les réservations",
-                step4_desc: "Les rendez-vous s'ajoutent automatiquement.",
-                features_title: "Pourquoi choisir AiCalendy ?",
-                feature1_title: "Flexibilité totale",
-                feature1_desc: "Créez autant de catégories de calendriers que nécessaire, adaptées à chaque besoin.",
-                feature2_title: "Gain de temps considérable",
-                feature2_desc: "Éliminez les allers-retours pour trouver le bon créneau.",
-                feature3_title: "Expérience fluide pour vos invités",
-                feature3_desc: "Interface simple et intuitive pour choisir un créneau.",
-                feature4_title: "Intégration facile",
-                feature4_desc: "Connectez AiCalendy à vos calendriers existants (Google, Outlook...).",
-                feature5_title: "Adapté à tous les métiers",
-                feature5_desc: "Idéal pour les RH, la vente, le marketing, les consultants, etc.",
-                cta_bottom_title: "Prêt à simplifier votre planification ?",
-                cta_bottom_subtitle: "Rejoignez des milliers de professionnels qui gagnent du temps avec AiCalendy.",
-                cta_bottom_button1: "Démarrer mon essai gratuit",
-                cta_bottom_button2: "Découvrir les fonctionnalités",
-                footer_copyright: "&copy; 2025 AiCalendy. Tous droits réservés.", // Attention: &copy; est une entité HTML
-                footer_privacy: "Politique de confidentialité",
-                footer_terms: "Conditions d'utilisation"
-            },
-            en: {
-                login: "Login",
-                register: "Register",
-                hero_title: "Simplify scheduling your appointments, whatever your business.",
-                hero_subtitle: "Create custom calendars for your interviews, demos, consultations, and more, and let your guests choose their ideal slot.",
-                cta_try_free: "Try AiCalendy for free",
-                how_it_works_title: "How does it work?",
-                step1_title: "1. Create a category",
-                step1_desc: "Define the type of appointment (interview, demo...).",
-                step2_title: "2. Set your availability",
-                step2_desc: "Indicate your available days and times for this category.",
-                step3_title: "3. Share the link",
-                step3_desc: "Get a unique link to send to your guests.",
-                step4_title: "4. Receive bookings",
-                step4_desc: "Appointments are added automatically.",
-                features_title: "Why choose AiCalendy?",
-                feature1_title: "Total flexibility",
-                feature1_desc: "Create as many calendar categories as needed, tailored to each requirement.",
-                feature2_title: "Significant time savings",
-                feature2_desc: "Eliminate back-and-forth emails to find the right time slot.",
-                feature3_title: "Smooth experience for your guests",
-                feature3_desc: "Simple and intuitive interface to choose a time slot.",
-                feature4_title: "Easy integration",
-                feature4_desc: "Connect AiCalendy to your existing calendars (Google, Outlook...).",
-                feature5_title: "Suitable for all professions",
-                feature5_desc: "Ideal for HR, sales, marketing, consultants, etc.",
-                cta_bottom_title: "Ready to simplify your scheduling?",
-                cta_bottom_subtitle: "Join thousands of professionals saving time with AiCalendy.",
-                cta_bottom_button1: "Start my free trial",
-                cta_bottom_button2: "Discover features",
-                footer_copyright: "&copy; 2025 AiCalendy. All rights reserved.",
-                footer_privacy: "Privacy Policy",
-                footer_terms: "Terms of Use"
-            }
-        };
-
-        // 2. Fonction pour changer la langue
-        function setLanguage(lang) {
-            // Met à jour l'attribut lang de la balise <html>
-            document.documentElement.setAttribute('lang', lang);
-
-            // Met à jour le style des boutons de langue
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.getElementById(`lang-${lang}`).classList.add('active');
-
-
-            // Sélectionne tous les éléments avec l'attribut data-translate-key
-            const elementsToTranslate = document.querySelectorAll('[data-translate-key]');
-
-            elementsToTranslate.forEach(element => {
-                const key = element.dataset.translateKey;
-                // Vérifie si la traduction existe pour cette clé et cette langue
-                if (translations[lang] && translations[lang][key]) {
-                    // Utilise innerHTML pour interpréter les entités HTML comme &copy;
-                    element.innerHTML = translations[lang][key];
-                }
-            });
-        }
-
-        // 3. Ajouter les écouteurs d'événements aux boutons
-        const btnFr = document.getElementById('lang-fr');
-        const btnEn = document.getElementById('lang-en');
-
-        if (btnFr && btnEn) {
-            btnFr.addEventListener('click', () => setLanguage('fr'));
-            btnEn.addEventListener('click', () => setLanguage('en'));
-        }
-
-        // Optionnel : Définir la langue initiale au chargement (par défaut 'fr' ici)
-        // Pour une solution plus robuste, vous pourriez vérifier le localStorage ou les préférences navigateur
-        // setLanguage('fr'); // Déjà en français par défaut dans le HTML initial
-
-     </script>
+     <script src="translate.js" defer></script>
 
 </body>
-</html>
+</ht
