@@ -1,0 +1,41 @@
+/* css/pages/auth.css */
+/* Styles spécifiques aux pages de connexion et d'inscription */
+
+/* Styles de base pour le body sur ces pages */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f9fafb; /* bg-gray-50 */
+    /* Ajout pour correspondre au flex de la page */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+/* Styles pour les boutons de connexion sociale */
+.social-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0.75rem 1rem; /* py-3 px-4 */
+    border: 1px solid #d1d5db; /* border-gray-300 */
+    border-radius: 0.375rem; /* rounded-md */
+    background-color: white;
+    font-weight: 500; /* font-medium */
+    color: #374151; /* text-gray-700 */
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+    transition: background-color 0.2s;
+}
+
+.social-btn:hover {
+    background-color: #f9fafb; /* hover:bg-gray-50 */
+}
+
+.social-btn svg {
+    margin-right: 0.75rem; /* mr-3 */
+    height: 1.25rem; /* h-5 */
+    width: 1.25rem; /* w-5 */
+}
+
+/* Ajoutez ici d'autres styles spécifiques à l'authentification si nécessaire */
