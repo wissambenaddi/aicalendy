@@ -89,6 +89,12 @@ const translations = {
         no_account_yet: "Pas encore de compte ?",
         register_link: "S'inscrire gratuitement",
 
+        // --- Modale de déconnexion ---
+        logout_confirm_title: "Confirmation de déconnexion",
+        logout_confirm_text: "Êtes-vous sûr de vouloir vous déconnecter ?",
+        logout_confirm_button: "Continuer",
+        logout_cancel_button: "Annuler",
+
     },
     en: {
         // --- Landing Page ---
@@ -172,6 +178,12 @@ const translations = {
          login_button: "Login", // Reused key
          no_account_yet: "No account yet?",
          register_link: "Register for free", // Reused key
+
+         // --- Modale de déconnexion ---
+         logout_confirm_title: "Logout Confirmation",
+         logout_confirm_text: "Are you sure you want to log out?",
+         logout_confirm_button: "Continue",
+         logout_cancel_button: "Cancel",
     }
 };
 
@@ -242,3 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const initialLang = document.documentElement.lang || 'fr';
     setLanguage(initialLang);
 });
+
+// Exporter la fonction setLanguage si elle doit être appelée depuis d'autres modules
+// (comme dashboard.js pour mettre à jour le titre H1 dynamiquement)
+// export { setLanguage }; // Décommentez si nécessaire
