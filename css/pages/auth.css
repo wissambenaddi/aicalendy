@@ -5,11 +5,12 @@
 body {
     font-family: 'Inter', sans-serif;
     background-color: #f9fafb; /* bg-gray-50 */
-    /* Ajout pour correspondre au flex de la page */
+    /* Centre la carte verticalement et horizontalement */
     display: flex;
     align-items: center;
     justify-content: center;
     min-height: 100vh;
+    padding: 1rem; /* Ajoute un peu d'espace si la carte est grande */
 }
 
 /* Styles pour les boutons de connexion sociale */
@@ -27,15 +28,51 @@ body {
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
     transition: background-color 0.2s;
 }
-
 .social-btn:hover {
     background-color: #f9fafb; /* hover:bg-gray-50 */
 }
-
 .social-btn svg {
     margin-right: 0.75rem; /* mr-3 */
     height: 1.25rem; /* h-5 */
     width: 1.25rem; /* w-5 */
 }
 
-/* Ajoutez ici d'autres styles spécifiques à l'authentification si nécessaire */
+/* Styles pour l'indicateur de force du mot de passe */
+.strength-indicator {
+    margin-top: 0.5rem; /* mt-2 */
+    font-size: 0.75rem; /* text-xs */
+    color: #6b7280; /* text-gray-500 */
+    /* Caché par défaut, affiché par JS si le champ n'est pas vide */
+    display: none;
+}
+
+.strength-bar-container {
+    height: 0.5rem; /* h-2 */
+    background-color: #e5e7eb; /* bg-gray-200 */
+    border-radius: 0.25rem; /* rounded */
+    overflow: hidden; /* Pour que la barre intérieure respecte le radius */
+    margin-top: 0.25rem; /* mt-1 */
+}
+
+.strength-bar {
+    height: 100%;
+    width: 0; /* Commence vide, largeur modifiée par JS/CSS */
+    border-radius: 0.25rem; /* rounded */
+    /* Animation douce pour la largeur et la couleur */
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+/* Classes pour les niveaux de force (appliquées par JS sur .strength-bar et .strength-text) */
+.strength-bar.weak { width: 33%; background-color: #ef4444; /* bg-red-500 */ }
+.strength-bar.medium { width: 66%; background-color: #f97316; /* bg-orange-500 */ }
+.strength-bar.strong { width: 100%; background-color: #22c55e; /* bg-green-500 */ }
+
+.strength-text {
+    font-weight: 500; /* font-medium */
+    margin-left: 0.25rem; /* ml-1 */
+}
+/* Couleurs du texte associées aux niveaux */
+.strength-text.weak { color: #ef4444; /* text-red-500 */ }
+.strength-text.medium { color: #f97316; /* text-orange-500 */ }
+.strength-text.strong { color: #22c55e; /* text-green-500 */ }
+
