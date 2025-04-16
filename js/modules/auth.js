@@ -1,97 +1,36 @@
 /**
  * Fichier : js/modules/auth.js
- * Description : Gère la logique côté client pour l'authentification,
- * y compris l'indicateur de force de mot de passe.
+ * Description : Gère la logique côté client pour l'authentification.
+ * Stocke les informations utilisateur dans localStorage après connexion réussie.
  */
 
-// Importer l'objet translations depuis translator.js
-// Assurez-vous que le chemin './translator.js' est correct par rapport à auth.js
 import { translations } from './translator.js';
-// L'import de setLanguage n'est plus nécessaire ici pour l'indicateur de force
+// import { setLanguage } from './translator.js'; // Import si nécessaire ailleurs
 
-// --- Fonctions pour l'indicateur de force ---
-
-/**
- * Vérifie la force d'un mot de passe.
- * @param {string} password - Le mot de passe à vérifier.
- * @returns {number} Niveau de force (0: vide, 1: faible, 2: moyen, 3: fort)
- */
-function checkPasswordStrength(password) {
-    if (!password) return 0; // Vide
-
-    const hasLetters = /[a-zA-Z]/.test(password);
-    const hasNumbers = /[0-9]/.test(password);
-    // Optionnel: ajouter d'autres critères (longueur, majuscules, symboles)
-    // const hasUpper = /[A-Z]/.test(password);
-    // const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-
-    // Logique de score simple : lettres ET chiffres requis pour Moyen/Fort
-    if (hasLetters && hasNumbers) {
-        // Fort si 8+ caractères, sinon Moyen
-        return password.length >= 8 ? 3 : 2;
-    } else if (hasLetters || hasNumbers) {
-        // Faible si seulement lettres OU seulement chiffres
-        return 1;
-    } else {
-        // Faible aussi si ne contient ni lettre ni chiffre (ex: que des symboles)
-        return 1;
-    }
+// --- Fonctions Indicateur de Force (inchangées) ---
+function checkPasswordStrength(password) { /* ... code inchangé ... */
+    if (!password) return 0; const hasLetters = /[a-zA-Z]/.test(password); const hasNumbers = /[0-9]/.test(password);
+    if (hasLetters && hasNumbers) { return password.length >= 8 ? 3 : 2; } else if (hasLetters || hasNumbers) { return 1; } else { return 1; }
 }
-
-/**
- * Met à jour l'affichage de l'indicateur de force (barre et texte).
- * @param {string} indicatorId - ID de l'élément conteneur de l'indicateur HTML.
- * @param {number} strengthLevel - Niveau de force retourné par checkPasswordStrength (0-3).
- */
-function updateStrengthIndicator(indicatorId, strengthLevel) {
-    const indicatorElement = document.getElementById(indicatorId);
-    if (!indicatorElement) return; // Quitter si l'élément n'est pas trouvé
-
-    const barElement = indicatorElement.querySelector('.strength-bar');
-    const textElement = indicatorElement.querySelector('.strength-text');
-
-    // Vérifier si les sous-éléments sont présents
-    if (!barElement || !textElement) {
-        console.error(`Éléments manquants dans l'indicateur de force : ${indicatorId}`);
-        return;
-    }
-
-    // Clés de traduction et classes CSS correspondantes
+function updateStrengthIndicator(indicatorId, strengthLevel) { /* ... code inchangé ... */
+    const indicatorElement = document.getElementById(indicatorId); if (!indicatorElement) return;
+    const barElement = indicatorElement.querySelector('.strength-bar'); const textElement = indicatorElement.querySelector('.strength-text');
+    if (!barElement || !textElement) { console.error(`Missing elements: ${indicatorId}`); return; }
     const strengthKeys = { 1: 'password_strength_weak', 2: 'password_strength_medium', 3: 'password_strength_strong' };
     const strengthClasses = { 1: 'weak', 2: 'medium', 3: 'strong' };
-
-    // Réinitialiser les classes et le texte
-    barElement.classList.remove('weak', 'medium', 'strong');
-    textElement.classList.remove('weak', 'medium', 'strong');
-    textElement.textContent = '';
-    textElement.removeAttribute('data-translate-key'); // Au cas où il était défini avant
-    indicatorElement.style.display = 'none'; // Cacher par défaut
-
-    // Si le niveau est supérieur à 0
+    barElement.classList.remove('weak', 'medium', 'strong'); textElement.classList.remove('weak', 'medium', 'strong');
+    textElement.textContent = ''; indicatorElement.style.display = 'none';
     if (strengthLevel > 0) {
-        const levelKey = strengthKeys[strengthLevel]; // Clé de traduction (ex: 'password_strength_weak')
-        const levelClass = strengthClasses[strengthLevel]; // Classe CSS (ex: 'weak')
-        const currentLang = document.documentElement.lang || 'fr'; // Langue actuelle
-
-        // Appliquer la classe CSS à la barre et au texte pour la couleur/largeur
-        barElement.classList.add(levelClass);
-        textElement.classList.add(levelClass);
-
-        // Utiliser l'objet translations importé pour définir le texte
+        const levelKey = strengthKeys[strengthLevel]; const levelClass = strengthClasses[strengthLevel];
+        const currentLang = document.documentElement.lang || 'fr';
+        barElement.classList.add(levelClass); textElement.classList.add(levelClass);
         const translatedText = translations[currentLang]?.[levelKey];
-        if (translatedText) {
-            textElement.textContent = translatedText; // Appliquer le texte traduit
-        } else {
-            // Fallback si la traduction n'est pas trouvée
-            textElement.textContent = levelClass.charAt(0).toUpperCase() + levelClass.slice(1); // Affiche Weak, Medium, Strong
-            console.warn(`Traduction non trouvée pour la clé ${levelKey} dans la langue ${currentLang}`);
-        }
-
-        indicatorElement.style.display = 'block'; // Rendre l'indicateur visible
+        if (translatedText) { textElement.textContent = translatedText; }
+        else { textElement.textContent = levelClass.charAt(0).toUpperCase() + levelClass.slice(1); console.warn(`Translation not found for key ${levelKey} in lang ${currentLang}`); }
+        indicatorElement.style.display = 'block';
     }
 }
 // --- Fin Fonctions Indicateur ---
-
 
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
@@ -99,23 +38,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const passwordInput = document.getElementById('password');
     const confirmPasswordInput = document.getElementById('confirm-password');
 
-    // Ajout des écouteurs pour l'indicateur de force (uniquement si on est sur la page d'inscription)
-    if (registerForm) {
-        if (passwordInput) {
-            passwordInput.addEventListener('input', () => {
-                updateStrengthIndicator('password-strength-indicator', checkPasswordStrength(passwordInput.value));
-            });
-        }
-        if (confirmPasswordInput) {
-            confirmPasswordInput.addEventListener('input', () => {
-                updateStrengthIndicator('confirm-password-strength-indicator', checkPasswordStrength(confirmPasswordInput.value));
-                // Optionnel : Vérifier la correspondance des mots de passe en temps réel ici
-            });
-        }
+    // Listeners indicateur force (si page inscription)
+    if (registerForm) { /* ... listeners inchangés ... */
+        if (passwordInput) { passwordInput.addEventListener('input', () => { updateStrengthIndicator('password-strength-indicator', checkPasswordStrength(passwordInput.value)); }); }
+        if (confirmPasswordInput) { confirmPasswordInput.addEventListener('input', () => { updateStrengthIndicator('confirm-password-strength-indicator', checkPasswordStrength(confirmPasswordInput.value)); }); }
     }
 
-
-    // --- Logique pour le formulaire de connexion ---
+    // --- Logique Connexion ---
     if (loginForm) {
         loginForm.addEventListener('submit', async (event) => {
              event.preventDefault();
@@ -124,15 +53,27 @@ document.addEventListener('DOMContentLoaded', () => {
              const submitButton = loginForm.querySelector('button[type="submit"]');
              const originalButtonTextKey = "login_button";
              const currentLang = document.documentElement.lang || 'fr';
-             const originalButtonText = translations[currentLang]?.[originalButtonTextKey] || "Se connecter"; // Texte par défaut
+             const originalButtonText = translations[currentLang]?.[originalButtonTextKey] || "Se connecter";
              submitButton.disabled = true;
-             submitButton.textContent = 'Connexion...'; // À traduire idéalement
+             submitButton.textContent = 'Connexion...';
              console.log('Tentative de connexion avec:', { loginIdentifier, password: '***' });
              try {
                  const response = await fetch('/api/login', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ loginIdentifier, password }) });
                  const data = await response.json();
-                 if (response.ok && data.success) {
-                     console.log('Connexion réussie:', data); window.location.href = 'dashboard_user.html';
+                 if (response.ok && data.success && data.user) { // Vérifier aussi la présence de data.user
+                     console.log('Connexion réussie:', data);
+
+                     // === AJOUT : Stocker les infos utilisateur dans localStorage ===
+                     try {
+                         localStorage.setItem('loggedInUser', JSON.stringify(data.user));
+                         console.log('User info stored in localStorage');
+                     } catch (storageError) {
+                         console.error('Failed to store user info in localStorage:', storageError);
+                         // Gérer l'erreur si localStorage n'est pas dispo ou plein
+                     }
+                     // ==============================================================
+
+                     window.location.href = 'dashboard_user.html'; // Redirection
                  } else {
                      console.error('Erreur de connexion:', data.message); alert(`Erreur de connexion: ${data.message || 'Identifiant/Email ou mot de passe incorrect.'}`);
                  }
@@ -140,56 +81,37 @@ document.addEventListener('DOMContentLoaded', () => {
                  console.error('Erreur lors de la tentative de connexion (réseau ou autre):', error); alert('Une erreur réseau est survenue. Veuillez réessayer.');
              } finally {
                   submitButton.disabled = false;
-                  submitButton.textContent = originalButtonText; // Restaurer texte
+                  submitButton.textContent = originalButtonText;
              }
         });
     }
 
-    // --- Logique pour le formulaire d'inscription ---
+    // --- Logique Inscription ---
     if (registerForm) {
         registerForm.addEventListener('submit', async (event) => {
+             // ... (code d'inscription inchangé) ...
              event.preventDefault();
-             const firstName = registerForm.firstName.value;
-             const lastName = registerForm.lastName.value;
-             const email = registerForm.email.value;
-             const password = registerForm.password.value;
-             const confirmPassword = registerForm['confirm-password'].value;
-             const termsAccepted = registerForm.terms.checked;
+             const firstName = registerForm.firstName.value; const lastName = registerForm.lastName.value;
+             const email = registerForm.email.value; const password = registerForm.password.value;
+             const confirmPassword = registerForm['confirm-password'].value; const termsAccepted = registerForm.terms.checked;
              const submitButton = registerForm.querySelector('button[type="submit"]');
-             const originalButtonTextKey = "create_account_button";
-             const currentLang = document.documentElement.lang || 'fr';
-             const originalButtonText = translations[currentLang]?.[originalButtonTextKey] || "Créer mon compte"; // Texte par défaut
-
+             const originalButtonTextKey = "create_account_button"; const currentLang = document.documentElement.lang || 'fr';
+             const originalButtonText = translations[currentLang]?.[originalButtonTextKey] || "Créer mon compte";
              console.log('Tentative d\'inscription avec:', { firstName, lastName, email, password: '***', confirmPassword: '***', termsAccepted });
-
-             // Validations Côté Client
              if (!firstName || !lastName) { alert('Veuillez renseigner votre nom et prénom.'); return; }
              if (password !== confirmPassword) { alert('Les mots de passe ne correspondent pas.'); return; }
              if (!termsAccepted) { alert('Vous devez accepter les conditions d\'utilisation.'); return; }
-             const strength = checkPasswordStrength(password);
-             if (strength < 2) { alert('Le mot de passe est trop faible. Il doit contenir des lettres et des chiffres.'); return; }
-
-              submitButton.disabled = true;
-              submitButton.textContent = 'Création...'; // À traduire
-
+             const strength = checkPasswordStrength(password); if (strength < 2) { alert('Le mot de passe est trop faible. Il doit contenir des lettres et des chiffres.'); return; }
+              submitButton.disabled = true; submitButton.textContent = 'Création...';
              try {
-                  // Appel API Register avec toutes les infos
                   const response = await fetch('/api/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ firstName, lastName, email, password }) });
                   const data = await response.json();
                   if (response.ok && data.success) {
-                      console.log('Inscription réussie:', data);
-                      alert('Compte créé ! Veuillez consulter vos emails pour activer votre compte.');
-                      window.location.href = 'connexion_account.html';
-                  } else {
-                      console.error('Erreur d\'inscription:', data.message); alert(`Erreur d'inscription: ${data.message || 'Impossible de créer le compte'}`);
-                  }
-             } catch (error) {
-                  console.error('Erreur lors de la tentative d\'inscription (réseau ou autre):', error); alert('Une erreur réseau est survenue lors de l\'inscription.');
-             } finally {
-                  submitButton.disabled = false;
-                  submitButton.textContent = originalButtonText; // Restaurer texte
-             }
+                      console.log('Inscription réussie:', data); alert('Compte créé ! Veuillez consulter vos emails pour activer votre compte.'); window.location.href = 'connexion_account.html';
+                  } else { console.error('Erreur d\'inscription:', data.message); alert(`Erreur d'inscription: ${data.message || 'Impossible de créer le compte'}`); }
+             } catch (error) { console.error('Erreur lors de la tentative d\'inscription (réseau ou autre):', error); alert('Une erreur réseau est survenue lors de l\'inscription.');
+             } finally { submitButton.disabled = false; submitButton.textContent = originalButtonText; }
         });
     }
 
-}); // Fin de l'écouteur DOMContentLoaded
+}); // Fin de DOMContentLoaded

@@ -24,13 +24,30 @@ const translations = {
         footer_privacy: "Politique de confidentialité", footer_terms: "Conditions d'utilisation",
         // --- Dashboard ---
         sidebar_dashboard: "Dashboard", sidebar_categories: "Mes Catégories", sidebar_tasks: "Mes tâches",
-        sidebar_appointments: "Mes Rendez-vous", sidebar_profile: "Mon Profil", sidebar_logout: "Se déconnecter",
-        header_username: "Nom Utilisateur", header_role: "Administrateur", dashboard_section_title: "Tableau de Bord Principal",
-        categories_section_title: "Mes Catégories de Rendez-vous", tasks_section_title: "Mes Tâches", appointments_section_title: "Mes Rendez-vous",
-        profile_section_title: "Mon Profil", dashboard_create_category: "Créer une catégorie", category1_title: "Entretien de Recrutement",
-        category1_desc: "Session de 45 minutes pour évaluer les candidats.", category2_title: "Démonstration Produit",
-        category2_desc: "Présentation interactive de 30 minutes.", card_actions: "Actions :", action_copy_link: "Copier le lien",
+        sidebar_appointments: "Mes Rendez-vous", sidebar_profile: "Mon Profil", sidebar_logout: "Se déconnecter", // Clé pour bouton sidebar (si réactivé)
+        header_username: "Nom Utilisateur", header_role: "Administrateur", // Placeholders
+        dashboard_section_title: "Tableau de Bord Principal", categories_section_title: "Mes Catégories de Rendez-vous",
+        tasks_section_title: "Mes Tâches", appointments_section_title: "Mes Rendez-vous", profile_section_title: "Mon Profil",
+        // --- Dashboard KPIs / Listes ---
+        dashboard_today_title: "Aujourd'hui", dashboard_appointments_today: "Rendez-vous", dashboard_tasks_due_today: "Tâches à échéance",
+        dashboard_quick_stats: "Statistiques Rapides", dashboard_overdue_tasks_stat: "Tâches en retard", dashboard_appointments_week_stat: "RDV cette semaine",
+        dashboard_no_appointments_today: "Aucun rendez-vous aujourd'hui.", dashboard_no_tasks_today: "Aucune tâche due aujourd'hui.", dashboard_view_all: "Voir tout",
+        // --- Section Catégories ---
+        dashboard_create_category: "Créer une catégorie", card_actions: "Actions :", action_copy_link: "Copier le lien",
         action_view_appointments: "Voir les rendez-vous", action_edit: "Modifier", action_delete: "Supprimer",
+        category_appointments_title: "Rendez-vous pour : {categoryName}", back_to_categories: "Retour aux catégories",
+        no_categories_found: "Aucune catégorie créée pour le moment.", no_appointments_in_category: "Aucun rendez-vous planifié pour cette catégorie.",
+        // --- Modale Création Catégorie ---
+        create_category_title: "Nouvelle Catégorie de Rendez-vous", category_form_title: "Titre", category_form_description: "Description",
+        category_form_duration: "Durée (minutes)", category_form_color: "Couleur", category_form_cancel: "Annuler", category_form_create: "Créer la catégorie",
+        // --- Modale Création Tâche ---
+        dashboard_create_task: "Créer une tâche", create_task_title: "Nouvelle Tâche", task_form_title: "Titre",
+        task_form_description: "Description", task_form_due_date: "Date d'échéance", task_form_assignee: "Responsable",
+        task_form_priority: "Priorité", task_form_priority_low: "Basse", task_form_priority_medium: "Moyenne", task_form_priority_high: "Haute",
+        task_form_status: "Statut", task_form_status_todo: "À faire", task_form_status_inprogress: "En cours", task_form_status_done: "Terminé",
+        task_form_category: "Catégorie/Département", task_form_cancel: "Annuler", task_form_create: "Créer la tâche",
+        // --- Dropdown Profil Header ---
+        dropdown_profile: "Mon Profil", dropdown_logout: "Se déconnecter",
         // --- Page d'inscription ---
         create_account_title: "Créez votre compte AiCalendy", continue_with_google: "Continuer avec Google", continue_with_outlook: "Continuer avec Outlook",
         or_separator: "OU", first_name_label: "Prénom", last_name_label: "Nom", email_label: "Adresse e-mail",
@@ -46,40 +63,26 @@ const translations = {
         logout_confirm_button: "Continuer", logout_cancel_button: "Annuler",
     },
     en: {
-        // ... (toutes les clés anglaises comme avant) ...
-        login: "Login", register: "Register", hero_title: "Simplify scheduling your appointments, whatever your business.",
-        hero_subtitle: "Create custom calendars for your interviews, demos, consultations, and more, and let your guests choose their ideal slot.",
-        cta_try_free: "Try AiCalendy for free", how_it_works_title: "How does it work?", step1_title: "1. Create a category",
-        step1_desc: "Define the type of appointment (interview, demo...).", step2_title: "2. Set your availability",
-        step2_desc: "Indicate your available days and times for this category.", step3_title: "3. Share the link",
-        step3_desc: "Get a unique link to send to your guests.", step4_title: "4. Receive bookings",
-        step4_desc: "Appointments are added automatically.", features_title: "Why choose AiCalendy?", feature1_title: "Total flexibility",
-        feature1_desc: "Create as many calendar categories as needed, tailored to each requirement.", feature2_title: "Significant time savings",
-        feature2_desc: "Eliminate back-and-forth emails to find the right time slot.", feature3_title: "Smooth experience for your guests",
-        feature3_desc: "Simple and intuitive interface to choose a time slot.", feature4_title: "Easy integration",
-        feature4_desc: "Connect AiCalendy to your existing calendars (Google, Outlook...).", feature5_title: "Suitable for all professions",
-        feature5_desc: "Ideal for HR, sales, marketing, consultants, etc.", cta_bottom_title: "Ready to simplify your scheduling?",
-        cta_bottom_subtitle: "Join thousands of professionals saving time with AiCalendy.", cta_bottom_button1: "Start my free trial",
-        cta_bottom_button2: "Discover features", footer_copyright: "&copy; 2025 AiCalendy. All rights reserved.",
-        footer_privacy: "Privacy Policy", footer_terms: "Terms of Use",
-         sidebar_dashboard: "Dashboard", sidebar_categories: "My Categories", sidebar_tasks: "My Tasks",
-         sidebar_appointments: "My Appointments", sidebar_profile: "My Profile", sidebar_logout: "Logout",
-         header_username: "User Name", header_role: "Administrator", dashboard_section_title: "Main Dashboard",
-         categories_section_title: "My Appointment Categories", tasks_section_title: "My Tasks", appointments_section_title: "My Appointments",
-         profile_section_title: "My Profile", dashboard_create_category: "Create category", category1_title: "Recruitment Interview",
-         category1_desc: "45-minute session to evaluate candidates.", category2_title: "Product Demonstration",
-         category2_desc: "30-minute interactive presentation.", card_actions: "Actions:", action_copy_link: "Copy link",
-         action_view_appointments: "View appointments", action_edit: "Edit", action_delete: "Delete",
-         create_account_title: "Create your AiCalendy account", continue_with_google: "Continue with Google", continue_with_outlook: "Continue with Outlook",
-         or_separator: "OR", first_name_label: "First Name", last_name_label: "Last Name", email_label: "Email address",
-         password_label: "Password", confirm_password_label: "Confirm password", password_strength: "Password strength:",
-         password_strength_weak: "Weak", password_strength_medium: "Medium", password_strength_strong: "Strong", terms_agree: "I agree to the",
-         terms_link: "Terms of Use", privacy_link: "Privacy Policy", create_account_button: "Create my account",
-         already_have_account: "Already have an account?", login_link: "Login",
-         login_title: "Login to AiCalendy", login_identifier_label: "Username or Email", forgot_password: "Forgot password?",
-         login_button: "Login", no_account_yet: "No account yet?", register_link: "Register for free",
-         logout_confirm_title: "Logout Confirmation", logout_confirm_text: "Are you sure you want to log out?",
-         logout_confirm_button: "Continue", logout_cancel_button: "Cancel",
+        // --- Landing Page ---
+        login: "Login", register: "Register", hero_title: "Simplify scheduling your appointments...", hero_subtitle: "Create custom calendars...", cta_try_free: "Try for free", how_it_works_title: "How does it work?", step1_title: "1. Create Category", step1_desc: "Define the type...", step2_title: "2. Set Availability", step2_desc: "Indicate your free times...", step3_title: "3. Share Link", step3_desc: "Get a unique link...", step4_title: "4. Receive Bookings", step4_desc: "Appointments added...", features_title: "Why AiCalendy?", feature1_title: "Flexibility", feature1_desc: "Create many categories...", feature2_title: "Time Savings", feature2_desc: "Eliminate back-and-forth...", feature3_title: "Smooth Experience", feature3_desc: "Simple interface...", feature4_title: "Easy Integration", feature4_desc: "Connect existing calendars...", feature5_title: "All Professions", feature5_desc: "Ideal for HR, sales...", cta_bottom_title: "Ready to simplify?", cta_bottom_subtitle: "Join thousands...", cta_bottom_button1: "Start free trial", cta_bottom_button2: "Discover features", footer_copyright: "&copy; 2025 AiCalendy...", footer_privacy: "Privacy Policy", footer_terms: "Terms of Use",
+        // --- Dashboard ---
+        sidebar_dashboard: "Dashboard", sidebar_categories: "My Categories", sidebar_tasks: "My Tasks", sidebar_appointments: "My Appointments", sidebar_profile: "My Profile", sidebar_logout: "Logout", header_username: "User Name", header_role: "Administrator", dashboard_section_title: "Main Dashboard", categories_section_title: "My Appointment Categories", tasks_section_title: "My Tasks", appointments_section_title: "My Appointments", profile_section_title: "My Profile",
+        // --- Dashboard KPIs / Lists ---
+        dashboard_today_title: "Today", dashboard_appointments_today: "Appointments", dashboard_tasks_due_today: "Tasks Due", dashboard_quick_stats: "Quick Stats", dashboard_overdue_tasks_stat: "Overdue Tasks", dashboard_appointments_week_stat: "Appointments this week", dashboard_no_appointments_today: "No appointments today.", dashboard_no_tasks_today: "No tasks due today.", dashboard_view_all: "View all",
+        // --- Categories Section ---
+        dashboard_create_category: "Create category", card_actions: "Actions:", action_copy_link: "Copy link", action_view_appointments: "View appointments", action_edit: "Edit", action_delete: "Delete", category_appointments_title: "Appointments for: {categoryName}", back_to_categories: "Back to categories", no_categories_found: "No categories created yet.", no_appointments_in_category: "No appointments scheduled for this category.",
+        // --- Create Category Modal ---
+        create_category_title: "New Appointment Category", category_form_title: "Title", category_form_description: "Description", category_form_duration: "Duration (minutes)", category_form_color: "Color", category_form_cancel: "Cancel", category_form_create: "Create category",
+        // --- Create Task Modal ---
+        dashboard_create_task: "Create Task", create_task_title: "New Task", task_form_title: "Title", task_form_description: "Description", task_form_due_date: "Due Date", task_form_assignee: "Assignee", task_form_priority: "Priority", task_form_priority_low: "Low", task_form_priority_medium: "Medium", task_form_priority_high: "High", task_form_status: "Status", task_form_status_todo: "To Do", task_form_status_inprogress: "In Progress", task_form_status_done: "Done", task_form_category: "Category/Department", task_form_cancel: "Cancel", task_form_create: "Create Task",
+        // --- User Dropdown ---
+        dropdown_profile: "My Profile", dropdown_logout: "Logout",
+        // --- Registration Page ---
+        create_account_title: "Create your AiCalendy account", continue_with_google: "Continue with Google", continue_with_outlook: "Continue with Outlook", or_separator: "OR", first_name_label: "First Name", last_name_label: "Last Name", email_label: "Email address", password_label: "Password", confirm_password_label: "Confirm password", password_strength: "Strength:", password_strength_weak: "Weak", password_strength_medium: "Medium", password_strength_strong: "Strong", terms_agree: "I agree to the", terms_link: "Terms of Use", privacy_link: "Privacy Policy", create_account_button: "Create my account", already_have_account: "Already have an account?", login_link: "Login",
+        // --- Login Page ---
+        login_title: "Login to AiCalendy", login_identifier_label: "Username or Email", forgot_password: "Forgot password?", login_button: "Login", no_account_yet: "No account yet?", register_link: "Register for free",
+        // --- Logout Modal ---
+        logout_confirm_title: "Logout Confirmation", logout_confirm_text: "Are you sure you want to log out?", logout_confirm_button: "Continue", logout_cancel_button: "Cancel",
     }
 };
 
@@ -95,15 +98,27 @@ function setLanguage(lang) {
         const key = element.dataset.translateKey;
         const translationText = translations[lang]?.[key];
         if (translationText !== undefined) {
-            if (key.startsWith('action_')) {
-                element.setAttribute('title', translationText); element.setAttribute('aria-label', translationText);
-            } else if (key === 'password_strength') {
-                 const strengthSpan = element.querySelector('.strength-text');
-                 if (strengthSpan) { element.firstChild.textContent = translationText + ' '; }
-                 else { element.innerHTML = translationText; }
-            } else { element.innerHTML = translationText; }
+            if (key.startsWith('action_')) { element.setAttribute('title', translationText); element.setAttribute('aria-label', translationText); }
+            else if (key === 'password_strength') { const strengthSpan = element.querySelector('.strength-text'); if (strengthSpan) { element.firstChild.textContent = translationText + ' '; } else { element.innerHTML = translationText; } }
+            else if (element.id === 'user-name-display') { /* Géré par JS */ }
+            // else if (element.id === 'user-role-display') { element.innerHTML = translationText; } // Laisser JS gérer ou traduire ici
+            else { element.innerHTML = translationText; }
         } else { console.warn(`Clé "${key}" non trouvée pour lang "${lang}".`); }
     });
+
+    // Traduire les options des <select> (Priorité et Statut tâche)
+    const taskPrioritySelect = document.getElementById('task-priority');
+    if(taskPrioritySelect) {
+        taskPrioritySelect.options[0].textContent = translations[lang]?.task_form_priority_low || 'Basse';
+        taskPrioritySelect.options[1].textContent = translations[lang]?.task_form_priority_medium || 'Moyenne';
+        taskPrioritySelect.options[2].textContent = translations[lang]?.task_form_priority_high || 'Haute';
+    }
+    const taskStatusSelect = document.getElementById('task-status');
+     if(taskStatusSelect) {
+        taskStatusSelect.options[0].textContent = translations[lang]?.task_form_status_todo || 'À faire';
+        taskStatusSelect.options[1].textContent = translations[lang]?.task_form_status_inprogress || 'En cours';
+        taskStatusSelect.options[2].textContent = translations[lang]?.task_form_status_done || 'Terminé';
+    }
 }
 
 /** Initialise les boutons de langue */

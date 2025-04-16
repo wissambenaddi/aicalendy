@@ -5,101 +5,149 @@
 body {
     font-family: 'Inter', sans-serif;
     background-color: #f9fafb; /* gray-50 */
-    /* Mise en page flex pour la sidebar et le contenu */
     display: flex;
     height: 100vh;
-    overflow: hidden; /* Empêche le scroll sur le body */
+    overflow: hidden; /* Empêche le scroll sur body */
 }
 
-/* Hauteur du contenu principal pour permettre le scroll indépendant */
-/* Prend en compte la hauteur du header (h-16 -> 4rem) */
-.main-content-height {
-     height: calc(100vh - 4rem);
-     /* Assure que le scroll interne fonctionne si le contenu dépasse */
-     overflow-y: auto;
-}
+/* Hauteur et scroll pour le contenu principal */
+/* Le conteneur <main> doit avoir overflow-y-auto */
+/* .main-content-height { */
+     /* Retiré car appliqué directement sur <main> maintenant */
+     /* height: calc(100vh - 4rem); */
+/* } */
 
 /* Styles pour les liens de la sidebar */
 .sidebar-link {
     display: flex;
-    align-items: center;
+    align-items: center; /* Aligne icône et texte verticalement */
     padding: 0.75rem 1rem; /* py-3 px-4 */
     border-radius: 0.375rem; /* rounded-md */
     color: #374151; /* text-gray-700 */
     transition: background-color 0.2s, color 0.2s;
-    text-decoration: none; /* Enlève le soulignement des liens */
-    cursor: pointer; /* Indique que c'est cliquable */
+    text-decoration: none;
+    cursor: pointer;
 }
-
 .sidebar-link:hover {
-     background-color: #f3f4f6; /* hover:bg-gray-100 */
-     color: #1f2937; /* hover:text-gray-800 */
+    background-color: #f3f4f6; /* hover:bg-gray-100 */
+    color: #1f2937; /* hover:text-gray-800 */
 }
-
-/* Style pour le lien actif dans la sidebar */
 .sidebar-link.active {
-    background-color: #eef2ff; /* indigo-100 */
-    color: #4f46e5; /* indigo-600 */
-    font-weight: 600; /* semibold */
+    background-color: #eef2ff; /* bg-indigo-100 */
+    color: #4f46e5; /* text-indigo-600 */
+    font-weight: 600; /* font-semibold */
 }
-
-/* Styles pour les icônes SVG dans la sidebar */
+/* Taille correcte pour les icônes SVG dans la sidebar */
 .sidebar-link svg {
      margin-right: 0.75rem; /* mr-3 */
      height: 1.25rem; /* h-5 */
      width: 1.25rem; /* w-5 */
-     color: #6b7280; /* text-gray-500 */ /* Couleur par défaut */
+     color: #6b7280; /* text-gray-500 */
      flex-shrink: 0; /* Empêche l'icône de rétrécir */
 }
+.sidebar-link.active svg {
+    color: #4f46e5; /* text-indigo-600 */
+}
 
-/* Couleur de l'icône SVG pour le lien actif */
- .sidebar-link.active svg {
-     color: #4f46e5; /* indigo-600 */
- }
-
-/* Styles pour masquer/afficher les sections de contenu dans <main> */
+/* Styles pour masquer/afficher les sections de contenu */
 .main-section {
-    display: none; /* Masqué par défaut */
+    display: none; /* Caché par défaut */
 }
-
 .main-section.active {
-    display: block; /* Affiché si la classe active est présente */
+    display: block; /* Affiché quand la classe .active est ajoutée par JS */
 }
 
-/* Styles pour la modale de déconnexion */
+/* Styles Modale (utilisant .active) */
 .modal-overlay {
-    position: fixed;
-    inset: 0; /* Couvre toute la page (top: 0; right: 0; bottom: 0; left: 0;) */
-    background-color: rgba(0, 0, 0, 0.5); /* Fond noir semi-transparent */
-    display: flex; /* Utilise flex pour centrer le contenu */
-    align-items: center; /* Centre verticalement */
-    justify-content: center; /* Centre horizontalement */
-    z-index: 50; /* Assure qu'il est au-dessus des autres éléments */
-    opacity: 0; /* Invisible par défaut */
-    visibility: hidden; /* Complètement caché par défaut */
-    transition: opacity 0.3s ease, visibility 0.3s ease; /* Transition douce */
+    position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.6);
+    display: flex; align-items: center; justify-content: center; z-index: 50;
+    opacity: 0; visibility: hidden; /* Caché par défaut */
+    transition: opacity 0.3s ease, visibility 0s linear 0.3s; /* Transition pour masquer */
+    padding: 1rem;
 }
-
 .modal-container {
-    background-color: white;
-    padding: 1.5rem; /* p-6 */
-    border-radius: 0.5rem; /* rounded-lg */
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
-    max-width: 90%; /* Empêche d'être trop large sur petits écrans */
-    width: 28rem; /* Correspond à max-w-md de Tailwind */
-    transform: scale(0.95); /* Léger dézoom initial pour l'animation */
-    transition: transform 0.3s ease; /* Transition douce pour l'effet de zoom */
+    background-color: white; padding: 1.5rem; border-radius: 0.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    max-width: 95%; width: 32rem; /* max-w-lg */
+    transform: translateY(-20px) scale(0.95);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+    max-height: 90vh; overflow-y: auto;
+}
+/* Affichage de la modale via la classe .active */
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease, visibility 0s linear 0s; /* Transition pour afficher */
+}
+.modal-overlay.active .modal-container {
+    transform: translateY(0) scale(1);
+    opacity: 1;
 }
 
-/* Styles pour afficher la modale quand le body a la classe .modal-open */
-body.modal-open .modal-overlay {
-    opacity: 1; /* Rend l'overlay visible */
-    visibility: visible; /* Rend l'overlay interactif */
+/* Styles pour le Dashboard amélioré (cartes et listes) */
+.dashboard-section { /* Utilisé pour les cartes "Aujourd'hui", "Stats", et conteneurs de listes */
+    background-color: white; padding: 1.5rem; border-radius: 0.5rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    margin-bottom: 1.5rem; /* Espacement si empilé */
 }
+.dashboard-section-title { font-size: 1.125rem; font-weight: 600; color: #1f2937; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #e5e7eb; }
+.dashboard-subsection-title { font-size: 0.875rem; font-weight: 500; color: #6b7280; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.dashboard-list { list-style: none; padding: 0; margin: 0; }
+.dashboard-list-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid #f3f4f6; }
+.dashboard-list-item:last-child { border-bottom: none; }
+.dashboard-item-title { font-weight: 500; color: #374151; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 1rem; }
+.dashboard-item-date { font-size: 0.875rem; color: #6b7280; flex-shrink: 0; white-space: nowrap; }
+.dashboard-item-overdue .dashboard-item-date { color: #dc2626; font-weight: 500; }
+.dashboard-list-empty { font-style: italic; color: #6b7280; padding: 1rem 0; text-align: left; }
+.quick-stat { display: flex; justify-content: space-between; align-items: baseline; padding: 0.5rem 0; border-bottom: 1px solid #f3f4f6; }
+.quick-stat:last-child { border-bottom: none; }
+.quick-stat-label { font-size: 0.875rem; color: #374151; }
+.quick-stat-value { font-size: 1.125rem; font-weight: 600; color: #4f46e5; }
+.quick-stat-value.danger { color: #dc2626; }
+.view-all-link { display: block; margin-top: 1rem; text-align: right; font-size: 0.875rem; font-weight: 500; color: #4f46e5; text-decoration: none; }
+.view-all-link:hover { text-decoration: underline; }
+.chart-container { background-color: white; padding: 1.5rem; border-radius: 0.5rem; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); margin-top: 0; } /* Marge gérée par grille parente */
 
-body.modal-open .modal-container {
-    transform: scale(1); /* Applique l'effet de zoom */
-}
+/* Cartes Catégories */
+.category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
+.category-card { background-color: white; border-radius: 0.5rem; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); overflow: hidden; display: flex; flex-direction: column; }
+.category-card-color-bar { height: 0.25rem; background-color: #ccc; }
+.category-card-content { padding: 1.25rem; flex-grow: 1; }
+.category-card-title { font-size: 1.125rem; font-weight: 600; color: #1f2937; margin-bottom: 0.25rem; }
+.category-card-description { font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem; }
+.category-card-footer { background-color: #f9fafb; padding: 0.75rem 1.25rem; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #e5e7eb; }
+.category-card-actions { display: flex; align-items: center; space-x: 0.5rem; }
 
-/* Note : Les styles pour .lang-btn sont dans css/style.css */
+/* Bouton Retour */
+.back-button { display: inline-flex; align-items: center; margin-bottom: 1.5rem; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500; color: #4f46e5; background-color: #eef2ff; border: 1px solid transparent; border-radius: 0.375rem; cursor: pointer; transition: background-color 0.2s; }
+.back-button:hover { background-color: #e0e7ff; }
+.back-button svg { margin-right: 0.5rem; width: 1rem; height: 1rem; }
+
+/* Dropdown Profil */
+.profile-container { position: relative; }
+.profile-dropdown { position: absolute; top: 100%; right: 0; margin-top: 0.5rem; width: 12rem; background-color: white; border-radius: 0.375rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border: 1px solid #e5e7eb; z-index: 40; }
+/* Visibilité gérée par classe 'hidden' de Tailwind */
+.dropdown-item { display: block; width: 100%; padding: 0.5rem 1rem; font-size: 0.875rem; color: #374151; text-align: left; background: none; border: none; cursor: pointer; }
+.dropdown-item:hover { background-color: #f3f4f6; color: #1f2937; }
+.dropdown-divider { height: 1px; background-color: #e5e7eb; margin: 0.5rem 0; }
+
+/* Styles génériques pour formulaires dans modales */
+.input-field { display: block; width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.375rem; box-shadow: inset 0 1px 2px rgba(0,0,0,0.075); font-size: 0.875rem; line-height: 1.25rem; color: #1f2937; background-color: #fff; }
+.input-field:focus { outline: 2px solid transparent; outline-offset: 2px; border-color: #4f46e5; box-shadow: 0 0 0 2px #c7d2fe; }
+input[type="color"].input-field { padding: 0.25rem; height: 2.5rem; cursor: pointer; }
+
+/* Styles génériques pour boutons primaires/secondaires/danger dans modales */
+.btn-primary { padding: 0.5rem 1rem; background-color: #4f46e5; border: 1px solid transparent; border-radius: 0.375rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); font-size: 0.875rem; font-weight: 500; color: white; cursor: pointer; transition: background-color 0.2s; }
+.btn-primary:hover { background-color: #4338ca; }
+.btn-primary:focus { outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-secondary { padding: 0.5rem 1rem; background-color: white; border: 1px solid #d1d5db; border-radius: 0.375rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); font-size: 0.875rem; font-weight: 500; color: #374151; cursor: pointer; transition: background-color 0.2s; }
+.btn-secondary:hover { background-color: #f9fafb; }
+.btn-secondary:focus { outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5); }
+
+.btn-danger { padding: 0.5rem 1rem; background-color: #dc2626; border: 1px solid transparent; border-radius: 0.375rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); font-size: 0.875rem; font-weight: 500; color: white; cursor: pointer; transition: background-color 0.2s; }
+.btn-danger:hover { background-color: #b91c1c; }
+.btn-danger:focus { outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.5); }
 
