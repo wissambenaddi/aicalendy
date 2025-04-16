@@ -75,7 +75,10 @@ function renderList(listElement, items, type) {
             li.className = 'dashboard-list-item';
             const isAppointment = type === 'appointments';
             // Ajouter classe si tâche en retard
-            if (!isAppointment && item.date_echeance < Date.now() && !item.est_complete) { li.classList.add('dashboard-item-overdue'); }
+            // Vérifie si la date d'échéance existe, est passée et si la tâche n'est pas complétée
+            if (!isAppointment && item.date_echeance && item.date_echeance < Date.now() && !item.est_complete) {
+                 li.classList.add('dashboard-item-overdue');
+            }
 
             const titleSpan = document.createElement('span');
             titleSpan.className = 'dashboard-item-title';
@@ -85,8 +88,14 @@ function renderList(listElement, items, type) {
             const dateSpan = document.createElement('span');
             dateSpan.className = 'dashboard-item-date';
             const timestamp = isAppointment ? item.heure_debut : item.date_echeance;
-            const formatOptions = isAppointment ? { dateStyle: 'short', timeStyle: 'short' } : { dateStyle: 'short' };
-            dateSpan.textContent = formatDateTime(timestamp, currentLang, formatOptions);
+            // Afficher date ET heure pour RDV, juste date pour tâches
+            const formatOptions = isAppointment
+                ? { dateStyle: 'short', timeStyle: 'short' }
+                : { dateStyle: 'short' };
+            // Utiliser formatDateTime pour les RDV et formatDate pour les tâches
+            dateSpan.textContent = isAppointment
+                ? formatDateTime(timestamp, currentLang, formatOptions)
+                : formatDate(timestamp, currentLang, formatOptions);
 
             li.appendChild(titleSpan);
             li.appendChild(dateSpan);
@@ -126,7 +135,15 @@ function renderCategoryCards(container, categories) {
         const colorBar = document.createElement('div'); colorBar.className = 'category-card-color-bar'; if (cat.couleur) colorBar.style.backgroundColor = cat.couleur; card.appendChild(colorBar);
         const content = document.createElement('div'); content.className = 'category-card-content'; const durationText = cat.duree ? `<p class="text-xs text-gray-500 mb-2">${cat.duree} min</p>` : ''; content.innerHTML = `<h3 class="category-card-title">${cat.titre || 'Sans titre'}</h3> ${durationText} <p class="category-card-description">${cat.description || 'Pas de description.'}</p>`; card.appendChild(content);
         const footer = document.createElement('div'); footer.className = 'category-card-footer'; const actionsText = translations[currentLang]?.['card_actions'] || 'Actions :';
-        footer.innerHTML = `<span class="text-xs text-gray-500" data-translate-key="card_actions">${actionsText}</span> <div class="category-card-actions"> <button title="${translations[currentLang]?.['action_view_appointments'] || 'Voir RDV'}" data-action="view" data-category-id="${cat.id}" data-category-name="${cat.titre}" aria-label="${translations[currentLang]?.['action_view_appointments'] || 'Voir RDV'}" class="p-1 text-gray-500 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded-full hover:bg-gray-100"> <svg class="w-5 h-5 pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg> </button> <button title="${translations[currentLang]?.['action_edit'] || 'Modifier'}" data-action="edit" data-category-id="${cat.id}" aria-label="${translations[currentLang]?.['action_edit'] || 'Modifier'}" class="p-1 text-gray-500 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded-full hover:bg-gray-100"> <svg class="w-5 h-5 pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" /></svg> </button> <button title="${translations[currentLang]?.['action_delete'] || 'Supprimer'}" data-action="delete" data-category-id="${cat.id}" data-category-name="${cat.titre}" aria-label="${translations[currentLang]?.['action_delete'] || 'Supprimer'}" class="p-1 text-red-500 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 rounded-full hover:bg-red-50"> <svg class="w-5 h-5 pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg> </button> </div>`;
+        // Utilisation de data-action pour identifier le bouton cliqué via délégation
+        footer.innerHTML = `
+            <span class="text-xs text-gray-500" data-translate-key="card_actions">${actionsText}</span>
+            <div class="category-card-actions">
+                <button title="${translations[currentLang]?.['action_view_appointments'] || 'Voir RDV'}" data-action="view" data-category-id="${cat.id}" data-category-name="${cat.titre}" aria-label="${translations[currentLang]?.['action_view_appointments'] || 'Voir RDV'}" class="p-1 text-gray-500 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded-full hover:bg-gray-100"> <svg class="w-5 h-5 pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg> </button>
+                <button title="${translations[currentLang]?.['action_edit'] || 'Modifier'}" data-action="edit" data-category-id="${cat.id}" aria-label="${translations[currentLang]?.['action_edit'] || 'Modifier'}" class="p-1 text-gray-500 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 rounded-full hover:bg-gray-100"> <svg class="w-5 h-5 pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" /></svg> </button>
+                <button title="${translations[currentLang]?.['action_delete'] || 'Supprimer'}" data-action="delete" data-category-id="${cat.id}" data-category-name="${cat.titre}" aria-label="${translations[currentLang]?.['action_delete'] || 'Supprimer'}" class="p-1 text-red-500 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 rounded-full hover:bg-red-50"> <svg class="w-5 h-5 pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg> </button>
+            </div>
+        `;
         card.appendChild(footer); grid.appendChild(card);
     });
     container.appendChild(grid);
@@ -184,7 +201,6 @@ function showCreateTaskModal() { if (createTaskModal) { createTaskForm?.reset();
 function hideCreateTaskModal() { if (createTaskModal) { createTaskModal.classList.remove('active'); } }
 // --- Fin Fonctions Modale Création Tâche ---
 
-
 // --- Fonctions Modale Logout ---
 const logoutModal = document.getElementById('logout-confirm-modal'); const confirmLogoutBtn = document.getElementById('confirm-logout-btn'); const cancelLogoutBtn = document.getElementById('cancel-logout-btn');
 function showLogoutModal() { if (logoutModal) logoutModal.classList.add('active'); }
@@ -198,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Références éléments
     const sidebarNav = document.querySelector('aside nav'); const mainContentContainer = document.querySelector('main'); const userNameElement = document.getElementById('user-name-display'); const userRoleElement = document.getElementById('user-role-display');
     const userProfileTrigger = document.getElementById('user-profile-trigger'); const userProfileDropdown = document.getElementById('user-profile-dropdown'); const headerLogoutBtn = document.getElementById('header-logout-btn');
-    const createTaskBtn = document.getElementById('create-task-btn'); // Bouton dans la section Tâches
+    const createTaskBtn = document.getElementById('create-task-btn');
 
     // Affichage infos user
     try { const storedUser = localStorage.getItem('loggedInUser'); if (storedUser) { const userData = JSON.parse(storedUser); if (userNameElement && userData.name) userNameElement.textContent = userData.name; if (userRoleElement && userData.role) userRoleElement.textContent = userData.role; } else { console.log('No user data found.'); } } catch (error) { console.error('Error getting user data:', error); }
@@ -229,7 +245,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (categoriesContent) {
         categoriesContent.addEventListener('click', (event) => {
              const button = event.target.closest('button[data-action]');
-             if (!button) return; // Ignorer si ce n'est pas un bouton d'action de carte
+             // Le bouton Créer est géré dans renderCategoryCards via showCreateCategoryModal()
+             if (!button) return;
              const action = button.dataset.action; const categoryId = button.dataset.categoryId; const categoryName = button.dataset.categoryName;
              switch (action) {
                 case 'view': console.log(`Action: Voir les RDV pour catégorie ${categoryId} (${categoryName})`); loadCategoryAppointments(categoryId, categoryName); break;
@@ -260,7 +277,8 @@ document.addEventListener('DOMContentLoaded', () => {
              const formData = new FormData(createCategoryForm); const categoryData = Object.fromEntries(formData.entries()); categoryData.duree = categoryData.duree ? parseInt(categoryData.duree, 10) : null;
              console.log("Données création catégorie:", categoryData);
              try {
-                 const response = await fetch('/api/categories', { method: 'POST', headers: { 'Content-Type': 'application/json', /* Auth */ }, body: JSON.stringify(categoryData) }); const result = await response.json();
+                 // const token = localStorage.getItem('authToken'); // Récupérer token si auth implémentée
+                 const response = await fetch('/api/categories', { method: 'POST', headers: { 'Content-Type': 'application/json', /* 'Authorization': `Bearer ${token}` */ }, body: JSON.stringify(categoryData) }); const result = await response.json();
                  if (response.ok && result.success) { console.log("Catégorie créée:", result.category); hideCreateCategoryModal(); loadCategories(); } // Recharger
                  else { console.error("Erreur création:", result.message); if(createCategoryErrorElement) createCategoryErrorElement.textContent = result.message || "Erreur."; }
              } catch (error) { console.error("Erreur réseau création:", error); if(createCategoryErrorElement) createCategoryErrorElement.textContent = "Erreur réseau.";
@@ -270,15 +288,17 @@ document.addEventListener('DOMContentLoaded', () => {
      // =====================================================
 
      // === Listeners pour la modale de création de TÂCHE ===
-     if (createTaskBtn) { createTaskBtn.addEventListener('click', showCreateTaskModal); }
+     if (createTaskBtn) { createTaskBtn.addEventListener('click', showCreateTaskModal); } // Listener sur le bouton dans la section Tâches
      if (cancelCreateTaskBtn) { cancelCreateTaskBtn.addEventListener('click', hideCreateTaskModal); }
      if (createTaskModal) { createTaskModal.addEventListener('click', (event) => { if (event.target === createTaskModal) { hideCreateTaskModal(); } }); }
      if (createTaskForm) {
          createTaskForm.addEventListener('submit', async (event) => {
              event.preventDefault(); const submitButton = createTaskForm.querySelector('button[type="submit"]'); const originalButtonTextKey = "task_form_create"; const currentLang = document.documentElement.lang || 'fr'; const originalButtonText = translations[currentLang]?.[originalButtonTextKey] || "Créer la tâche";
              submitButton.disabled = true; submitButton.textContent = "Création..."; if(createTaskErrorElement) createTaskErrorElement.textContent = '';
-             const formData = new FormData(createTaskForm); const taskData = Object.fromEntries(formData.entries()); taskData.priorite = taskData.priorite ? parseInt(taskData.priorite, 10) : 2;
-             console.log("Données création tâche:", taskData);
+             const formData = new FormData(createTaskForm); const taskData = Object.fromEntries(formData.entries());
+             // Assurer que la priorité est une chaîne ('1', '2', '3')
+             taskData.priorite = taskData.priorite || '2';
+             console.log("Données création tâche (avant envoi):", taskData);
              try {
                  const response = await fetch('/api/tasks', { method: 'POST', headers: { 'Content-Type': 'application/json', /* Auth */ }, body: JSON.stringify(taskData) }); const result = await response.json();
                  if (response.ok && result.success) { console.log("Tâche créée:", result.task); hideCreateTaskModal(); /* TODO: loadTasks(); */ alert("Tâche créée ! (Rafraîchissement TODO)"); }
