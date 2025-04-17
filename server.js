@@ -4,87 +4,91 @@
  * et les APIs pour les catégories, rendez-vous, dashboard, et tâches.
  */
 
+// Importations des modules nécessaires
 const express = require('express');
-const path = require('path');
-const sqlite3 = require('sqlite3').verbose();
-const bcrypt = require('bcrypt');
-const crypto = require('crypto');
+const path = require('path'); // Pour gérer les chemins de fichiers
+const sqlite3 = require('sqlite3').verbose(); // Pour interagir avec SQLite
+const bcrypt = require('bcrypt'); // Pour hacher les mots de passe
+const crypto = require('crypto'); // Pour générer des tokens aléatoires
 
+// Initialisation de l'application Express
 const app = express();
-const PORT = 8080;
-const saltRounds = 10;
-const TOKEN_EXPIRY_DURATION = 3600000; // 1 heure en millisecondes
+const PORT = 8080; // Port sur lequel le serveur écoutera
+const saltRounds = 10; // Complexité du hachage bcrypt
+const TOKEN_EXPIRY_DURATION = 3600000; // Durée de validité du token d'activation (1 heure en ms)
 
 // Middlewares
-app.use(express.json()); // Pour parser le JSON des requêtes
-app.use(express.static(path.join(__dirname))); // Pour servir les fichiers statiques (HTML, CSS, JS client)
+app.use(express.json()); // Pour parser le JSON dans le corps des requêtes (req.body)
+app.use(express.static(path.join(__dirname))); // Pour servir les fichiers statiques (HTML, CSS, JS client) depuis le répertoire courant
 
 // --- Connexion DB et Création/Vérification des Tables ---
 const db = new sqlite3.Database('./database.db', (err) => {
     if (err) {
+        // Si la connexion échoue, log l'erreur et arrête le serveur
         console.error("Erreur fatale connexion DB:", err.message);
-        process.exit(1); // Arrêter si la DB n'est pas accessible
+        process.exit(1);
     } else {
         console.log('Connecté à la base de données SQLite.');
-        // Utiliser serialize pour exécuter les créations de table en séquence
-        // et s'assurer que les FOREIGN KEYS sont créées après les tables référencées.
+        // Utiliser serialize pour s'assurer que les tables sont créées en séquence
         db.serialize(() => {
-            // Table users
+            // Table users: Stocke les informations des utilisateurs
             db.run(`CREATE TABLE IF NOT EXISTS users (
-                identifiant TEXT PRIMARY KEY,
-                email TEXT UNIQUE NOT NULL,
-                hashedPassword TEXT NOT NULL,
-                firstName TEXT,
-                lastName TEXT,
-                role TEXT,
-                isActive INTEGER DEFAULT 0,
-                activationToken TEXT,
-                tokenExpiry INTEGER
+                identifiant TEXT PRIMARY KEY,         -- Identifiant unique choisi par l'utilisateur ou généré
+                email TEXT UNIQUE NOT NULL,           -- Email unique, utilisé pour la connexion/récupération
+                hashedPassword TEXT NOT NULL,       -- Mot de passe haché
+                firstName TEXT,                     -- Prénom
+                lastName TEXT,                      -- Nom
+                role TEXT DEFAULT 'Utilisateur',    -- Rôle (ex: Utilisateur, Admin)
+                isActive INTEGER DEFAULT 0,         -- Statut d'activation (0=non, 1=oui)
+                activationToken TEXT,               -- Token unique pour l'activation par email
+                tokenExpiry INTEGER                 -- Timestamp d'expiration du token d'activation
             )`, (err) => { if (err) console.error("Erreur table users:", err.message); else console.log("Table 'users' prête."); });
 
-            // Table categories (créée avant appointments et tasks si FK utilisées)
+            // Table categories: Stocke les types de rendez-vous
             db.run(`CREATE TABLE IF NOT EXISTS categories (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_identifiant TEXT NOT NULL,
-                titre TEXT NOT NULL,
-                description TEXT,
-                duree INTEGER,
-                couleur TEXT,
-                FOREIGN KEY (user_identifiant) REFERENCES users (identifiant) ON DELETE CASCADE
+                id INTEGER PRIMARY KEY AUTOINCREMENT, -- ID auto-généré
+                user_identifiant TEXT NOT NULL,       -- Lien vers l'utilisateur propriétaire
+                titre TEXT NOT NULL,                  -- Nom de la catégorie (requis)
+                description TEXT,                     -- Optionnel
+                couleur TEXT,                         -- Optionnel
+                icone TEXT,                           -- Optionnel
+                departement TEXT,                     -- Optionnel
+                responsable TEXT,                     -- Optionnel
+                FOREIGN KEY (user_identifiant) REFERENCES users (identifiant) ON DELETE CASCADE -- Supprime les catégories si l'utilisateur est supprimé
             )`, (err) => { if (err) console.error("Erreur table categories:", err.message); else console.log("Table 'categories' prête."); });
 
-            // Table tasks
+            // Table tasks: Stocke les tâches à faire
             db.run(`CREATE TABLE IF NOT EXISTS tasks (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_identifiant TEXT NOT NULL,
-                titre TEXT NOT NULL,
-                description TEXT,
-                date_echeance INTEGER,          -- Timestamp ms
-                responsable TEXT,
-                priorite INTEGER DEFAULT 2,     -- 1=Basse, 2=Moyenne, 3=Haute
-                statut TEXT DEFAULT 'todo',     -- 'todo', 'inprogress', 'done'
-                categorie_departement TEXT,
-                est_complete INTEGER NOT NULL DEFAULT 0, -- 0=non, 1=oui
-                date_completion INTEGER,        -- Timestamp ms
+                user_identifiant TEXT NOT NULL,       -- Lien vers l'utilisateur
+                titre TEXT NOT NULL,                  -- Titre de la tâche
+                description TEXT,                     -- Description détaillée
+                date_echeance INTEGER,                -- Date limite (Timestamp ms)
+                responsable TEXT,                     -- Personne assignée (simple texte pour l'instant)
+                priorite INTEGER DEFAULT 2,           -- Priorité (1=Basse, 2=Moyenne, 3=Haute)
+                statut TEXT DEFAULT 'todo',           -- Statut ('todo', 'inprogress', 'done')
+                categorie_departement TEXT,           -- Catégorisation libre
+                est_complete INTEGER NOT NULL DEFAULT 0, -- Indicateur de complétion (0 ou 1)
+                date_completion INTEGER,              -- Timestamp de complétion
                 FOREIGN KEY (user_identifiant) REFERENCES users (identifiant) ON DELETE CASCADE
             )`, (err) => { if (err) console.error("Erreur table tasks:", err.message); else console.log("Table 'tasks' prête."); });
 
-            // Table appointments
+            // Table appointments: Stocke les rendez-vous planifiés
             db.run(`CREATE TABLE IF NOT EXISTS appointments (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_identifiant TEXT NOT NULL,
-                titre TEXT,
-                heure_debut INTEGER NOT NULL, -- Timestamp ms
-                heure_fin INTEGER,            -- Timestamp ms
-                categorie_id INTEGER,
+                user_identifiant TEXT NOT NULL,       -- Lien vers l'utilisateur propriétaire du calendrier
+                titre TEXT,                           -- Titre/Objet du RDV (peut être généré ou saisi)
+                heure_debut INTEGER NOT NULL,         -- Heure de début (Timestamp ms)
+                heure_fin INTEGER,                    -- Heure de fin (Timestamp ms)
+                categorie_id INTEGER,                 -- Lien vers la catégorie correspondante
+                -- Ajouter d'autres champs si nécessaire (ex: nom/email de l'invité)
                 FOREIGN KEY (user_identifiant) REFERENCES users (identifiant) ON DELETE CASCADE,
-                FOREIGN KEY (categorie_id) REFERENCES categories (id) ON DELETE SET NULL
+                FOREIGN KEY (categorie_id) REFERENCES categories (id) ON DELETE SET NULL -- Si la catégorie est supprimée, le lien devient NULL
             )`, (err) => {
                 if (err) console.error("Erreur table appointments:", err.message);
                 else {
                     console.log("Table 'appointments' prête.");
-                    // Création admin par défaut (une fois toutes les tables potentiellement créées)
-                    createDefaultAdmin();
+                    createDefaultAdmin(); // Créer l'admin après que toutes les tables sont prêtes
                 }
             });
         });
@@ -103,7 +107,7 @@ function createDefaultAdmin() {
                     [adminIdentifiant, adminEmail, hashedPassword, 'Admin', 'Sys', 'Admin', 1], // Activé par défaut
                     (insertErr) => {
                         if (insertErr) console.error("Erreur insertion admin:", insertErr.message);
-                        else console.log("Utilisateur Admin par défaut créé.");
+                        else console.log("Utilisateur Admin par défaut créé (identifiant: admin, mdp: admin).");
                     }
                 );
             });
@@ -152,7 +156,8 @@ app.post('/api/login', async (req, res) => {
         const match = await bcrypt.compare(password, user.hashedPassword);
         if (match) {
             console.log(`Connexion réussie pour ${loginIdentifier}`);
-            const dummyToken = `fake-token-for-${user.identifiant}-${Date.now()}`; // Remplacer par JWT
+            // TODO: Remplacer par un vrai système de token JWT ou de session
+            const dummyToken = `fake-token-for-${user.identifiant}-${Date.now()}`;
             res.json({ success: true, message: 'Connexion réussie !', token: dummyToken, user: { name: `${user.firstName} ${user.lastName}`, role: user.role, email: user.email } });
         } else {
             console.log(`Échec login (wrong pass): ${loginIdentifier}`);
@@ -172,8 +177,8 @@ app.post('/api/register', async (req, res) => {
 
     try {
         const hashedPassword = await bcrypt.hash(password, saltRounds);
-        // Générer identifiant unique
-        const baseIdentifiant = email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '');
+        // Générer identifiant unique basé sur email
+        const baseIdentifiant = email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
         let identifiant = baseIdentifiant; let counter = 0; let unique = false;
         while (!unique) { const row = await dbGet(`SELECT identifiant FROM users WHERE identifiant = ?`, [identifiant]); if (!row) unique = true; else identifiant = `${baseIdentifiant}${++counter}`; }
         // Générer token activation
@@ -184,6 +189,7 @@ app.post('/api/register', async (req, res) => {
         await dbRun(insertSql, [identifiant, email, hashedPassword, firstName, lastName, "Utilisateur", 0, activationToken, tokenExpiry]);
 
         console.log(`Nouvel utilisateur pré-enregistré: ${email} (identifiant: ${identifiant})`);
+        // Simuler l'envoi d'email
         const activationLink = `http://localhost:${PORT}/api/activate?token=${activationToken}`;
         console.log("--------------------------------------------------"); console.log("SIMULATION D'ENVOI D'EMAIL D'ACTIVATION"); console.log(`À: ${email}`); console.log(`Sujet: Activez votre compte AiCalendy`); console.log(`Corps: Cliquez sur ce lien pour activer : ${activationLink}`); console.log("--------------------------------------------------");
         res.status(201).json({ success: true, message: 'Compte créé ! Veuillez consulter vos emails (ou la console du serveur pour la simulation) pour activer votre compte.' });
@@ -212,6 +218,7 @@ app.get('/api/activate', async (req, res) => {
         await dbRun(updateSql, [user.identifiant]);
 
         console.log(`Compte activé avec succès pour ${user.email}`);
+        // Rediriger vers la page de connexion avec un message de succès
         res.redirect('/connexion_account.html?activated=true');
 
     } catch (error) { console.error("Erreur lors de l'activation:", error); res.status(500).send('<!DOCTYPE html><html><body><h1>Erreur serveur.</h1></body></html>'); }
@@ -219,19 +226,25 @@ app.get('/api/activate', async (req, res) => {
 // ---------------------------------------------
 
 // --- Route API Dashboard ---
+// GET /api/dashboard/data
 app.get('/api/dashboard/data', async (req, res) => {
     console.log("Requête reçue sur /api/dashboard/data");
     const userIdentifiant = 'admin'; // TODO: Remplacer par Auth
     console.log(`Récupération données dashboard pour: ${userIdentifiant}`);
 
     try {
-        const nowMs = Date.now(); const startOfDay = new Date(nowMs).setHours(0, 0, 0, 0); const startOfTomorrow = startOfDay + 24*60*60*1000; const startOfTwoDaysLater = startOfTomorrow + 24*60*60*1000; const startOfWeek = new Date(startOfDay - ((new Date(nowMs).getDay() + 6) % 7) * 24*60*60*1000).getTime(); const startOfNextWeek = startOfWeek + 7*24*60*60*1000;
+        const nowMs = Date.now();
+        const startOfDay = new Date(nowMs).setHours(0, 0, 0, 0);
+        const startOfTomorrow = startOfDay + 24 * 60 * 60 * 1000;
+        const startOfWeek = new Date(startOfDay - ((new Date(nowMs).getDay() + 6) % 7) * 24 * 60 * 60 * 1000).getTime();
+        const startOfNextWeek = startOfWeek + 7 * 24 * 60 * 60 * 1000;
+        const sevenDaysAgo = nowMs - 7 * 24 * 60 * 60 * 1000;
 
         const appointmentsTodayPromise = dbAll(`SELECT id, titre, heure_debut FROM appointments WHERE user_identifiant = ? AND heure_debut >= ? AND heure_debut < ? ORDER BY heure_debut ASC LIMIT 5`, [userIdentifiant, startOfDay, startOfTomorrow]);
-        const tasksDueTodayPromise = dbAll(`SELECT id, titre, date_echeance FROM tasks WHERE user_identifiant = ? AND est_complete = 0 AND date_echeance >= ? AND date_echeance < ? ORDER BY date_echeance ASC LIMIT 5`, [userIdentifiant, startOfDay, startOfTomorrow]);
+        const tasksDueTodayPromise = dbAll(`SELECT id, titre, date_echeance, est_complete FROM tasks WHERE user_identifiant = ? AND date_echeance >= ? AND date_echeance < ? ORDER BY date_echeance ASC LIMIT 5`, [userIdentifiant, startOfDay, startOfTomorrow]);
         const overdueTasksPromise = dbGet(`SELECT COUNT(*) as count FROM tasks WHERE user_identifiant = ? AND est_complete = 0 AND date_echeance < ?`, [userIdentifiant, startOfDay]);
         const appointmentsWeekPromise = dbGet(`SELECT COUNT(*) as count FROM appointments WHERE user_identifiant = ? AND heure_debut >= ? AND heure_debut < ?`, [userIdentifiant, startOfWeek, startOfNextWeek]);
-        const weeklyProgressPromise = new Promise((resolve, reject) => { const sevenDaysAgo = nowMs - 7*24*60*60*1000; const sql = `SELECT strftime('%w', date_completion / 1000, 'unixepoch') as dayOfWeek, COUNT(*) as count FROM tasks WHERE user_identifiant = ? AND est_complete = 1 AND date_completion >= ? GROUP BY dayOfWeek ORDER BY dayOfWeek ASC`; db.all(sql, [userIdentifiant, sevenDaysAgo], (err, rows) => { if (err) reject(err); else { const weeklyData = Array(7).fill(0); rows.forEach(row => { const dayIndex = parseInt(row.dayOfWeek, 10); if (dayIndex >= 0 && dayIndex < 7) weeklyData[dayIndex] = row.count; }); resolve(weeklyData); } }); });
+        const weeklyProgressPromise = new Promise((resolve, reject) => { const sql = `SELECT strftime('%w', date_completion / 1000, 'unixepoch') as dayOfWeek, COUNT(*) as count FROM tasks WHERE user_identifiant = ? AND est_complete = 1 AND date_completion >= ? GROUP BY dayOfWeek ORDER BY dayOfWeek ASC`; db.all(sql, [userIdentifiant, sevenDaysAgo], (err, rows) => { if (err) reject(err); else { const weeklyData = Array(7).fill(0); rows.forEach(row => { const dayIndex = parseInt(row.dayOfWeek, 10); if (dayIndex >= 0 && dayIndex < 7) weeklyData[dayIndex] = row.count; }); resolve(weeklyData); } }); });
 
         const [ appointmentsToday, tasksDueToday, overdueTasksResult, appointmentsWeekResult, weeklyProgressData ] = await Promise.all([ appointmentsTodayPromise, tasksDueTodayPromise, overdueTasksPromise, appointmentsWeekPromise, weeklyProgressPromise ]);
 
@@ -241,35 +254,50 @@ app.get('/api/dashboard/data', async (req, res) => {
 // -----------------------------
 
 // --- Routes API Catégories ---
+// GET /api/categories
 app.get('/api/categories', async (req, res) => {
     console.log("Requête reçue sur GET /api/categories");
     const userIdentifiant = 'admin'; // TODO: Auth
     try {
-        const sql = `SELECT id, titre, description, couleur, duree FROM categories WHERE user_identifiant = ? ORDER BY titre ASC`;
+        const sql = `SELECT id, titre, description, couleur, icone, departement, responsable FROM categories WHERE user_identifiant = ? ORDER BY titre ASC`;
         const categories = await dbAll(sql, [userIdentifiant]);
         console.log(`Catégories trouvées pour ${userIdentifiant}:`, categories.length);
         res.json({ success: true, categories: categories });
     } catch (error) { console.error("Erreur GET /api/categories:", error); res.status(500).json({ success: false, message: "Erreur serveur récupération catégories." }); }
 });
 
+// POST /api/categories
 app.post('/api/categories', async (req, res) => {
     console.log("Requête reçue sur POST /api/categories:", req.body);
     const userIdentifiant = 'admin'; // TODO: Auth
-    const { titre, description, duree, couleur } = req.body;
-    if (!titre) return res.status(400).json({ success: false, message: 'Le titre de la catégorie est requis.' });
-
+    const { titre, description, couleur, icone, departement, responsable } = req.body;
+    if (!titre) { return res.status(400).json({ success: false, message: 'Le nom de la catégorie est requis.' }); }
     try {
-        const sql = `INSERT INTO categories (user_identifiant, titre, description, duree, couleur) VALUES (?, ?, ?, ?, ?)`;
-        const params = [ userIdentifiant, titre, description || null, duree ? parseInt(duree, 10) : null, couleur || null ];
+        const sql = `INSERT INTO categories (user_identifiant, titre, description, couleur, icone, departement, responsable) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+        const params = [ userIdentifiant, titre, description || null, couleur || null, icone || null, departement || null, responsable || null ];
         const result = await dbRun(sql, params);
         console.log(`Nouvelle catégorie créée ID: ${result.lastID} pour ${userIdentifiant}`);
         const newCategory = await dbGet(`SELECT * FROM categories WHERE id = ?`, [result.lastID]);
         res.status(201).json({ success: true, message: 'Catégorie créée avec succès.', category: newCategory });
     } catch (error) { console.error("Erreur POST /api/categories:", error); res.status(500).json({ success: false, message: "Erreur serveur lors de la création de la catégorie." }); }
 });
+
+// DELETE /api/categories/:id
+app.delete('/api/categories/:id', async (req, res) => {
+    const categoryId = req.params.id; const userIdentifiant = 'admin'; // TODO: Auth
+    console.log(`Requête reçue sur DELETE /api/categories/${categoryId}`);
+    try {
+        const sql = `DELETE FROM categories WHERE id = ? AND user_identifiant = ?`;
+        const result = await dbRun(sql, [categoryId, userIdentifiant]);
+        if (result.changes === 0) return res.status(404).json({ success: false, message: 'Catégorie non trouvée ou accès non autorisé.' });
+        console.log(`Catégorie ${categoryId} supprimée pour ${userIdentifiant}`);
+        res.json({ success: true, message: 'Catégorie supprimée avec succès.' });
+    } catch (error) { console.error(`Erreur DELETE /api/categories/${categoryId}:`, error); res.status(500).json({ success: false, message: "Erreur serveur lors de la suppression de la catégorie." }); }
+});
 // --------------------------
 
 // --- Route API Rendez-vous ---
+// GET /api/appointments
 app.get('/api/appointments', async (req, res) => {
     const categoryId = req.query.category_id; console.log(`Requête reçue sur /api/appointments ${categoryId ? 'pour catégorie id ' + categoryId : '(tous)'}`);
     const userIdentifiant = 'admin'; // TODO: Auth
@@ -286,16 +314,23 @@ app.get('/api/appointments', async (req, res) => {
 // ---------------------------
 
 // --- Routes API Tâches ---
+// GET /api/tasks
 app.get('/api/tasks', async (req, res) => {
     console.log("Requête reçue sur GET /api/tasks");
     const userIdentifiant = 'admin'; // TODO: Auth
     try {
-        const sql = `SELECT id, titre, date_echeance, responsable, priorite, statut, categorie_departement, est_complete FROM tasks WHERE user_identifiant = ? ORDER BY date_echeance ASC NULLS LAST`;
+        const sql = `SELECT id, titre, date_echeance, responsable, priorite, statut, categorie_departement, est_complete FROM tasks WHERE user_identifiant = ? ORDER BY date_echeance ASC NULLS LAST, priorite DESC`;
         const tasks = await dbAll(sql, [userIdentifiant]);
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate'); res.setHeader('Pragma', 'no-cache'); res.setHeader('Expires', '0'); res.setHeader('Surrogate-Control', 'no-store');
         res.json({ success: true, tasks: tasks });
-    } catch (error) { console.error("Erreur GET /api/tasks:", error); res.status(500).json({ success: false, message: "Erreur serveur récupération tâches." }); }
+    } catch (error) {
+        console.error("Erreur GET /api/tasks:", error);
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate'); res.setHeader('Pragma', 'no-cache'); res.setHeader('Expires', '0'); res.setHeader('Surrogate-Control', 'no-store');
+        res.status(500).json({ success: false, message: "Erreur serveur récupération tâches." });
+    }
 });
 
+// POST /api/tasks
 app.post('/api/tasks', async (req, res) => {
     console.log("Requête reçue sur POST /api/tasks:", req.body);
     const userIdentifiant = 'admin'; // TODO: Auth
@@ -316,6 +351,36 @@ app.post('/api/tasks', async (req, res) => {
         const newTask = await dbGet(`SELECT * FROM tasks WHERE id = ?`, [result.lastID]);
         res.status(201).json({ success: true, message: 'Tâche créée avec succès.', task: newTask });
     } catch (error) { console.error("Erreur POST /api/tasks:", error); res.status(500).json({ success: false, message: "Erreur serveur lors de la création de la tâche." }); }
+});
+
+// PUT /api/tasks/:id/status
+app.put('/api/tasks/:id/status', async (req, res) => {
+    const taskId = req.params.id; const { statut, est_complete } = req.body; const userIdentifiant = 'admin'; // TODO: Auth
+    console.log(`Requête reçue sur PUT /api/tasks/${taskId}/status:`, req.body);
+    if (!statut || !['todo', 'inprogress', 'done'].includes(statut)) return res.status(400).json({ success: false, message: 'Nouveau statut invalide.' });
+    if (est_complete === undefined || ![0, 1].includes(Number(est_complete))) return res.status(400).json({ success: false, message: 'Valeur est_complete invalide (0 ou 1).' });
+    const date_completion = (Number(est_complete) === 1) ? Date.now() : null;
+    try {
+        const sql = `UPDATE tasks SET statut = ?, est_complete = ?, date_completion = ? WHERE id = ? AND user_identifiant = ?`;
+        const params = [statut, Number(est_complete), date_completion, taskId, userIdentifiant];
+        const result = await dbRun(sql, params);
+        if (result.changes === 0) return res.status(404).json({ success: false, message: 'Tâche non trouvée ou accès non autorisé.' });
+        console.log(`Statut tâche ${taskId} mis à jour pour ${userIdentifiant}`);
+        res.json({ success: true, message: 'Statut de la tâche mis à jour.' });
+    } catch (error) { console.error(`Erreur PUT /api/tasks/${taskId}/status:`, error); res.status(500).json({ success: false, message: "Erreur serveur lors de la mise à jour du statut." }); }
+});
+
+// DELETE /api/tasks/:id
+app.delete('/api/tasks/:id', async (req, res) => {
+    const taskId = req.params.id; const userIdentifiant = 'admin'; // TODO: Auth
+    console.log(`Requête reçue sur DELETE /api/tasks/${taskId}`);
+    try {
+        const sql = `DELETE FROM tasks WHERE id = ? AND user_identifiant = ?`;
+        const result = await dbRun(sql, [taskId, userIdentifiant]);
+        if (result.changes === 0) return res.status(404).json({ success: false, message: 'Tâche non trouvée ou accès non autorisé.' });
+        console.log(`Tâche ${taskId} supprimée pour ${userIdentifiant}`);
+        res.json({ success: true, message: 'Tâche supprimée avec succès.' });
+    } catch (error) { console.error(`Erreur DELETE /api/tasks/${taskId}:`, error); res.status(500).json({ success: false, message: "Erreur serveur lors de la suppression de la tâche." }); }
 });
 // -----------------------
 

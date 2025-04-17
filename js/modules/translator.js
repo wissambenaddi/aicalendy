@@ -24,8 +24,8 @@ const translations = {
         footer_privacy: "Politique de confidentialité", footer_terms: "Conditions d'utilisation",
         // --- Dashboard ---
         sidebar_dashboard: "Dashboard", sidebar_categories: "Mes Catégories", sidebar_tasks: "Mes tâches",
-        sidebar_appointments: "Mes Rendez-vous", sidebar_profile: "Mon Profil", sidebar_logout: "Se déconnecter", // Clé pour bouton sidebar (si réactivé)
-        header_username: "Nom Utilisateur", header_role: "Administrateur", // Placeholders
+        sidebar_appointments: "Mes Rendez-vous", sidebar_profile: "Mon Profil", sidebar_logout: "Se déconnecter",
+        header_username: "Nom Utilisateur", header_role: "Administrateur",
         dashboard_section_title: "Tableau de Bord Principal", categories_section_title: "Mes Catégories de Rendez-vous",
         tasks_section_title: "Mes Tâches", appointments_section_title: "Mes Rendez-vous", profile_section_title: "Mon Profil",
         // --- Dashboard KPIs / Listes ---
@@ -38,14 +38,23 @@ const translations = {
         category_appointments_title: "Rendez-vous pour : {categoryName}", back_to_categories: "Retour aux catégories",
         no_categories_found: "Aucune catégorie créée pour le moment.", no_appointments_in_category: "Aucun rendez-vous planifié pour cette catégorie.",
         // --- Modale Création Catégorie ---
-        create_category_title: "Nouvelle Catégorie de Rendez-vous", category_form_title: "Titre", category_form_description: "Description",
-        category_form_duration: "Durée (minutes)", category_form_color: "Couleur", category_form_cancel: "Annuler", category_form_create: "Créer la catégorie",
+        create_category_title: "Nouvelle Catégorie", category_form_title: "Nom de la catégorie", category_form_description: "Description",
+        category_form_color: "Couleur associée", category_form_icon: "Icône / Emoji", category_form_department: "Département lié",
+        category_form_assignee: "Responsable", category_form_cancel: "Annuler", category_form_create: "Créer la catégorie",
+        // --- Confirmation Suppression Catégorie ---
+        category_delete_confirm_title: "Confirmer Suppression", category_delete_confirm_text: "Êtes-vous sûr de vouloir supprimer la catégorie \"{categoryName}\" ? Les rendez-vous liés seront dissociés.",
+        // --- Section Tâches ---
+        no_tasks_found: "Aucune tâche à afficher.",
         // --- Modale Création Tâche ---
         dashboard_create_task: "Créer une tâche", create_task_title: "Nouvelle Tâche", task_form_title: "Titre",
         task_form_description: "Description", task_form_due_date: "Date d'échéance", task_form_assignee: "Responsable",
         task_form_priority: "Priorité", task_form_priority_low: "Basse", task_form_priority_medium: "Moyenne", task_form_priority_high: "Haute",
         task_form_status: "Statut", task_form_status_todo: "À faire", task_form_status_inprogress: "En cours", task_form_status_done: "Terminé",
         task_form_category: "Catégorie/Département", task_form_cancel: "Annuler", task_form_create: "Créer la tâche",
+        // --- Modale Action Tâche ---
+        task_action_modal_title: "Actions pour la tâche", task_action_change_status: "Changer Statut", task_action_delete: "Supprimer",
+        task_action_select_status: "Nouveau statut :", task_action_confirm_status: "Valider Statut", task_action_cancel: "Annuler",
+        task_delete_confirm_title: "Confirmer Suppression", task_delete_confirm_text: "Êtes-vous sûr de vouloir supprimer cette tâche ?",
         // --- Dropdown Profil Header ---
         dropdown_profile: "Mon Profil", dropdown_logout: "Se déconnecter",
         // --- Page d'inscription ---
@@ -72,9 +81,15 @@ const translations = {
         // --- Categories Section ---
         dashboard_create_category: "Create category", card_actions: "Actions:", action_copy_link: "Copy link", action_view_appointments: "View appointments", action_edit: "Edit", action_delete: "Delete", category_appointments_title: "Appointments for: {categoryName}", back_to_categories: "Back to categories", no_categories_found: "No categories created yet.", no_appointments_in_category: "No appointments scheduled for this category.",
         // --- Create Category Modal ---
-        create_category_title: "New Appointment Category", category_form_title: "Title", category_form_description: "Description", category_form_duration: "Duration (minutes)", category_form_color: "Color", category_form_cancel: "Cancel", category_form_create: "Create category",
+        create_category_title: "New Category", category_form_title: "Category Name", category_form_description: "Description", category_form_color: "Associated Color", category_form_icon: "Icon / Emoji", category_form_department: "Linked Department", category_form_assignee: "Assignee", category_form_cancel: "Cancel", category_form_create: "Create Category",
+        // --- Category Delete Confirmation ---
+        category_delete_confirm_title: "Confirm Deletion", category_delete_confirm_text: "Are you sure you want to delete the category \"{categoryName}\"? Linked appointments will be dissociated.",
+        // --- Tasks Section ---
+        no_tasks_found: "No tasks found.",
         // --- Create Task Modal ---
         dashboard_create_task: "Create Task", create_task_title: "New Task", task_form_title: "Title", task_form_description: "Description", task_form_due_date: "Due Date", task_form_assignee: "Assignee", task_form_priority: "Priority", task_form_priority_low: "Low", task_form_priority_medium: "Medium", task_form_priority_high: "High", task_form_status: "Status", task_form_status_todo: "To Do", task_form_status_inprogress: "In Progress", task_form_status_done: "Done", task_form_category: "Category/Department", task_form_cancel: "Cancel", task_form_create: "Create Task",
+        // --- Task Action Modal ---
+        task_action_modal_title: "Task Actions", task_action_change_status: "Change Status", task_action_delete: "Delete", task_action_select_status: "New status:", task_action_confirm_status: "Confirm Status", task_action_cancel: "Cancel", task_delete_confirm_title: "Confirm Deletion", task_delete_confirm_text: "Are you sure you want to delete this task?",
         // --- User Dropdown ---
         dropdown_profile: "My Profile", dropdown_logout: "Logout",
         // --- Registration Page ---
@@ -96,8 +111,16 @@ function setLanguage(lang) {
 
     document.querySelectorAll('[data-translate-key]').forEach(element => {
         const key = element.dataset.translateKey;
-        const translationText = translations[lang]?.[key];
+        let translationText = translations[lang]?.[key];
+
+        // Gestion des placeholders comme {categoryName}
+        if (translationText && translationText.includes('{')) {
+            // Ne pas remplacer ici, laisser le code JS spécifique le faire
+            // (ex: dans loadCategoryAppointments ou la confirmation de suppression)
+        }
+
         if (translationText !== undefined) {
+            // Cas spécifiques pour ne pas écraser d'autres contenus ou structures
             if (key.startsWith('action_')) { element.setAttribute('title', translationText); element.setAttribute('aria-label', translationText); }
             else if (key === 'password_strength') { const strengthSpan = element.querySelector('.strength-text'); if (strengthSpan) { element.firstChild.textContent = translationText + ' '; } else { element.innerHTML = translationText; } }
             else if (element.id === 'user-name-display') { /* Géré par JS */ }
@@ -106,7 +129,7 @@ function setLanguage(lang) {
         } else { console.warn(`Clé "${key}" non trouvée pour lang "${lang}".`); }
     });
 
-    // Traduire les options des <select> (Priorité et Statut tâche)
+    // Traduire les options des <select>
     const taskPrioritySelect = document.getElementById('task-priority');
     if(taskPrioritySelect) {
         taskPrioritySelect.options[0].textContent = translations[lang]?.task_form_priority_low || 'Basse';
@@ -118,6 +141,13 @@ function setLanguage(lang) {
         taskStatusSelect.options[0].textContent = translations[lang]?.task_form_status_todo || 'À faire';
         taskStatusSelect.options[1].textContent = translations[lang]?.task_form_status_inprogress || 'En cours';
         taskStatusSelect.options[2].textContent = translations[lang]?.task_form_status_done || 'Terminé';
+    }
+    // Traduire les options du select dans la modale d'action tâche
+    const taskActionStatusSelect = document.getElementById('task-action-new-status');
+     if(taskActionStatusSelect) {
+        taskActionStatusSelect.options[0].textContent = translations[lang]?.task_form_status_todo || 'À faire';
+        taskActionStatusSelect.options[1].textContent = translations[lang]?.task_form_status_inprogress || 'En cours';
+        taskActionStatusSelect.options[2].textContent = translations[lang]?.task_form_status_done || 'Terminé';
     }
 }
 
@@ -139,6 +169,8 @@ function initLanguageSwitcher() {
 document.addEventListener('DOMContentLoaded', () => {
     initLanguageSwitcher();
     const initialLang = document.documentElement.lang || 'fr';
+    // Appeler setLanguage une fois que le DOM est prêt
+    // pour traduire les éléments initiaux et les options de select
     setLanguage(initialLang);
 });
 
