@@ -44,7 +44,7 @@ const translations = {
         // --- Confirmation Suppression Catégorie ---
         category_delete_confirm_title: "Confirmer Suppression", category_delete_confirm_text: "Êtes-vous sûr de vouloir supprimer la catégorie \"{categoryName}\" ? Les rendez-vous liés seront dissociés.",
         // --- Section Tâches ---
-        no_tasks_found: "Aucune tâche à afficher.",
+        no_tasks_found: "Aucune tâche à afficher.", // Message pour la liste vide dans la section tâches
         // --- Modale Création Tâche ---
         dashboard_create_task: "Créer une tâche", create_task_title: "Nouvelle Tâche", task_form_title: "Titre",
         task_form_description: "Description", task_form_due_date: "Date d'échéance", task_form_assignee: "Responsable",
@@ -55,6 +55,27 @@ const translations = {
         task_action_modal_title: "Actions pour la tâche", task_action_change_status: "Changer Statut", task_action_delete: "Supprimer",
         task_action_select_status: "Nouveau statut :", task_action_confirm_status: "Valider Statut", task_action_cancel: "Annuler",
         task_delete_confirm_title: "Confirmer Suppression", task_delete_confirm_text: "Êtes-vous sûr de vouloir supprimer cette tâche ?",
+        // --- Section Rendez-vous ---
+        appointment_status_confirmed: "Confirmé", appointment_status_pending: "En attente", appointment_status_canceled: "Annulé",
+        appointment_action_details: "Détails", appointment_action_reschedule: "Reprogrammer", appointment_action_cancel: "Annuler",
+        no_appointments_found: "Aucun rendez-vous trouvé.", // Pour la liste vide
+        // --- Modale Création Rendez-vous ---
+        create_appointment_title: "Nouveau Rendez-vous", appointment_form_title: "Titre / Objet", appointment_form_category: "Catégorie",
+        appointment_form_select_category: "Sélectionner une catégorie...", appointment_form_date: "Date", appointment_form_start_time: "Heure de début",
+        appointment_form_end_time: "Heure de fin", appointment_form_guest_name: "Nom de l'invité (optionnel)", appointment_form_guest_email: "Email de l'invité (optionnel)",
+        appointment_form_create: "Créer le rendez-vous", appointment_form_cancel: "Annuler",
+         // --- Modale Édition Rendez-vous ---
+         edit_appointment_title: "Modifier le Rendez-vous",
+         appointment_form_save: "Enregistrer les modifications",
+        // --- Modale Détails Rendez-vous ---
+        appointment_details_title: "Détails du Rendez-vous", appointment_details_category: "Catégorie", appointment_details_date: "Date",
+        appointment_details_start_time: "Début", appointment_details_end_time: "Fin", appointment_details_status: "Statut",
+        appointment_details_edit: "Modifier", appointment_details_close: "Fermer",
+        // --- Modale Confirmation Annulation RDV ---
+        appointment_cancel_confirm_title: "Confirmer l'Annulation",
+        appointment_cancel_confirm_text: "Êtes-vous sûr de vouloir annuler ce rendez-vous ?",
+        appointment_cancel_confirm_button: "Oui, Annuler",
+        appointment_cancel_cancel_button: "Non, Retour",
         // --- Dropdown Profil Header ---
         dropdown_profile: "Mon Profil", dropdown_logout: "Se déconnecter",
         // --- Page d'inscription ---
@@ -90,6 +111,16 @@ const translations = {
         dashboard_create_task: "Create Task", create_task_title: "New Task", task_form_title: "Title", task_form_description: "Description", task_form_due_date: "Due Date", task_form_assignee: "Assignee", task_form_priority: "Priority", task_form_priority_low: "Low", task_form_priority_medium: "Medium", task_form_priority_high: "High", task_form_status: "Status", task_form_status_todo: "To Do", task_form_status_inprogress: "In Progress", task_form_status_done: "Done", task_form_category: "Category/Department", task_form_cancel: "Cancel", task_form_create: "Create Task",
         // --- Task Action Modal ---
         task_action_modal_title: "Task Actions", task_action_change_status: "Change Status", task_action_delete: "Delete", task_action_select_status: "New status:", task_action_confirm_status: "Confirm Status", task_action_cancel: "Cancel", task_delete_confirm_title: "Confirm Deletion", task_delete_confirm_text: "Are you sure you want to delete this task?",
+         // --- Appointments Section/List Keys ---
+         appointments_section_title: "My Appointments", appointment_status_confirmed: "Confirmed", appointment_status_pending: "Pending", appointment_status_canceled: "Canceled", appointment_action_details: "Details", appointment_action_reschedule: "Reschedule", appointment_action_cancel: "Cancel", no_appointments_found: "No appointments found.",
+        // --- Create Appointment Modal Keys ---
+        create_appointment_title: "New Appointment", appointment_form_title: "Title / Subject", appointment_form_category: "Category", appointment_form_select_category: "Select a category...", appointment_form_date: "Date", appointment_form_start_time: "Start Time", appointment_form_end_time: "End Time", appointment_form_guest_name: "Guest Name (optional)", appointment_form_guest_email: "Guest Email (optional)", appointment_form_create: "Create Appointment", appointment_form_cancel: "Cancel",
+        // --- Edit Appointment Modal Keys ---
+        edit_appointment_title: "Edit Appointment", appointment_form_save: "Save Changes",
+        // --- Appointment Details Modal Keys ---
+        appointment_details_title: "Appointment Details", appointment_details_category: "Category", appointment_details_date: "Date", appointment_details_start_time: "Start Time", appointment_details_end_time: "End Time", appointment_details_status: "Status", appointment_details_edit: "Edit", appointment_details_close: "Close",
+        // --- Appointment Cancel Confirmation Modal Keys ---
+        appointment_cancel_confirm_title: "Confirm Cancellation", appointment_cancel_confirm_text: "Are you sure you want to cancel this appointment?", appointment_cancel_confirm_button: "Yes, Cancel", appointment_cancel_cancel_button: "No, Go Back",
         // --- User Dropdown ---
         dropdown_profile: "My Profile", dropdown_logout: "Logout",
         // --- Registration Page ---
@@ -116,16 +147,23 @@ function setLanguage(lang) {
         // Gestion des placeholders comme {categoryName}
         if (translationText && translationText.includes('{')) {
             // Ne pas remplacer ici, laisser le code JS spécifique le faire
-            // (ex: dans loadCategoryAppointments ou la confirmation de suppression)
         }
 
         if (translationText !== undefined) {
             // Cas spécifiques pour ne pas écraser d'autres contenus ou structures
-            if (key.startsWith('action_')) { element.setAttribute('title', translationText); element.setAttribute('aria-label', translationText); }
+            if (key.startsWith('action_') || key.startsWith('appointment_action_') || key === 'appointment_details_edit') {
+                // Pour les boutons d'action (souvent avec icône + span ou juste icône)
+                element.setAttribute('title', translationText); // Met à jour le tooltip
+                const spanElement = element.querySelector('span'); // Cherche un span à l'intérieur
+                if (spanElement) {
+                    spanElement.textContent = translationText; // Met à jour le texte du span
+                }
+                 // Mettre à jour aussi aria-label si besoin d'accessibilité
+                 element.setAttribute('aria-label', translationText);
+            }
             else if (key === 'password_strength') { const strengthSpan = element.querySelector('.strength-text'); if (strengthSpan) { element.firstChild.textContent = translationText + ' '; } else { element.innerHTML = translationText; } }
             else if (element.id === 'user-name-display') { /* Géré par JS */ }
-            // else if (element.id === 'user-role-display') { element.innerHTML = translationText; } // Laisser JS gérer ou traduire ici
-            else { element.innerHTML = translationText; }
+            else { element.innerHTML = translationText; } // Cas général
         } else { console.warn(`Clé "${key}" non trouvée pour lang "${lang}".`); }
     });
 
@@ -142,12 +180,21 @@ function setLanguage(lang) {
         taskStatusSelect.options[1].textContent = translations[lang]?.task_form_status_inprogress || 'En cours';
         taskStatusSelect.options[2].textContent = translations[lang]?.task_form_status_done || 'Terminé';
     }
-    // Traduire les options du select dans la modale d'action tâche
     const taskActionStatusSelect = document.getElementById('task-action-new-status');
      if(taskActionStatusSelect) {
         taskActionStatusSelect.options[0].textContent = translations[lang]?.task_form_status_todo || 'À faire';
         taskActionStatusSelect.options[1].textContent = translations[lang]?.task_form_status_inprogress || 'En cours';
         taskActionStatusSelect.options[2].textContent = translations[lang]?.task_form_status_done || 'Terminé';
+    }
+    // Traduire le placeholder du select catégorie dans la modale RDV (Création)
+    const apptCategorySelect = document.getElementById('appointment-category');
+    if (apptCategorySelect && apptCategorySelect.options[0] && apptCategorySelect.options[0].value === "") {
+        apptCategorySelect.options[0].textContent = translations[lang]?.appointment_form_select_category || 'Sélectionner...';
+    }
+    // Traduire le placeholder du select catégorie dans la modale RDV (Édition)
+    const editApptCategorySelect = document.getElementById('edit-appointment-category');
+    if (editApptCategorySelect && editApptCategorySelect.options[0] && editApptCategorySelect.options[0].value === "") {
+        editApptCategorySelect.options[0].textContent = translations[lang]?.appointment_form_select_category || 'Sélectionner...';
     }
 }
 
@@ -170,7 +217,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initLanguageSwitcher();
     const initialLang = document.documentElement.lang || 'fr';
     // Appeler setLanguage une fois que le DOM est prêt
-    // pour traduire les éléments initiaux et les options de select
     setLanguage(initialLang);
 });
 

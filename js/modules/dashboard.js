@@ -2,7 +2,7 @@
  * Fichier : js/modules/dashboard.js
  * Description : Gère la logique du tableau de bord : navigation, affichage infos user,
  * KPIs, affichage dynamique des catégories, tâches, rendez-vous,
- * gestion des modales (logout, création catégorie, création tâche, action tâche), dropdown profil.
+ * gestion des modales (logout, création catégorie, création tâche, action tâche, création RDV, détails RDV, édition RDV), dropdown profil.
  */
 
 // Importer les traductions pour les messages et textes dynamiques
@@ -38,6 +38,30 @@ function formatDate(timestamp, locale = 'fr', options = { dateStyle: 'short' }) 
          return date.toLocaleDateString(locale, options);
      }
      catch (e) { console.error("Error formatting date:", e); return 'Date invalide'; }
+}
+// Helper pour formater un timestamp en YYYY-MM-DD pour input[type=date]
+function formatTimestampForDateInput(timestamp) {
+    if (!timestamp) return '';
+    try {
+        const date = new Date(timestamp);
+        if (isNaN(date.getTime())) return '';
+        // Attention au fuseau horaire ! Pour l'instant, on prend l'heure locale.
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    } catch(e) { console.error("Error formatting timestamp for date input:", e); return ''; }
+}
+// Helper pour formater un timestamp en HH:MM pour input[type=time]
+function formatTimestampForTimeInput(timestamp) {
+     if (!timestamp) return '';
+     try {
+         const date = new Date(timestamp);
+         if (isNaN(date.getTime())) return '';
+         const hours = date.getHours().toString().padStart(2, '0');
+         const minutes = date.getMinutes().toString().padStart(2, '0');
+         return `${hours}:${minutes}`;
+     } catch(e) { console.error("Error formatting timestamp for time input:", e); return ''; }
 }
 
 // --- Fonctions d'Affichage Dynamique ---
@@ -108,7 +132,7 @@ function renderList(listElement, items, type) {
 
 /** Génère et affiche les cartes de catégories dans le conteneur spécifié. */
 function renderCategoryCards(container, categories) {
-    if (!container) return;
+    if (!container) { console.error("Conteneur de catégories non trouvé."); return; }
     const currentLang = document.documentElement.lang || 'fr';
     container.innerHTML = ''; // Vider
 
@@ -215,18 +239,86 @@ async function loadTasks() {
     } catch (error) { console.error("Erreur loadTasks:", error); const currentLang = document.documentElement.lang || 'fr'; const errorText = translations[currentLang]?.['no_tasks_found'] || 'Erreur chargement tâches.'; container.innerHTML = `<div class="tasks-empty-message text-red-600">${errorText} (${error.message})</div>`; }
 }
 
+/** Génère le HTML pour la liste des rendez-vous (sous forme de tableau). */
+function renderAppointmentsList(container, appointments) {
+    if (!container) { console.error("Conteneur de liste de RDV non trouvé."); return; }
+    const currentLang = document.documentElement.lang || 'fr';
+    container.innerHTML = ''; // Vider
+
+    if (!appointments || appointments.length === 0) {
+        const emptyKey = 'no_appointments_found';
+        const emptyText = translations[currentLang]?.[emptyKey] || 'Aucun rendez-vous trouvé.';
+        container.innerHTML = `<div class="appointments-empty-message">${emptyText}</div>`;
+        return;
+    }
+
+    const table = document.createElement('table'); table.className = 'appointments-table w-full';
+    const thead = table.createTHead(); const headerRow = thead.insertRow();
+    // TODO: Traduire les en-têtes
+    const headers = ['Titre', 'Date et Heure', 'Statut', 'Actions'];
+    headers.forEach(text => { const th = document.createElement('th'); th.scope = 'col'; th.textContent = text; headerRow.appendChild(th); });
+
+    const tbody = table.createTBody();
+    appointments.forEach(appt => {
+        const row = tbody.insertRow();
+
+        row.insertCell().textContent = appt.titre || 'Rendez-vous';
+        const cellDateTime = row.insertCell();
+        cellDateTime.textContent = formatDateTime(appt.heure_debut, currentLang, { dateStyle: 'long', timeStyle: 'short' });
+
+        const cellStatus = row.insertCell();
+        const statusBadge = document.createElement('span');
+        statusBadge.className = 'appointment-status-badge';
+        let statusText = appt.statut || 'pending'; // Défaut si null
+        let statusClass = `appointment-status-${statusText}`;
+        let translationKey = `appointment_status_${statusText}`;
+        statusBadge.textContent = translations[currentLang]?.[translationKey] || statusText;
+        statusBadge.classList.add(statusClass);
+        cellStatus.appendChild(statusBadge);
+
+        const cellActions = row.insertCell();
+        cellActions.className = 'appointment-actions';
+        cellActions.innerHTML = `
+            <button title="${translations[currentLang]?.['appointment_action_details'] || 'Détails'}" data-action="view-appt" data-appt-id="${appt.id}" class="details-btn"> <svg class="inline w-3 h-3 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg> <span data-translate-key="appointment_action_details">Détails</span> </button>
+            <button title="${translations[currentLang]?.['appointment_action_reschedule'] || 'Reprogrammer'}" data-action="reschedule-appt" data-appt-id="${appt.id}" class="reschedule-btn"> <svg class="inline w-3 h-3 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg> <span data-translate-key="appointment_action_reschedule">Reprogrammer</span> </button>
+            <button title="${translations[currentLang]?.['appointment_action_cancel'] || 'Annuler'}" data-action="cancel-appt" data-appt-id="${appt.id}" class="cancel-btn"> <svg class="inline w-3 h-3 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg> <span data-translate-key="appointment_action_cancel">Annuler</span> </button>
+        `;
+    });
+
+    container.appendChild(table);
+}
+
+/** Charge tous les rendez-vous depuis l'API et les affiche */
+async function loadAllAppointments() {
+    const container = document.getElementById('appointments-list-container');
+    if (!container) { console.error("Conteneur '#appointments-list-container' non trouvé."); return; }
+    container.innerHTML = '<div class="text-center py-10 text-gray-500">Chargement des rendez-vous...</div>';
+
+    try {
+        const response = await fetch('/api/appointments', { headers: { 'Accept': 'application/json' } });
+        if (!response.ok) throw new Error(`Erreur HTTP ${response.status}`);
+        const result = await response.json();
+        if (result.success && result.appointments) {
+            renderAppointmentsList(container, result.appointments);
+        } else {
+            throw new Error(result.message || "Erreur récupération rendez-vous.");
+        }
+    } catch (error) {
+        console.error("Erreur loadAllAppointments:", error);
+        const currentLang = document.documentElement.lang || 'fr';
+        const errorText = translations[currentLang]?.['no_appointments_found'] || 'Erreur chargement rendez-vous.';
+        container.innerHTML = `<div class="appointments-empty-message text-red-600">${errorText} (${error.message})</div>`;
+    }
+}
+
 /** Gère le clic sur la checkbox d'une tâche pour ouvrir la modale d'action */
 function handleTaskCheckboxClick(event) {
     const checkbox = event.target;
     const taskId = checkbox.dataset.taskId;
     const taskTitle = checkbox.dataset.taskTitle || 'Inconnu';
     console.log(`Checkbox cliquée pour Tâche ID: ${taskId} (${taskTitle})`);
-
-    // Empêcher le changement d'état visuel immédiat de la checkbox
-    checkbox.checked = !checkbox.checked;
-
-    // Ouvrir la modale d'action
-    showTaskActionModal(taskId, taskTitle);
+    checkbox.checked = !checkbox.checked; // Annuler le changement visuel
+    showTaskActionModal(taskId, taskTitle); // Ouvrir la modale
 }
 
 
@@ -244,6 +336,113 @@ function hideLogoutModal() { if (logoutModal) logoutModal.classList.remove('acti
 const taskActionModal = document.getElementById('task-action-modal'); const taskActionModalTitle = document.getElementById('task-action-modal-task-title'); const taskActionStatusChanger = document.getElementById('task-action-status-changer'); const taskActionNewStatusSelect = document.getElementById('task-action-new-status'); const taskActionConfirmStatusBtn = document.getElementById('confirm-status-change-btn'); const taskActionChangeStatusBtn = document.getElementById('task-action-change-status-btn'); const taskActionDeleteBtn = document.getElementById('task-action-delete-btn'); const taskActionCancelBtn = document.getElementById('cancel-task-action-btn'); const taskActionError = document.getElementById('task-action-error'); let currentTaskActionId = null;
 function showTaskActionModal(taskId, taskTitle) { if (taskActionModal) { currentTaskActionId = taskId; if (taskActionModalTitle) taskActionModalTitle.textContent = taskTitle || 'Tâche sélectionnée'; if (taskActionStatusChanger) taskActionStatusChanger.classList.add('hidden'); if (taskActionError) taskActionError.textContent = ''; taskActionModal.classList.add('active'); } else { console.error("Modal 'task-action-modal' non trouvée."); } }
 function hideTaskActionModal() { if (taskActionModal) { taskActionModal.classList.remove('active'); currentTaskActionId = null; } }
+// --- Fonctions Modale Création RDV ---
+const createAppointmentModal = document.getElementById('create-appointment-modal');
+const createAppointmentForm = document.getElementById('create-appointment-form');
+const cancelCreateAppointmentBtn = document.getElementById('cancel-create-appointment-btn');
+const createAppointmentErrorElement = document.getElementById('create-appointment-error');
+const appointmentCategorySelect = document.getElementById('appointment-category');
+
+/** Affiche la modale de création de RDV et charge les catégories */
+async function showCreateAppointmentModal() {
+    if (!createAppointmentModal || !appointmentCategorySelect) { console.error("Modale de création RDV ou sélecteur de catégorie non trouvé."); return; }
+    if(createAppointmentErrorElement) createAppointmentErrorElement.textContent = ''; createAppointmentForm?.reset();
+    appointmentCategorySelect.innerHTML = `<option value="" disabled selected data-translate-key="appointment_form_select_category">${translations[document.documentElement.lang || 'fr']?.['appointment_form_select_category'] || 'Sélectionner...'}</option>`;
+    appointmentCategorySelect.disabled = true;
+    try {
+        const response = await fetch('/api/categories', { headers: { 'Accept': 'application/json' } }); if (!response.ok) throw new Error('Erreur chargement catégories'); const result = await response.json();
+        if (result.success && result.categories && result.categories.length > 0) {
+            result.categories.forEach(cat => { const option = document.createElement('option'); option.value = cat.id; option.textContent = cat.titre; appointmentCategorySelect.appendChild(option); });
+            appointmentCategorySelect.disabled = false;
+        } else { console.warn("Aucune catégorie trouvée pour peupler le sélecteur."); }
+    } catch (error) { console.error("Erreur chargement catégories pour modale RDV:", error); if(createAppointmentErrorElement) createAppointmentErrorElement.textContent = "Erreur chargement des catégories."; }
+    createAppointmentModal.classList.add('active'); createAppointmentForm?.querySelector('input[name="titre"]')?.focus();
+}
+/** Cache la modale de création de RDV */
+function hideCreateAppointmentModal() { if (createAppointmentModal) { createAppointmentModal.classList.remove('active'); } }
+// --- Fonctions Modale Détails RDV ---
+const appointmentDetailsModal = document.getElementById('appointment-details-modal');
+const detailsApptTitle = document.getElementById('details-appt-title');
+const detailsApptCategory = document.getElementById('details-appt-category');
+const detailsApptDate = document.getElementById('details-appt-date');
+const detailsApptStartTime = document.getElementById('details-appt-start-time');
+const detailsApptEndTime = document.getElementById('details-appt-end-time');
+const detailsApptStatus = document.getElementById('details-appt-status');
+const closeAppointmentDetailsBtn = document.getElementById('close-appointment-details-btn');
+const editAppointmentBtn = document.getElementById('edit-appointment-btn');
+let currentViewingAppointmentId = null;
+
+/** Affiche la modale de détails de RDV avec les données fournies */
+function showAppointmentDetailsModal(appointmentData) {
+    if (!appointmentDetailsModal) return; const currentLang = document.documentElement.lang || 'fr';
+    currentViewingAppointmentId = appointmentData.id;
+    if(detailsApptTitle) detailsApptTitle.textContent = appointmentData.titre || 'Rendez-vous';
+    if(detailsApptCategory) detailsApptCategory.textContent = appointmentData.categorie_titre || 'Non spécifiée';
+    if(detailsApptDate) detailsApptDate.textContent = formatDate(appointmentData.heure_debut, currentLang, { dateStyle: 'full' });
+    if(detailsApptStartTime) detailsApptStartTime.textContent = formatDateTime(appointmentData.heure_debut, currentLang, { timeStyle: 'short' });
+    if(detailsApptEndTime) detailsApptEndTime.textContent = formatDateTime(appointmentData.heure_fin, currentLang, { timeStyle: 'short' });
+    if(detailsApptStatus) {
+        detailsApptStatus.innerHTML = ''; const statusBadge = document.createElement('span'); statusBadge.className = 'appointment-status-badge';
+        let statusText = appointmentData.statut || 'pending'; let statusClass = `appointment-status-${statusText}`; let translationKey = `appointment_status_${statusText}`;
+        statusBadge.textContent = translations[currentLang]?.[translationKey] || statusText; statusBadge.classList.add(statusClass); detailsApptStatus.appendChild(statusBadge);
+    }
+    appointmentDetailsModal.classList.add('active');
+}
+/** Cache la modale de détails de RDV */
+function hideAppointmentDetailsModal() { if (appointmentDetailsModal) { appointmentDetailsModal.classList.remove('active'); currentViewingAppointmentId = null; } }
+// --- Fonctions Modale Édition RDV ---
+const editAppointmentModal = document.getElementById('edit-appointment-modal');
+const editAppointmentForm = document.getElementById('edit-appointment-form');
+const cancelEditAppointmentBtn = document.getElementById('cancel-edit-appointment-btn');
+const editAppointmentErrorElement = document.getElementById('edit-appointment-error');
+const editAppointmentCategorySelect = document.getElementById('edit-appointment-category');
+const editAppointmentIdInput = document.getElementById('edit-appointment-id');
+const editAppointmentTitleInput = document.getElementById('edit-appointment-title');
+const editAppointmentDateInput = document.getElementById('edit-appointment-date');
+const editAppointmentStartTimeInput = document.getElementById('edit-appointment-start-time');
+const editAppointmentEndTimeInput = document.getElementById('edit-appointment-end-time');
+
+/** Affiche la modale d'édition de RDV et pré-remplit les champs */
+async function showEditAppointmentModal(appointmentData) {
+    if (!editAppointmentModal || !editAppointmentCategorySelect || !appointmentData) { console.error("Modale d'édition RDV, sélecteur catégorie ou données RDV manquants."); alert("Impossible d'ouvrir la modification du rendez-vous."); return; }
+    if(editAppointmentErrorElement) editAppointmentErrorElement.textContent = ''; editAppointmentForm?.reset();
+    editAppointmentCategorySelect.innerHTML = `<option value="" disabled data-translate-key="appointment_form_select_category">${translations[document.documentElement.lang || 'fr']?.['appointment_form_select_category'] || 'Sélectionner...'}</option>`;
+    editAppointmentCategorySelect.disabled = true;
+    try {
+        const response = await fetch('/api/categories', { headers: { 'Accept': 'application/json' } }); if (!response.ok) throw new Error('Erreur chargement catégories'); const result = await response.json();
+        if (result.success && result.categories && result.categories.length > 0) {
+            result.categories.forEach(cat => { const option = document.createElement('option'); option.value = cat.id; option.textContent = cat.titre; if (cat.id === appointmentData.categorie_id) { option.selected = true; } editAppointmentCategorySelect.appendChild(option); });
+            editAppointmentCategorySelect.disabled = false;
+        } else { console.warn("Aucune catégorie trouvée pour peupler le sélecteur d'édition."); }
+    } catch (error) { console.error("Erreur chargement catégories pour modale édition RDV:", error); if(editAppointmentErrorElement) editAppointmentErrorElement.textContent = "Erreur chargement des catégories."; }
+    if(editAppointmentIdInput) editAppointmentIdInput.value = appointmentData.id;
+    if(editAppointmentTitleInput) editAppointmentTitleInput.value = appointmentData.titre || '';
+    if(editAppointmentDateInput) editAppointmentDateInput.value = formatTimestampForDateInput(appointmentData.heure_debut);
+    if(editAppointmentStartTimeInput) editAppointmentStartTimeInput.value = formatTimestampForTimeInput(appointmentData.heure_debut);
+    if(editAppointmentEndTimeInput) editAppointmentEndTimeInput.value = formatTimestampForTimeInput(appointmentData.heure_fin);
+    editAppointmentModal.classList.add('active'); editAppointmentTitleInput?.focus();
+}
+/** Cache la modale d'édition de RDV */
+function hideEditAppointmentModal() { if (editAppointmentModal) { editAppointmentModal.classList.remove('active'); } }
+// --- Fonctions Modale Confirmation Annulation RDV ---
+const cancelAppointmentConfirmModal = document.getElementById('cancel-appointment-confirm-modal');
+const confirmCancelAppointmentBtn = document.getElementById('confirm-cancel-appointment-btn');
+const cancelCancelAppointmentBtn = document.getElementById('cancel-cancel-appointment-btn');
+let appointmentIdToCancel = null; // Pour stocker l'ID pendant la confirmation
+
+/** Affiche la modale de confirmation d'annulation */
+function showCancelAppointmentConfirmModal(apptId) {
+    if (!cancelAppointmentConfirmModal) return;
+    appointmentIdToCancel = apptId; // Stocker l'ID
+    cancelAppointmentConfirmModal.classList.add('active');
+}
+/** Cache la modale de confirmation d'annulation */
+function hideCancelAppointmentConfirmModal() {
+    if (cancelAppointmentConfirmModal) {
+        cancelAppointmentConfirmModal.classList.remove('active');
+        appointmentIdToCancel = null; // Réinitialiser l'ID
+    }
+}
 // --- Fin Fonctions Modales ---
 
 
@@ -254,6 +453,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebarNav = document.querySelector('aside nav'); const mainContentContainer = document.querySelector('main'); const userNameElement = document.getElementById('user-name-display'); const userRoleElement = document.getElementById('user-role-display');
     const userProfileTrigger = document.getElementById('user-profile-trigger'); const userProfileDropdown = document.getElementById('user-profile-dropdown'); const headerLogoutBtn = document.getElementById('header-logout-btn');
     const createTaskBtn = document.getElementById('create-task-btn');
+    const createAppointmentBtn = document.getElementById('create-appointment-btn'); // Référence ajoutée
 
     // Affichage infos user
     try { const storedUser = localStorage.getItem('loggedInUser'); if (storedUser) { const userData = JSON.parse(storedUser); if (userNameElement && userData.name) userNameElement.textContent = userData.name; if (userRoleElement && userData.role) userRoleElement.textContent = userData.role; } else { console.log('No user data found.'); } } catch (error) { console.error('Error getting user data:', error); }
@@ -264,26 +464,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (targetSection) { targetSection.classList.add('active'); sectionFound = true; } else { const fallbackSection = document.getElementById('dashboard-content'); if (fallbackSection) { fallbackSection.classList.add('active'); sectionId = 'dashboard'; sectionFound = true; window.location.hash = sectionId; } }
         if(sectionFound) {
             sidebarNav?.querySelectorAll('.sidebar-link').forEach(link => { link.classList.remove('active'); if (link.getAttribute('href') === `#${sectionId}`) { link.classList.add('active'); } }); const activeSection = document.getElementById(`${sectionId}-content`);
-            // Mise à jour traduction titre section (sauf pour catégories gérées dynamiquement)
             if (sectionId !== 'categories') {
                 const mainTitleElement = activeSection?.querySelector('h1[data-translate-key]');
                 if (mainTitleElement) {
                     const titleKey = `${sectionId}_section_title`; mainTitleElement.dataset.translateKey = titleKey;
-                    try {
-                         // Vérifier si la fonction existe avant de l'appeler
-                         if (typeof setLanguage === 'function') {
-                             setLanguage(document.documentElement.lang || 'fr');
-                         } else {
-                             console.warn("setLanguage function not found when trying to translate title.");
-                         }
-                    } catch (e) { console.error("Error calling setLanguage:", e); }
+                    try { if (typeof setLanguage === 'function') { setLanguage(document.documentElement.lang || 'fr'); } else { console.warn("setLanguage function not found when trying to translate title."); } } catch (e) { console.error("Error calling setLanguage:", e); }
                 } else { console.warn(`H1 title not found in section: ${sectionId}-content`); }
             }
-            // Charger les données spécifiques à la section
             if (sectionId === 'dashboard') { loadDashboardData(); }
             else if (sectionId === 'categories') { loadCategories(); }
-            else if (sectionId === 'tasks') { loadTasks(); } // Appel correct ici
-            // else if (sectionId === 'appointments') { loadAllAppointments(); } // TODO
+            else if (sectionId === 'tasks') { loadTasks(); }
+            else if (sectionId === 'appointments') { loadAllAppointments(); }
             // else if (sectionId === 'profile') { loadProfile(); } // TODO
         }
     }
@@ -295,7 +486,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Listener Actions Catégories
     const categoriesContent = document.getElementById('categories-content');
     if (categoriesContent) {
-        categoriesContent.addEventListener('click', async (event) => { // Rendu async pour delete
+        categoriesContent.addEventListener('click', async (event) => {
              const button = event.target.closest('button[data-action]'); if (!button) return; const action = button.dataset.action; const categoryId = button.dataset.categoryId; const categoryName = button.dataset.categoryName;
              switch (action) {
                 case 'view': console.log(`Action: Voir les RDV pour catégorie ${categoryId} (${categoryName})`); loadCategoryAppointments(categoryId, categoryName); break;
@@ -321,6 +512,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('click', (event) => { if (!userProfileDropdown.classList.contains('hidden') && !userProfileTrigger.contains(event.target) && !userProfileDropdown.contains(event.target)) { userProfileDropdown.classList.add('hidden'); userProfileTrigger.setAttribute('aria-expanded', 'false');} });
         const profileLink = userProfileDropdown.querySelector('a[href="#profile"]'); if (profileLink) { profileLink.addEventListener('click', () => { userProfileDropdown.classList.add('hidden'); userProfileTrigger.setAttribute('aria-expanded', 'false'); }); }
         if (headerLogoutBtn) { headerLogoutBtn.addEventListener('click', () => { userProfileDropdown.classList.add('hidden'); userProfileTrigger.setAttribute('aria-expanded', 'false'); showLogoutModal(); }); }
+    } else {
+         console.warn("Éléments du dropdown profil non trouvés.");
     }
 
      // --- Gestion Modale Logout ---
@@ -354,11 +547,11 @@ document.addEventListener('DOMContentLoaded', () => {
              event.preventDefault(); const submitButton = createTaskForm.querySelector('button[type="submit"]'); const originalButtonTextKey = "task_form_create"; const currentLang = document.documentElement.lang || 'fr'; const originalButtonText = translations[currentLang]?.[originalButtonTextKey] || "Créer la tâche";
              submitButton.disabled = true; submitButton.textContent = "Création..."; if(createTaskErrorElement) createTaskErrorElement.textContent = '';
              const formData = new FormData(createTaskForm); const taskData = Object.fromEntries(formData.entries());
-             taskData.priorite = taskData.priorite || '2'; // Assurer string pour priorité
+             taskData.priorite = taskData.priorite || '2';
              console.log("Données création tâche (avant envoi):", taskData);
              try {
                  const response = await fetch('/api/tasks', { method: 'POST', headers: { 'Content-Type': 'application/json', /* Auth */ }, body: JSON.stringify(taskData) }); const result = await response.json();
-                 if (response.ok && result.success) { console.log("Tâche créée:", result.task); hideCreateTaskModal(); loadTasks(); /* Rafraîchir la liste */ }
+                 if (response.ok && result.success) { console.log("Tâche créée:", result.task); hideCreateTaskModal(); loadTasks(); }
                  else { console.error("Erreur création tâche:", result.message); if(createTaskErrorElement) createTaskErrorElement.textContent = result.message || "Erreur."; }
              } catch (error) { console.error("Erreur réseau création tâche:", error); if(createTaskErrorElement) createTaskErrorElement.textContent = "Erreur réseau.";
              } finally { submitButton.disabled = false; submitButton.textContent = originalButtonText; }
@@ -407,15 +600,133 @@ document.addEventListener('DOMContentLoaded', () => {
          tasksListContainer.addEventListener('click', (event) => {
              const button = event.target.closest('button[data-action]');
              const checkbox = event.target.closest('input[type="checkbox"].task-checkbox');
-
-             if (button) { // Gérer clic sur bouton action (Edit/Delete)
+             if (button) {
                 const action = button.dataset.action; const taskId = button.dataset.taskId; const taskTitle = button.closest('tr')?.querySelector('.task-title')?.textContent;
                 if (action === 'edit-task') { console.log(`Action: Modifier tâche ${taskId}`); alert(`Modifier tâche ${taskId} (à implémenter)`); }
-                else if (action === 'delete-task') { console.log(`Action: Supprimer tâche ${taskId} via bouton`); showTaskActionModal(taskId, taskTitle); } // Ouvre modale pour confirmer
-             } else if (checkbox) { // Gérer clic sur checkbox
-                 handleTaskCheckboxClick(event); // Ouvre modale d'action
-             }
+                else if (action === 'delete-task') { console.log(`Action: Supprimer tâche ${taskId} via bouton`); showTaskActionModal(taskId, taskTitle); }
+             } else if (checkbox) { handleTaskCheckboxClick(event); }
          });
      }
+
+      // === Listener pour les actions sur la liste des RDV ===
+      const appointmentsListContainer = document.getElementById('appointments-list-container');
+      if (appointmentsListContainer) {
+          appointmentsListContainer.addEventListener('click', async (event) => { // Rendu async pour fetch détails
+              const button = event.target.closest('button[data-action]');
+              if (!button) return;
+              const action = button.dataset.action; const apptId = button.dataset.apptId;
+              if (action === 'view-appt') {
+                  console.log(`Action: Voir détails RDV ${apptId}`); button.disabled = true;
+                  try {
+                      const response = await fetch(`/api/appointments/${apptId}`, { headers: { 'Accept': 'application/json' } }); if (!response.ok) throw new Error(`Erreur HTTP ${response.status}`); const result = await response.json();
+                      if (result.success && result.appointment) { showAppointmentDetailsModal(result.appointment); }
+                      else { throw new Error(result.message || 'Impossible de charger les détails.'); }
+                  } catch (error) { console.error("Erreur fetch détails RDV:", error); alert(`Erreur: Impossible de charger les détails du rendez-vous. ${error.message}`);
+                  } finally { button.disabled = false; }
+              } else if (action === 'reschedule-appt') {
+                  console.log(`Action: Reprogrammer RDV ${apptId}`); button.disabled = true;
+                  try {
+                      const response = await fetch(`/api/appointments/${apptId}`, { headers: { 'Accept': 'application/json' } }); if (!response.ok) throw new Error(`Erreur HTTP ${response.status}`); const result = await response.json();
+                      if (result.success && result.appointment) { showEditAppointmentModal(result.appointment); }
+                      else { throw new Error(result.message || 'Impossible de charger les données pour modification.'); }
+                  } catch (error) { console.error("Erreur fetch détails RDV pour édition:", error); alert(`Erreur: Impossible de charger les données pour modification. ${error.message}`);
+                  } finally { button.disabled = false; }
+              } else if (action === 'cancel-appt') {
+                  console.log(`Action: Annuler RDV ${apptId}`);
+                  showCancelAppointmentConfirmModal(apptId); // Ouvre la modale de confirmation personnalisée
+              }
+          });
+      }
+
+      // === Listener pour bouton "Nouveau RDV" ===
+      if (createAppointmentBtn) { createAppointmentBtn.addEventListener('click', showCreateAppointmentModal); }
+      else { console.warn('Bouton "create-appointment-btn" non trouvé.'); }
+
+      // === Listeners pour Modale Création RDV ===
+      if (cancelCreateAppointmentBtn) { cancelCreateAppointmentBtn.addEventListener('click', hideCreateAppointmentModal); }
+      if (createAppointmentModal) { createAppointmentModal.addEventListener('click', (event) => { if (event.target === createAppointmentModal) { hideCreateAppointmentModal(); } }); }
+      if (createAppointmentForm) {
+          createAppointmentForm.addEventListener('submit', async (event) => {
+              event.preventDefault(); const submitButton = createAppointmentForm.querySelector('button[type="submit"]'); const originalButtonTextKey = "appointment_form_create"; const currentLang = document.documentElement.lang || 'fr'; const originalButtonText = translations[currentLang]?.[originalButtonTextKey] || "Créer le rendez-vous";
+              submitButton.disabled = true; submitButton.textContent = "Création..."; if(createAppointmentErrorElement) createAppointmentErrorElement.textContent = '';
+              const formData = new FormData(createAppointmentForm); const appointmentData = {};
+              appointmentData.titre = formData.get('titre') || null; appointmentData.categorie_id = formData.get('categorie_id');
+              const dateStr = formData.get('date'); const startTimeStr = formData.get('heure_debut'); const endTimeStr = formData.get('heure_fin');
+              let startTimestamp = null; let endTimestamp = null;
+              if (dateStr && startTimeStr) { try { startTimestamp = new Date(`${dateStr}T${startTimeStr}`).getTime(); if (isNaN(startTimestamp)) throw new Error("Date/heure début invalide"); } catch(e) { console.error("Erreur parsing date/heure début:", e); if(createAppointmentErrorElement) createAppointmentErrorElement.textContent = "Format date/heure de début invalide."; submitButton.disabled = false; submitButton.textContent = originalButtonText; return; } } else { if(createAppointmentErrorElement) createAppointmentErrorElement.textContent = "Date et heure de début requises."; submitButton.disabled = false; submitButton.textContent = originalButtonText; return; }
+              if (dateStr && endTimeStr) { try { endTimestamp = new Date(`${dateStr}T${endTimeStr}`).getTime(); if (isNaN(endTimestamp)) throw new Error("Date/heure fin invalide"); if (endTimestamp <= startTimestamp) throw new Error("Heure fin avant ou égale à heure début"); } catch(e) { console.error("Erreur parsing/validation date/heure fin:", e); if(createAppointmentErrorElement) createAppointmentErrorElement.textContent = e.message || "Format date/heure de fin invalide ou incohérent."; submitButton.disabled = false; submitButton.textContent = originalButtonText; return; } } else { if(createAppointmentErrorElement) createAppointmentErrorElement.textContent = "Heure de fin requise."; submitButton.disabled = false; submitButton.textContent = originalButtonText; return; }
+              const bodyData = { titre: appointmentData.titre, categorie_id: appointmentData.categorie_id, heure_debut: startTimestamp, heure_fin: endTimestamp, statut: 'confirmed' };
+              console.log("Données création RDV (avant envoi):", bodyData);
+              try {
+                  const response = await fetch('/api/appointments', { method: 'POST', headers: { 'Content-Type': 'application/json', /* Auth */ }, body: JSON.stringify(bodyData) }); const result = await response.json();
+                  if (response.ok && result.success) { console.log("RDV créé:", result.appointment); hideCreateAppointmentModal(); loadAllAppointments(); }
+                  else { console.error("Erreur création RDV (API):", result.message); if(createAppointmentErrorElement) createAppointmentErrorElement.textContent = result.message || "Erreur lors de la création."; }
+              } catch (error) { console.error("Erreur réseau création RDV:", error); if(createAppointmentErrorElement) createAppointmentErrorElement.textContent = "Erreur réseau lors de la soumission.";
+              } finally { submitButton.disabled = false; submitButton.textContent = originalButtonText; }
+          });
+      }
+
+       // === Listeners pour Modale Détails RDV ===
+       if(closeAppointmentDetailsBtn) { closeAppointmentDetailsBtn.addEventListener('click', hideAppointmentDetailsModal); }
+       if(appointmentDetailsModal) { appointmentDetailsModal.addEventListener('click', (event) => { if (event.target === appointmentDetailsModal) { hideAppointmentDetailsModal(); } }); }
+       if(editAppointmentBtn) {
+           editAppointmentBtn.addEventListener('click', async () => { // Rendre async pour fetch détails
+               if(currentViewingAppointmentId) {
+                   console.log(`Action: Modifier RDV ${currentViewingAppointmentId} (depuis détails)`);
+                   hideAppointmentDetailsModal(); // Fermer détails
+                   editAppointmentBtn.disabled = true; // Désactiver pendant chargement
+                   try {
+                        const response = await fetch(`/api/appointments/${currentViewingAppointmentId}`, { headers: { 'Accept': 'application/json' } });
+                        if (!response.ok) throw new Error(`Erreur HTTP ${response.status}`);
+                        const result = await response.json();
+                        if (result.success && result.appointment) {
+                            showEditAppointmentModal(result.appointment); // Ouvre la modale d'édition pré-remplie
+                        } else { throw new Error(result.message || 'Impossible de charger les données pour modification.'); }
+                    } catch (error) { console.error("Erreur fetch détails RDV pour édition depuis détails:", error); alert(`Erreur: Impossible de charger les données pour modification. ${error.message}`);
+                    } finally { editAppointmentBtn.disabled = false; } // Réactiver
+               }
+           });
+       }
+
+       // === Listeners pour Modale Édition RDV ===
+       if (cancelEditAppointmentBtn) { cancelEditAppointmentBtn.addEventListener('click', hideEditAppointmentModal); }
+       if (editAppointmentModal) { editAppointmentModal.addEventListener('click', (event) => { if (event.target === editAppointmentModal) { hideEditAppointmentModal(); } }); }
+       if (editAppointmentForm) {
+           editAppointmentForm.addEventListener('submit', async (event) => {
+               event.preventDefault(); const submitButton = editAppointmentForm.querySelector('button[type="submit"]'); const originalButtonTextKey = "appointment_form_save"; const currentLang = document.documentElement.lang || 'fr'; const originalButtonText = translations[currentLang]?.[originalButtonTextKey] || "Enregistrer";
+               submitButton.disabled = true; submitButton.textContent = "Sauvegarde..."; if(editAppointmentErrorElement) editAppointmentErrorElement.textContent = '';
+               const formData = new FormData(editAppointmentForm); const appointmentId = formData.get('appointment_id');
+               if (!appointmentId) { if(editAppointmentErrorElement) editAppointmentErrorElement.textContent = "Erreur : ID du rendez-vous manquant."; submitButton.disabled = false; submitButton.textContent = originalButtonText; return; }
+               const appointmentData = {}; appointmentData.titre = formData.get('titre') || null; appointmentData.categorie_id = formData.get('categorie_id');
+               const dateStr = formData.get('date'); const startTimeStr = formData.get('heure_debut'); const endTimeStr = formData.get('heure_fin');
+               let startTimestamp = null; let endTimestamp = null;
+               if (dateStr && startTimeStr) { try { startTimestamp = new Date(`${dateStr}T${startTimeStr}`).getTime(); if (isNaN(startTimestamp)) throw new Error("Date/heure début invalide"); } catch(e) { console.error("Erreur parsing date/heure début:", e); if(editAppointmentErrorElement) editAppointmentErrorElement.textContent = "Format date/heure de début invalide."; submitButton.disabled = false; submitButton.textContent = originalButtonText; return; } } else { if(editAppointmentErrorElement) editAppointmentErrorElement.textContent = "Date et heure de début requises."; submitButton.disabled = false; submitButton.textContent = originalButtonText; return; }
+               if (dateStr && endTimeStr) { try { endTimestamp = new Date(`${dateStr}T${endTimeStr}`).getTime(); if (isNaN(endTimestamp)) throw new Error("Date/heure fin invalide"); if (endTimestamp <= startTimestamp) throw new Error("Heure fin avant ou égale à heure début"); } catch(e) { console.error("Erreur parsing/validation date/heure fin:", e); if(editAppointmentErrorElement) editAppointmentErrorElement.textContent = e.message || "Format date/heure de fin invalide ou incohérent."; submitButton.disabled = false; submitButton.textContent = originalButtonText; return; } } else { if(editAppointmentErrorElement) editAppointmentErrorElement.textContent = "Heure de fin requise."; submitButton.disabled = false; submitButton.textContent = originalButtonText; return; }
+               const bodyData = { titre: appointmentData.titre, categorie_id: appointmentData.categorie_id, heure_debut: startTimestamp, heure_fin: endTimestamp /*, statut: 'confirmed' // On ne change pas le statut ici par défaut */ };
+               console.log(`Données MàJ RDV ${appointmentId} (avant envoi):`, bodyData);
+               try {
+                   const response = await fetch(`/api/appointments/${appointmentId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', /* Auth */ }, body: JSON.stringify(bodyData) }); const result = await response.json();
+                   if (response.ok && result.success) { console.log("RDV mis à jour:", result.appointment); hideEditAppointmentModal(); loadAllAppointments(); }
+                   else { console.error("Erreur MàJ RDV (API):", result.message); if(editAppointmentErrorElement) editAppointmentErrorElement.textContent = result.message || "Erreur lors de la mise à jour."; }
+               } catch (error) { console.error("Erreur réseau MàJ RDV:", error); if(editAppointmentErrorElement) editAppointmentErrorElement.textContent = "Erreur réseau lors de la soumission.";
+               } finally { submitButton.disabled = false; submitButton.textContent = originalButtonText; }
+           });
+       }
+
+       // === Listeners pour Modale Confirmation Annulation RDV ===
+       if(cancelCancelAppointmentBtn) { cancelCancelAppointmentBtn.addEventListener('click', hideCancelAppointmentConfirmModal); }
+       if(cancelAppointmentConfirmModal) { cancelAppointmentConfirmModal.addEventListener('click', (event) => { if (event.target === cancelAppointmentConfirmModal) { hideCancelAppointmentConfirmModal(); } }); }
+       if(confirmCancelAppointmentBtn) {
+           confirmCancelAppointmentBtn.addEventListener('click', async () => {
+               if (!appointmentIdToCancel) return;
+               console.log(`Confirmation annulation RDV ${appointmentIdToCancel}`); confirmCancelAppointmentBtn.disabled = true; const originalText = confirmCancelAppointmentBtn.textContent; confirmCancelAppointmentBtn.textContent = "Annulation...";
+               try {
+                   const response = await fetch(`/api/appointments/${appointmentIdToCancel}/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json', /* Auth */ }, body: JSON.stringify({ statut: 'canceled' }) }); const result = await response.json();
+                   if (response.ok && result.success) { console.log("RDV annulé avec succès (statut mis à jour)."); hideCancelAppointmentConfirmModal(); loadAllAppointments(); }
+                   else { console.error("Erreur annulation RDV (API):", result.message); alert(`Erreur lors de l'annulation: ${result.message || 'Erreur inconnue.'}`); }
+               } catch (error) { console.error("Erreur réseau annulation RDV:", error); alert("Erreur réseau lors de la tentative d'annulation.");
+               } finally { confirmCancelAppointmentBtn.disabled = false; confirmCancelAppointmentBtn.textContent = originalText; appointmentIdToCancel = null; }
+           });
+       }
 
 }); // Fin de DOMContentLoaded

@@ -95,8 +95,16 @@
             </div>
 
              <div id="appointments-content" class="main-section">
-                <div class="flex justify-between items-center mb-6"><h1 class="text-2xl md:text-3xl font-bold text-gray-900" data-translate-key="appointments_section_title">Mes Rendez-vous</h1></div>
-                <div class="bg-white p-6 rounded-lg shadow-md"><p>Contenu de la section "Mes Rendez-vous" (tous) à venir...</p></div>
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                    <h1 class="text-2xl md:text-3xl font-bold text-gray-900" data-translate-key="appointments_section_title">Mes Rendez-vous</h1>
+                    <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                         <input type="search" id="appointment-search" placeholder="Rechercher..." class="input-field w-full sm:w-48">
+                         <button id="create-appointment-btn" class="btn-primary w-full sm:w-auto">Nouveau RDV</button>
+                    </div>
+                </div>
+                <div id="appointments-list-container">
+                     <div class="text-center py-10 text-gray-500">Chargement des rendez-vous...</div>
+                </div>
             </div>
 
              <div id="profile-content" class="main-section">
@@ -164,6 +172,45 @@
              <div class="mt-4 text-center">
                  <button type="button" id="cancel-task-action-btn" class="text-sm text-gray-500 hover:text-gray-700" data-translate-key="task_action_cancel">Annuler</button>
              </div>
+        </div>
+    </div>
+    <div id="create-appointment-modal" class="modal-overlay">
+        <div class="modal-container">
+            <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4" data-translate-key="create_appointment_title">Nouveau Rendez-vous</h3>
+            <form id="create-appointment-form" class="space-y-4">
+                <div> <label for="appointment-title" class="block text-sm font-medium text-gray-700" data-translate-key="appointment_form_title">Titre / Objet</label> <input type="text" id="appointment-title" name="titre" placeholder="Ex: Entretien John Doe" class="input-field"> </div>
+                <div> <label for="appointment-category" class="block text-sm font-medium text-gray-700" data-translate-key="appointment_form_category">Catégorie</label> <select id="appointment-category" name="categorie_id" required class="input-field"> <option value="" disabled selected data-translate-key="appointment_form_select_category">Sélectionner une catégorie...</option> </select> </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4"> <div> <label for="appointment-date" class="block text-sm font-medium text-gray-700" data-translate-key="appointment_form_date">Date</label> <input type="date" id="appointment-date" name="date" required class="input-field"> </div> <div> <label for="appointment-start-time" class="block text-sm font-medium text-gray-700" data-translate-key="appointment_form_start_time">Heure début</label> <input type="time" id="appointment-start-time" name="heure_debut" required class="input-field"> </div> <div> <label for="appointment-end-time" class="block text-sm font-medium text-gray-700" data-translate-key="appointment_form_end_time">Heure fin</label> <input type="time" id="appointment-end-time" name="heure_fin" required class="input-field"> </div> </div>
+                <div id="create-appointment-error" class="text-sm text-red-600 mt-1" aria-live="assertive"></div>
+                <div class="mt-6 flex justify-end space-x-3 pt-4 border-t border-gray-200"> <button type="button" id="cancel-create-appointment-btn" class="btn-secondary" data-translate-key="appointment_form_cancel">Annuler</button> <button type="submit" id="submit-create-appointment-btn" class="btn-primary" data-translate-key="appointment_form_create">Créer le rendez-vous</button> </div>
+            </form>
+        </div>
+    </div>
+    <div id="appointment-details-modal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="flex justify-between items-center mb-4"> <h3 class="text-lg font-medium leading-6 text-gray-900" data-translate-key="appointment_details_title">Détails du Rendez-vous</h3> <button type="button" id="edit-appointment-btn" class="p-1 text-gray-500 hover:text-indigo-600 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" data-translate-key="appointment_details_edit" title="Modifier" aria-label="Modifier"> <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" /></svg> </button> </div>
+            <div class="space-y-3 text-sm"> <div> <span class="font-medium text-gray-700">Titre :</span> <span id="details-appt-title" class="text-gray-600 ml-2">-</span> </div> <div> <span class="font-medium text-gray-700" data-translate-key="appointment_details_category">Catégorie :</span> <span id="details-appt-category" class="text-gray-600 ml-2">-</span> </div> <div> <span class="font-medium text-gray-700" data-translate-key="appointment_details_date">Date :</span> <span id="details-appt-date" class="text-gray-600 ml-2">-</span> </div> <div> <span class="font-medium text-gray-700" data-translate-key="appointment_details_start_time">Début :</span> <span id="details-appt-start-time" class="text-gray-600 ml-2">-</span> </div> <div> <span class="font-medium text-gray-700" data-translate-key="appointment_details_end_time">Fin :</span> <span id="details-appt-end-time" class="text-gray-600 ml-2">-</span> </div> <div> <span class="font-medium text-gray-700" data-translate-key="appointment_details_status">Statut :</span> <span id="details-appt-status" class="ml-2">-</span> </div> </div>
+            <div class="mt-6 text-right"> <button type="button" id="close-appointment-details-btn" class="btn-secondary" data-translate-key="appointment_details_close"> Fermer </button> </div>
+        </div>
+    </div>
+    <div id="edit-appointment-modal" class="modal-overlay">
+        <div class="modal-container">
+            <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4" data-translate-key="edit_appointment_title">Modifier le Rendez-vous</h3>
+            <form id="edit-appointment-form" class="space-y-4">
+                 <input type="hidden" id="edit-appointment-id" name="appointment_id">
+                 <div> <label for="edit-appointment-title" class="block text-sm font-medium text-gray-700" data-translate-key="appointment_form_title">Titre / Objet</label> <input type="text" id="edit-appointment-title" name="titre" placeholder="Ex: Entretien John Doe" class="input-field"> </div>
+                 <div> <label for="edit-appointment-category" class="block text-sm font-medium text-gray-700" data-translate-key="appointment_form_category">Catégorie</label> <select id="edit-appointment-category" name="categorie_id" required class="input-field"> <option value="" disabled data-translate-key="appointment_form_select_category">Sélectionner une catégorie...</option> </select> </div>
+                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4"> <div> <label for="edit-appointment-date" class="block text-sm font-medium text-gray-700" data-translate-key="appointment_form_date">Date</label> <input type="date" id="edit-appointment-date" name="date" required class="input-field"> </div> <div> <label for="edit-appointment-start-time" class="block text-sm font-medium text-gray-700" data-translate-key="appointment_form_start_time">Heure début</label> <input type="time" id="edit-appointment-start-time" name="heure_debut" required class="input-field"> </div> <div> <label for="edit-appointment-end-time" class="block text-sm font-medium text-gray-700" data-translate-key="appointment_form_end_time">Heure fin</label> <input type="time" id="edit-appointment-end-time" name="heure_fin" required class="input-field"> </div> </div>
+                 <div id="edit-appointment-error" class="text-sm text-red-600 mt-1" aria-live="assertive"></div>
+                 <div class="mt-6 flex justify-end space-x-3 pt-4 border-t border-gray-200"> <button type="button" id="cancel-edit-appointment-btn" class="btn-secondary" data-translate-key="appointment_form_cancel">Annuler</button> <button type="submit" id="submit-edit-appointment-btn" class="btn-primary" data-translate-key="appointment_form_save">Enregistrer les modifications</button> </div>
+            </form>
+        </div>
+    </div>
+    <div id="cancel-appointment-confirm-modal" class="modal-overlay">
+        <div class="modal-container">
+            <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4" data-translate-key="appointment_cancel_confirm_title">Confirmer l'Annulation</h3>
+            <div class="mt-2"> <p class="text-sm text-gray-500" data-translate-key="appointment_cancel_confirm_text">Êtes-vous sûr de vouloir annuler ce rendez-vous ?</p> </div>
+            <div class="mt-6 flex justify-end space-x-3"> <button type="button" id="cancel-cancel-appointment-btn" class="btn-secondary" data-translate-key="appointment_cancel_cancel_button">Non, Retour</button> <button type="button" id="confirm-cancel-appointment-btn" class="btn-danger" data-translate-key="appointment_cancel_confirm_button">Oui, Annuler</button> </div>
         </div>
     </div>
     <script type="module" src="js/modules/translator.js"></script>

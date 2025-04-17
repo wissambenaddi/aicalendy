@@ -81,11 +81,12 @@ const db = new sqlite3.Database('./database.db', (err) => {
                 heure_debut INTEGER NOT NULL,         -- Heure de début (Timestamp ms)
                 heure_fin INTEGER,                    -- Heure de fin (Timestamp ms)
                 categorie_id INTEGER,                 -- Lien vers la catégorie correspondante
+                statut TEXT DEFAULT 'confirmed',      -- Statut du RDV ('confirmed', 'pending', 'canceled')
                 -- Ajouter d'autres champs si nécessaire (ex: nom/email de l'invité)
                 FOREIGN KEY (user_identifiant) REFERENCES users (identifiant) ON DELETE CASCADE,
                 FOREIGN KEY (categorie_id) REFERENCES categories (id) ON DELETE SET NULL -- Si la catégorie est supprimée, le lien devient NULL
             )`, (err) => {
-                if (err) console.error("Erreur table appointments:", err.message);
+                if (err) { console.error("Erreur table appointments:", err.message); }
                 else {
                     console.log("Table 'appointments' prête.");
                     createDefaultAdmin(); // Créer l'admin après que toutes les tables sont prêtes
@@ -240,10 +241,10 @@ app.get('/api/dashboard/data', async (req, res) => {
         const startOfNextWeek = startOfWeek + 7 * 24 * 60 * 60 * 1000;
         const sevenDaysAgo = nowMs - 7 * 24 * 60 * 60 * 1000;
 
-        const appointmentsTodayPromise = dbAll(`SELECT id, titre, heure_debut FROM appointments WHERE user_identifiant = ? AND heure_debut >= ? AND heure_debut < ? ORDER BY heure_debut ASC LIMIT 5`, [userIdentifiant, startOfDay, startOfTomorrow]);
+        const appointmentsTodayPromise = dbAll(`SELECT id, titre, heure_debut FROM appointments WHERE user_identifiant = ? AND heure_debut >= ? AND heure_debut < ? AND statut != 'canceled' ORDER BY heure_debut ASC LIMIT 5`, [userIdentifiant, startOfDay, startOfTomorrow]); // Exclure annulés
         const tasksDueTodayPromise = dbAll(`SELECT id, titre, date_echeance, est_complete FROM tasks WHERE user_identifiant = ? AND date_echeance >= ? AND date_echeance < ? ORDER BY date_echeance ASC LIMIT 5`, [userIdentifiant, startOfDay, startOfTomorrow]);
         const overdueTasksPromise = dbGet(`SELECT COUNT(*) as count FROM tasks WHERE user_identifiant = ? AND est_complete = 0 AND date_echeance < ?`, [userIdentifiant, startOfDay]);
-        const appointmentsWeekPromise = dbGet(`SELECT COUNT(*) as count FROM appointments WHERE user_identifiant = ? AND heure_debut >= ? AND heure_debut < ?`, [userIdentifiant, startOfWeek, startOfNextWeek]);
+        const appointmentsWeekPromise = dbGet(`SELECT COUNT(*) as count FROM appointments WHERE user_identifiant = ? AND heure_debut >= ? AND heure_debut < ? AND statut != 'canceled'`, [userIdentifiant, startOfWeek, startOfNextWeek]); // Exclure annulés
         const weeklyProgressPromise = new Promise((resolve, reject) => { const sql = `SELECT strftime('%w', date_completion / 1000, 'unixepoch') as dayOfWeek, COUNT(*) as count FROM tasks WHERE user_identifiant = ? AND est_complete = 1 AND date_completion >= ? GROUP BY dayOfWeek ORDER BY dayOfWeek ASC`; db.all(sql, [userIdentifiant, sevenDaysAgo], (err, rows) => { if (err) reject(err); else { const weeklyData = Array(7).fill(0); rows.forEach(row => { const dayIndex = parseInt(row.dayOfWeek, 10); if (dayIndex >= 0 && dayIndex < 7) weeklyData[dayIndex] = row.count; }); resolve(weeklyData); } }); });
 
         const [ appointmentsToday, tasksDueToday, overdueTasksResult, appointmentsWeekResult, weeklyProgressData ] = await Promise.all([ appointmentsTodayPromise, tasksDueTodayPromise, overdueTasksPromise, appointmentsWeekPromise, weeklyProgressPromise ]);
@@ -296,20 +297,117 @@ app.delete('/api/categories/:id', async (req, res) => {
 });
 // --------------------------
 
-// --- Route API Rendez-vous ---
+// --- Routes API Rendez-vous ---
 // GET /api/appointments
 app.get('/api/appointments', async (req, res) => {
-    const categoryId = req.query.category_id; console.log(`Requête reçue sur /api/appointments ${categoryId ? 'pour catégorie id ' + categoryId : '(tous)'}`);
+    console.log(`Requête reçue sur /api/appointments`);
     const userIdentifiant = 'admin'; // TODO: Auth
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate'); res.setHeader('Pragma', 'no-cache'); res.setHeader('Expires', '0'); res.setHeader('Surrogate-Control', 'no-store');
     try {
-        let sql = `SELECT id, titre, heure_debut, heure_fin, categorie_id FROM appointments WHERE user_identifiant = ?`;
+        let sql = `SELECT a.id, a.titre, a.heure_debut, a.heure_fin, a.categorie_id, a.statut, c.titre as categorie_titre
+                   FROM appointments a
+                   LEFT JOIN categories c ON a.categorie_id = c.id
+                   WHERE a.user_identifiant = ? AND a.statut != 'canceled'
+                   ORDER BY a.heure_debut ASC`; // Tri par défaut, exclut les annulés
         const params = [userIdentifiant];
-        if (categoryId) { sql += ` AND categorie_id = ?`; params.push(categoryId); }
-        sql += ` ORDER BY heure_debut ASC`;
         const appointments = await dbAll(sql, params);
-        console.log(`RDV trouvés pour ${userIdentifiant} ${categoryId ? 'catégorie ' + categoryId : ''}:`, appointments.length);
+        console.log(`RDV actifs trouvés pour ${userIdentifiant}:`, appointments.length);
         res.json({ success: true, appointments: appointments });
     } catch (error) { console.error("Erreur récupération rendez-vous:", error); res.status(500).json({ success: false, message: "Erreur serveur récupération rendez-vous." }); }
+});
+
+// POST /api/appointments
+app.post('/api/appointments', async (req, res) => {
+    console.log("Requête reçue sur POST /api/appointments:", req.body);
+    const userIdentifiant = 'admin'; // TODO: Auth
+    const { titre, heure_debut, heure_fin, categorie_id, statut } = req.body;
+
+    if (!heure_debut) { return res.status(400).json({ success: false, message: "L'heure de début est requise." }); }
+    if (!categorie_id) { return res.status(400).json({ success: false, message: "La catégorie est requise." }); }
+    const startTime = Number(heure_debut); const endTime = heure_fin ? Number(heure_fin) : null;
+    if (isNaN(startTime)) { return res.status(400).json({ success: false, message: "Format d'heure de début invalide." }); }
+    if (endTime !== null && isNaN(endTime)) { return res.status(400).json({ success: false, message: "Format d'heure de fin invalide." }); }
+    if (endTime !== null && endTime <= startTime) { return res.status(400).json({ success: false, message: "L'heure de fin doit être après l'heure de début." }); }
+
+    try {
+        const sql = `INSERT INTO appointments (user_identifiant, titre, heure_debut, heure_fin, categorie_id, statut) VALUES (?, ?, ?, ?, ?, ?)`;
+        const params = [ userIdentifiant, titre || null, startTime, endTime, categorie_id, statut || 'confirmed' ];
+        const result = await dbRun(sql, params);
+        console.log(`Nouveau RDV créé ID: ${result.lastID} pour ${userIdentifiant}`);
+        const newAppointment = await dbGet(`SELECT * FROM appointments WHERE id = ?`, [result.lastID]);
+        res.status(201).json({ success: true, message: 'Rendez-vous créé avec succès.', appointment: newAppointment });
+    } catch (error) {
+        console.error("Erreur POST /api/appointments:", error);
+        if (error.message && error.message.includes('FOREIGN KEY constraint failed')) { res.status(400).json({ success: false, message: "Erreur : La catégorie sélectionnée n'existe pas." }); }
+        else { res.status(500).json({ success: false, message: "Erreur serveur lors de la création du rendez-vous." }); }
+    }
+});
+
+// GET /api/appointments/:id
+app.get('/api/appointments/:id', async (req, res) => {
+    const appointmentId = req.params.id; const userIdentifiant = 'admin'; // TODO: Auth
+    console.log(`Requête reçue sur GET /api/appointments/${appointmentId}`);
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate'); res.setHeader('Pragma', 'no-cache'); res.setHeader('Expires', '0'); res.setHeader('Surrogate-Control', 'no-store');
+    try {
+        const sql = `SELECT a.id, a.titre, a.heure_debut, a.heure_fin, a.statut, a.categorie_id, c.titre as categorie_titre FROM appointments a LEFT JOIN categories c ON a.categorie_id = c.id WHERE a.id = ? AND a.user_identifiant = ?`;
+        const appointment = await dbGet(sql, [appointmentId, userIdentifiant]);
+        if (!appointment) { return res.status(404).json({ success: false, message: 'Rendez-vous non trouvé ou accès non autorisé.' }); }
+        console.log(`Détails RDV ${appointmentId} trouvés pour ${userIdentifiant}`);
+        res.json({ success: true, appointment: appointment });
+    } catch (error) { console.error(`Erreur GET /api/appointments/${appointmentId}:`, error); res.status(500).json({ success: false, message: "Erreur serveur lors de la récupération des détails du rendez-vous." }); }
+});
+
+// PUT /api/appointments/:id
+app.put('/api/appointments/:id', async (req, res) => {
+    const appointmentId = req.params.id; const userIdentifiant = 'admin'; // TODO: Auth
+    console.log(`Requête reçue sur PUT /api/appointments/${appointmentId}:`, req.body);
+    const { titre, heure_debut, heure_fin, categorie_id, statut } = req.body;
+
+    if (!heure_debut) { return res.status(400).json({ success: false, message: "L'heure de début est requise." }); }
+    if (!categorie_id) { return res.status(400).json({ success: false, message: "La catégorie est requise." }); }
+    const startTime = Number(heure_debut); const endTime = heure_fin ? Number(heure_fin) : null;
+    if (isNaN(startTime)) { return res.status(400).json({ success: false, message: "Format d'heure de début invalide." }); }
+    if (endTime !== null && isNaN(endTime)) { return res.status(400).json({ success: false, message: "Format d'heure de fin invalide." }); }
+    if (endTime !== null && endTime <= startTime) { return res.status(400).json({ success: false, message: "L'heure de fin doit être après l'heure de début." }); }
+
+    try {
+        const checkSql = `SELECT id FROM appointments WHERE id = ? AND user_identifiant = ?`;
+        const existingAppt = await dbGet(checkSql, [appointmentId, userIdentifiant]);
+        if (!existingAppt) { return res.status(404).json({ success: false, message: 'Rendez-vous non trouvé ou accès non autorisé.' }); }
+
+        const sql = `UPDATE appointments SET titre = ?, heure_debut = ?, heure_fin = ?, categorie_id = ?, statut = ? WHERE id = ? AND user_identifiant = ?`;
+        const params = [ titre || null, startTime, endTime, categorie_id, statut || 'confirmed', appointmentId, userIdentifiant ];
+        const result = await dbRun(sql, params);
+        console.log(`RDV ${appointmentId} mis à jour pour ${userIdentifiant}. Changes: ${result.changes}`);
+        const updatedAppointment = await dbGet(`SELECT * FROM appointments WHERE id = ?`, [appointmentId]);
+        res.json({ success: true, message: 'Rendez-vous mis à jour avec succès.', appointment: updatedAppointment });
+    } catch (error) {
+        console.error(`Erreur PUT /api/appointments/${appointmentId}:`, error);
+        if (error.message && error.message.includes('FOREIGN KEY constraint failed')) { res.status(400).json({ success: false, message: "Erreur : La catégorie sélectionnée n'existe pas." }); }
+        else { res.status(500).json({ success: false, message: "Erreur serveur lors de la mise à jour du rendez-vous." }); }
+    }
+});
+
+// PUT /api/appointments/:id/status
+app.put('/api/appointments/:id/status', async (req, res) => {
+    const appointmentId = req.params.id;
+    const { statut } = req.body; // On attend un objet comme { "statut": "canceled" }
+    const userIdentifiant = 'admin'; // TODO: Auth
+    console.log(`Requête reçue sur PUT /api/appointments/${appointmentId}/status:`, req.body);
+
+    if (!statut || !['confirmed', 'pending', 'canceled'].includes(statut)) { return res.status(400).json({ success: false, message: 'Statut invalide fourni.' }); }
+
+    try {
+        const checkSql = `SELECT id FROM appointments WHERE id = ? AND user_identifiant = ?`;
+        const existingAppt = await dbGet(checkSql, [appointmentId, userIdentifiant]);
+        if (!existingAppt) { return res.status(404).json({ success: false, message: 'Rendez-vous non trouvé ou accès non autorisé.' }); }
+
+        const sql = `UPDATE appointments SET statut = ? WHERE id = ? AND user_identifiant = ?`;
+        const params = [statut, appointmentId, userIdentifiant];
+        const result = await dbRun(sql, params);
+        console.log(`Statut RDV ${appointmentId} mis à jour à '${statut}' pour ${userIdentifiant}. Changes: ${result.changes}`);
+        res.json({ success: true, message: 'Statut du rendez-vous mis à jour avec succès.' });
+    } catch (error) { console.error(`Erreur PUT /api/appointments/${appointmentId}/status:`, error); res.status(500).json({ success: false, message: "Erreur serveur lors de la mise à jour du statut du rendez-vous." }); }
 });
 // ---------------------------
 
