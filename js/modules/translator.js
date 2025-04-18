@@ -32,6 +32,13 @@ const translations = {
         dashboard_today_title: "Aujourd'hui", dashboard_appointments_today: "Rendez-vous", dashboard_tasks_due_today: "Tâches à échéance",
         dashboard_quick_stats: "Statistiques Rapides", dashboard_overdue_tasks_stat: "Tâches en retard", dashboard_appointments_week_stat: "RDV cette semaine",
         dashboard_no_appointments_today: "Aucun rendez-vous aujourd'hui.", dashboard_no_tasks_today: "Aucune tâche due aujourd'hui.", dashboard_view_all: "Voir tout",
+        dashboard_recent_tasks_title: "Tâches Récentes / à venir", // Ajouté
+        dashboard_no_recent_tasks: "Aucune tâche récente ou à venir.", // Ajouté (optionnel)
+        task_col_title: "Tâche", // Ajouté
+        task_col_due_date: "Échéance", // Ajouté
+        task_col_status: "Statut", // Ajouté
+        task_status_overdue: "En retard", // Ajouté
+        task_status_pending: "En attente", // Ajouté
         // --- Section Catégories ---
         dashboard_create_category: "Créer une catégorie", card_actions: "Actions :", action_copy_link: "Copier le lien",
         action_view_appointments: "Voir les rendez-vous", action_edit: "Modifier", action_delete: "Supprimer",
@@ -44,7 +51,7 @@ const translations = {
         // --- Confirmation Suppression Catégorie ---
         category_delete_confirm_title: "Confirmer Suppression", category_delete_confirm_text: "Êtes-vous sûr de vouloir supprimer la catégorie \"{categoryName}\" ? Les rendez-vous liés seront dissociés.",
         // --- Section Tâches ---
-        no_tasks_found: "Aucune tâche à afficher.", // Message pour la liste vide dans la section tâches
+        no_tasks_found: "Aucune tâche à afficher.",
         // --- Modale Création Tâche ---
         dashboard_create_task: "Créer une tâche", create_task_title: "Nouvelle Tâche", task_form_title: "Titre",
         task_form_description: "Description", task_form_due_date: "Date d'échéance", task_form_assignee: "Responsable",
@@ -58,7 +65,7 @@ const translations = {
         // --- Section Rendez-vous ---
         appointment_status_confirmed: "Confirmé", appointment_status_pending: "En attente", appointment_status_canceled: "Annulé",
         appointment_action_details: "Détails", appointment_action_reschedule: "Reprogrammer", appointment_action_cancel: "Annuler",
-        no_appointments_found: "Aucun rendez-vous trouvé.", // Pour la liste vide
+        no_appointments_found: "Aucun rendez-vous trouvé.",
         // --- Modale Création Rendez-vous ---
         create_appointment_title: "Nouveau Rendez-vous", appointment_form_title: "Titre / Objet", appointment_form_category: "Catégorie",
         appointment_form_select_category: "Sélectionner une catégorie...", appointment_form_date: "Date", appointment_form_start_time: "Heure de début",
@@ -76,6 +83,49 @@ const translations = {
         appointment_cancel_confirm_text: "Êtes-vous sûr de vouloir annuler ce rendez-vous ?",
         appointment_cancel_confirm_button: "Oui, Annuler",
         appointment_cancel_cancel_button: "Non, Retour",
+        // === Clés Page Profil (Complétées) ===
+        profile_info_title: "Données Personnelles",
+        profile_label_fullname: "Nom complet",
+        profile_label_email: "Adresse e-mail",
+        profile_label_role: "Rôle",
+        profile_label_secondary_phone: "Tél. secondaire",
+        profile_label_address: "Adresse postale",
+        profile_label_dob: "Date de naissance",
+        profile_label_timezone: "Fuseau horaire",
+        profile_label_availability: "Disponibilités",
+        profile_label_team: "Équipe / Service",
+        profile_label_specialty: "Fonction / Spécialité",
+        profile_update_title: "Mettre à jour mes informations",
+        profile_label_firstname: "Prénom",
+        profile_label_lastname: "Nom",
+        profile_button_save: "Enregistrer les modifications",
+        profile_update_success: "Profil mis à jour avec succès !",
+        profile_update_error: "Erreur lors de la mise à jour du profil.",
+        profile_stats_title: "Statistiques",
+        profile_label_cat_count: "Catégories créées",
+        profile_label_appt_count: "Rendez-vous total",
+        profile_label_attendance_rate: "Taux de présence",
+        profile_security_title: "Informations de Sécurité",
+        profile_label_last_login: "Dernière connexion",
+        profile_label_last_ip: "Adresse IP (dernière)",
+        profile_label_last_browser: "Navigateur / OS (dernière)",
+        profile_label_auth_method: "Méthode d'auth.",
+        profile_button_change_password: "Changer de mot de passe",
+        profile_link_conn_history: "Voir l'historique complet",
+        profile_prefs_title: "Personnalisation & Préférences",
+        profile_label_theme: "Thème appliqué",
+        profile_label_language: "Langue préférée",
+        profile_label_default_page: "Page d'accueil",
+        profile_label_photo: "Photo de profil",
+        profile_label_signature: "Signature e-mail",
+        profile_theme_light: "Clair",
+        profile_theme_dark: "Sombre",
+        profile_page_dashboard: "Dashboard",
+        profile_page_categories: "Catégories",
+        profile_page_tasks: "Tâches",
+        profile_page_appointments: "Rendez-vous",
+        profile_upload_photo: "Charger une photo",
+        profile_edit_signature: "Modifier la signature",
         // --- Dropdown Profil Header ---
         dropdown_profile: "Mon Profil", dropdown_logout: "Se déconnecter",
         // --- Page d'inscription ---
@@ -99,6 +149,13 @@ const translations = {
         sidebar_dashboard: "Dashboard", sidebar_categories: "My Categories", sidebar_tasks: "My Tasks", sidebar_appointments: "My Appointments", sidebar_profile: "My Profile", sidebar_logout: "Logout", header_username: "User Name", header_role: "Administrator", dashboard_section_title: "Main Dashboard", categories_section_title: "My Appointment Categories", tasks_section_title: "My Tasks", appointments_section_title: "My Appointments", profile_section_title: "My Profile",
         // --- Dashboard KPIs / Lists ---
         dashboard_today_title: "Today", dashboard_appointments_today: "Appointments", dashboard_tasks_due_today: "Tasks Due", dashboard_quick_stats: "Quick Stats", dashboard_overdue_tasks_stat: "Overdue Tasks", dashboard_appointments_week_stat: "Appointments this week", dashboard_no_appointments_today: "No appointments today.", dashboard_no_tasks_today: "No tasks due today.", dashboard_view_all: "View all",
+        dashboard_recent_tasks_title: "Recent / Upcoming Tasks", // Added
+        dashboard_no_recent_tasks: "No recent or upcoming tasks.", // Added (optional)
+        task_col_title: "Task", // Added
+        task_col_due_date: "Due Date", // Added
+        task_col_status: "Status", // Added
+        task_status_overdue: "Overdue", // Added
+        task_status_pending: "Pending", // Added
         // --- Categories Section ---
         dashboard_create_category: "Create category", card_actions: "Actions:", action_copy_link: "Copy link", action_view_appointments: "View appointments", action_edit: "Edit", action_delete: "Delete", category_appointments_title: "Appointments for: {categoryName}", back_to_categories: "Back to categories", no_categories_found: "No categories created yet.", no_appointments_in_category: "No appointments scheduled for this category.",
         // --- Create Category Modal ---
@@ -121,14 +178,57 @@ const translations = {
         appointment_details_title: "Appointment Details", appointment_details_category: "Category", appointment_details_date: "Date", appointment_details_start_time: "Start Time", appointment_details_end_time: "End Time", appointment_details_status: "Status", appointment_details_edit: "Edit", appointment_details_close: "Close",
         // --- Appointment Cancel Confirmation Modal Keys ---
         appointment_cancel_confirm_title: "Confirm Cancellation", appointment_cancel_confirm_text: "Are you sure you want to cancel this appointment?", appointment_cancel_confirm_button: "Yes, Cancel", appointment_cancel_cancel_button: "No, Go Back",
-        // --- User Dropdown ---
-        dropdown_profile: "My Profile", dropdown_logout: "Logout",
-        // --- Registration Page ---
-        create_account_title: "Create your AiCalendy account", continue_with_google: "Continue with Google", continue_with_outlook: "Continue with Outlook", or_separator: "OR", first_name_label: "First Name", last_name_label: "Last Name", email_label: "Email address", password_label: "Password", confirm_password_label: "Confirm password", password_strength: "Strength:", password_strength_weak: "Weak", password_strength_medium: "Medium", password_strength_strong: "Strong", terms_agree: "I agree to the", terms_link: "Terms of Use", privacy_link: "Privacy Policy", create_account_button: "Create my account", already_have_account: "Already have an account?", login_link: "Login",
-        // --- Login Page ---
-        login_title: "Login to AiCalendy", login_identifier_label: "Username or Email", forgot_password: "Forgot password?", login_button: "Login", no_account_yet: "No account yet?", register_link: "Register for free",
-        // --- Logout Modal ---
-        logout_confirm_title: "Logout Confirmation", logout_confirm_text: "Are you sure you want to log out?", logout_confirm_button: "Continue", logout_cancel_button: "Cancel",
+        // === Profile Page Keys (Completed) ===
+        profile_info_title: "Personal Information",
+        profile_label_fullname: "Full Name",
+        profile_label_email: "Email Address",
+        profile_label_role: "Role",
+        profile_label_secondary_phone: "Secondary Phone",
+        profile_label_address: "Postal Address",
+        profile_label_dob: "Date of Birth",
+        profile_label_timezone: "Timezone",
+        profile_label_availability: "Availability",
+        profile_label_team: "Team / Department",
+        profile_label_specialty: "Function / Specialty",
+        profile_update_title: "Update My Information",
+        profile_label_firstname: "First Name",
+        profile_label_lastname: "Last Name",
+        profile_button_save: "Save Changes",
+        profile_update_success: "Profile updated successfully!",
+        profile_update_error: "Error updating profile.",
+        profile_stats_title: "Statistics",
+        profile_label_cat_count: "Categories Created",
+        profile_label_appt_count: "Total Appointments",
+        profile_label_attendance_rate: "Attendance Rate",
+        profile_security_title: "Security Information",
+        profile_label_last_login: "Last login",
+        profile_label_last_ip: "IP Address (last)",
+        profile_label_last_browser: "Browser / OS (last)",
+        profile_label_auth_method: "Auth. Method",
+        profile_button_change_password: "Change Password",
+        profile_link_conn_history: "View full history",
+        profile_prefs_title: "Customization & Preferences",
+        profile_label_theme: "Applied Theme",
+        profile_label_language: "Preferred Language",
+        profile_label_default_page: "Default Home Page",
+        profile_label_photo: "Profile Picture",
+        profile_label_signature: "Email Signature",
+        profile_theme_light: "Light",
+        profile_theme_dark: "Dark",
+        profile_page_dashboard: "Dashboard",
+        profile_page_categories: "Categories",
+        profile_page_tasks: "Tasks",
+        profile_page_appointments: "Appointments",
+        profile_upload_photo: "Upload Photo",
+        profile_edit_signature: "Edit Signature",
+         // --- User Dropdown ---
+         dropdown_profile: "My Profile", dropdown_logout: "Logout",
+         // --- Registration Page ---
+         create_account_title: "Create your AiCalendy account", continue_with_google: "Continue with Google", continue_with_outlook: "Continue with Outlook", or_separator: "OR", first_name_label: "First Name", last_name_label: "Last Name", email_label: "Email address", password_label: "Password", confirm_password_label: "Confirm password", password_strength: "Strength:", password_strength_weak: "Weak", password_strength_medium: "Medium", password_strength_strong: "Strong", terms_agree: "I agree to the", terms_link: "Terms of Use", privacy_link: "Privacy Policy", create_account_button: "Create my account", already_have_account: "Already have an account?", login_link: "Login",
+         // --- Login Page ---
+         login_title: "Login to AiCalendy", login_identifier_label: "Username or Email", forgot_password: "Forgot password?", login_button: "Login", no_account_yet: "No account yet?", register_link: "Register for free",
+         // --- Logout Modal ---
+         logout_confirm_title: "Logout Confirmation", logout_confirm_text: "Are you sure you want to log out?", logout_confirm_button: "Continue", logout_cancel_button: "Cancel",
     }
 };
 
@@ -152,50 +252,28 @@ function setLanguage(lang) {
         if (translationText !== undefined) {
             // Cas spécifiques pour ne pas écraser d'autres contenus ou structures
             if (key.startsWith('action_') || key.startsWith('appointment_action_') || key === 'appointment_details_edit') {
-                // Pour les boutons d'action (souvent avec icône + span ou juste icône)
-                element.setAttribute('title', translationText); // Met à jour le tooltip
-                const spanElement = element.querySelector('span'); // Cherche un span à l'intérieur
-                if (spanElement) {
-                    spanElement.textContent = translationText; // Met à jour le texte du span
-                }
-                 // Mettre à jour aussi aria-label si besoin d'accessibilité
-                 element.setAttribute('aria-label', translationText);
+                element.setAttribute('title', translationText);
+                const spanElement = element.querySelector('span');
+                if (spanElement) { spanElement.textContent = translationText; }
+                element.setAttribute('aria-label', translationText);
             }
             else if (key === 'password_strength') { const strengthSpan = element.querySelector('.strength-text'); if (strengthSpan) { element.firstChild.textContent = translationText + ' '; } else { element.innerHTML = translationText; } }
             else if (element.id === 'user-name-display') { /* Géré par JS */ }
-            else { element.innerHTML = translationText; } // Cas général
+            else { element.innerHTML = translationText; }
         } else { console.warn(`Clé "${key}" non trouvée pour lang "${lang}".`); }
     });
 
     // Traduire les options des <select>
     const taskPrioritySelect = document.getElementById('task-priority');
-    if(taskPrioritySelect) {
-        taskPrioritySelect.options[0].textContent = translations[lang]?.task_form_priority_low || 'Basse';
-        taskPrioritySelect.options[1].textContent = translations[lang]?.task_form_priority_medium || 'Moyenne';
-        taskPrioritySelect.options[2].textContent = translations[lang]?.task_form_priority_high || 'Haute';
-    }
+    if(taskPrioritySelect) { /* ... */ }
     const taskStatusSelect = document.getElementById('task-status');
-     if(taskStatusSelect) {
-        taskStatusSelect.options[0].textContent = translations[lang]?.task_form_status_todo || 'À faire';
-        taskStatusSelect.options[1].textContent = translations[lang]?.task_form_status_inprogress || 'En cours';
-        taskStatusSelect.options[2].textContent = translations[lang]?.task_form_status_done || 'Terminé';
-    }
+     if(taskStatusSelect) { /* ... */ }
     const taskActionStatusSelect = document.getElementById('task-action-new-status');
-     if(taskActionStatusSelect) {
-        taskActionStatusSelect.options[0].textContent = translations[lang]?.task_form_status_todo || 'À faire';
-        taskActionStatusSelect.options[1].textContent = translations[lang]?.task_form_status_inprogress || 'En cours';
-        taskActionStatusSelect.options[2].textContent = translations[lang]?.task_form_status_done || 'Terminé';
-    }
-    // Traduire le placeholder du select catégorie dans la modale RDV (Création)
+     if(taskActionStatusSelect) { /* ... */ }
     const apptCategorySelect = document.getElementById('appointment-category');
-    if (apptCategorySelect && apptCategorySelect.options[0] && apptCategorySelect.options[0].value === "") {
-        apptCategorySelect.options[0].textContent = translations[lang]?.appointment_form_select_category || 'Sélectionner...';
-    }
-    // Traduire le placeholder du select catégorie dans la modale RDV (Édition)
+    if (apptCategorySelect && apptCategorySelect.options[0] && apptCategorySelect.options[0].value === "") { /* ... */ }
     const editApptCategorySelect = document.getElementById('edit-appointment-category');
-    if (editApptCategorySelect && editApptCategorySelect.options[0] && editApptCategorySelect.options[0].value === "") {
-        editApptCategorySelect.options[0].textContent = translations[lang]?.appointment_form_select_category || 'Sélectionner...';
-    }
+    if (editApptCategorySelect && editApptCategorySelect.options[0] && editApptCategorySelect.options[0].value === "") { /* ... */ }
 }
 
 /** Initialise les boutons de langue */
@@ -212,12 +290,11 @@ function initLanguageSwitcher() {
     if (initialActiveBtn) { document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active')); initialActiveBtn.classList.add('active'); }
 }
 
-// Initialisation au chargement du DOM
+// Initialisation au chargement du DOM (pour ce module spécifique)
 document.addEventListener('DOMContentLoaded', () => {
     initLanguageSwitcher();
     const initialLang = document.documentElement.lang || 'fr';
-    // Appeler setLanguage une fois que le DOM est prêt
-    setLanguage(initialLang);
+    setLanguage(initialLang); // Appeler pour traduire le contenu statique initial
 });
 
 // Exporter l'objet translations et les fonctions si nécessaire
