@@ -724,13 +724,14 @@ app.get('/api/profile', async (req, res) => {
     console.log(`Requête reçue sur GET /api/profile pour ${userIdentifiant}`);
     res.setHeader('Cache-Control', 'no-store');
     try {
-        const sql = `SELECT identifiant, email, firstName, lastName, role, phone, address, birthdate, timezone, language, theme, homeSection, signature, avatarUrl, lastLoginTime, lastLoginIp, lastLoginBrowser, team, specialty FROM users WHERE identifiant = ?`; // Ajout team, specialty
+        // Sélectionner toutes les colonnes définies dans CREATE TABLE
+        const sql = `SELECT identifiant, email, firstName, lastName, role, phone, address, birthdate, timezone, language, theme, homeSection, signature, avatarUrl, lastLoginTime, lastLoginIp, lastLoginBrowser, team, specialty FROM users WHERE identifiant = ?`;
         const profileData = await dbGet(sql, [userIdentifiant]);
         if (!profileData) { return res.status(404).json({ success: false, message: 'Profil non trouvé.' }); }
+        // Construire l'objet de réponse
         const profile = {
             identifiant: profileData.identifiant, email: profileData.email, firstName: profileData.firstName, lastName: profileData.lastName, role: profileData.role, phone: profileData.phone, address: profileData.address, birthdate: profileData.birthdate, timezone: profileData.timezone, language: profileData.language, theme: profileData.theme, homeSection: profileData.homeSection, signature: profileData.signature, avatarUrl: profileData.avatarUrl,
-            team: profileData.team, // Ajouté
-            specialty: profileData.specialty, // Ajouté
+            team: profileData.team, specialty: profileData.specialty,
             security: { last_login: profileData.lastLoginTime, last_ip: profileData.lastLoginIp, last_browser: profileData.lastLoginBrowser, auth_method: 'Email/Mdp' },
             stats: { category_count: null, appointment_count: null, attendance_rate: null } // TODO: Calculer stats
         };
@@ -744,15 +745,17 @@ app.get('/api/profile', async (req, res) => {
 app.put('/api/profile', async (req, res) => {
     const userIdentifiant = 'admin'; // TODO: Auth
     console.log(`Requête reçue sur PUT /api/profile pour ${userIdentifiant}:`, req.body);
+    // Récupérer tous les champs potentiellement modifiables
     const { firstName, lastName, email, phone, address, birthdate, timezone, team, specialty /* Ajouter: language, theme, homeSection, signature, avatarUrl */ } = req.body;
     if (!firstName || !lastName || !email) { return res.status(400).json({ success: false, message: 'Prénom, nom et email sont requis.' }); }
-    // TODO: Ajouter validations
+
     try {
+        // Vérifier l'unicité de l'email (si modifié)
         const emailCheckSql = `SELECT identifiant FROM users WHERE email = ? AND identifiant != ?`;
         const existingUser = await dbGet(emailCheckSql, [email, userIdentifiant]);
         if (existingUser) { return res.status(409).json({ success: false, message: 'Cet email est déjà utilisé par un autre compte.' }); }
 
-        // Construire la requête UPDATE dynamiquement serait plus robuste, mais pour l'instant :
+        // Construire la requête UPDATE
         const updateSql = `UPDATE users SET
             firstName = ?, lastName = ?, email = ?, phone = ?, address = ?,
             birthdate = ?, timezone = ?, team = ?, specialty = ?
@@ -767,13 +770,15 @@ app.put('/api/profile', async (req, res) => {
         ];
         console.log("// DEBUG SERVER: Exécution UPDATE Profile:", updateSql, params);
         const result = await dbRun(updateSql, params);
+
         if (result.changes === 0) { return res.status(404).json({ success: false, message: 'Utilisateur non trouvé.' }); }
         console.log(`Profil ${userIdentifiant} mis à jour.`);
-        // Renvoyer le profil complet mis à jour (sans le mot de passe)
+
+        // Renvoyer le profil complet mis à jour
         const updatedProfileData = await dbGet(`SELECT identifiant, email, firstName, lastName, role, phone, address, birthdate, timezone, language, theme, homeSection, signature, avatarUrl, lastLoginTime, lastLoginIp, lastLoginBrowser, team, specialty FROM users WHERE identifiant = ?`, [userIdentifiant]);
         const updatedProfile = {
             identifiant: updatedProfileData.identifiant, email: updatedProfileData.email, firstName: updatedProfileData.firstName, lastName: updatedProfileData.lastName, role: updatedProfileData.role, phone: updatedProfileData.phone, address: updatedProfileData.address, birthdate: updatedProfileData.birthdate, timezone: updatedProfileData.timezone, language: updatedProfileData.language, theme: updatedProfileData.theme, homeSection: updatedProfileData.homeSection, signature: updatedProfileData.signature, avatarUrl: updatedProfileData.avatarUrl,
-            team: updatedProfileData.team, specialty: updatedProfileData.specialty, // Ajouté
+            team: updatedProfileData.team, specialty: updatedProfileData.specialty,
             security: { last_login: updatedProfileData.lastLoginTime, last_ip: updatedProfileData.lastLoginIp, last_browser: updatedProfileData.lastLoginBrowser, auth_method: 'Email/Mdp' },
             stats: { category_count: null, appointment_count: null, attendance_rate: null }
         };
@@ -782,6 +787,34 @@ app.put('/api/profile', async (req, res) => {
         console.error(`Erreur PUT /api/profile pour ${userIdentifiant}:`, error);
          if (error.message && error.message.includes('UNIQUE constraint failed') && error.message.includes('users.email')) { res.status(409).json({ success: false, message: 'Cet email est déjà utilisé par un autre compte.' }); }
          else { res.status(500).json({ success: false, message: "Erreur serveur lors de la mise à jour du profil." }); }
+    }
+});
+
+app.put('/api/profile/password', async (req, res) => {
+    const userIdentifiant = 'admin'; // TODO: Récupérer l'utilisateur authentifié
+    const { currentPassword, newPassword } = req.body;
+    console.log(`// DEBUG SERVER: Requête reçue sur PUT /api/profile/password pour ${userIdentifiant}`);
+
+    if (!currentPassword || !newPassword) { return res.status(400).json({ success: false, message: 'Mot de passe actuel et nouveau mot de passe requis.' }); }
+    if (newPassword.length < 6) { return res.status(400).json({ success: false, message: 'Le nouveau mot de passe doit faire au moins 6 caractères.' }); }
+
+    try {
+        const user = await dbGet('SELECT hashedPassword FROM users WHERE identifiant = ?', [userIdentifiant]);
+        if (!user) { return res.status(404).json({ success: false, message: 'Utilisateur non trouvé.' }); }
+
+        const isMatch = await bcrypt.compare(currentPassword, user.hashedPassword);
+        if (!isMatch) { console.log(`// DEBUG SERVER: Mot de passe actuel incorrect pour ${userIdentifiant}`); return res.status(401).json({ success: false, message: 'Le mot de passe actuel est incorrect.' }); }
+
+        const newHashedPassword = await bcrypt.hash(newPassword, saltRounds);
+        const sql = 'UPDATE users SET hashedPassword = ? WHERE identifiant = ?';
+        const result = await dbRun(sql, [newHashedPassword, userIdentifiant]);
+
+        if (result.changes > 0) { console.log(`// DEBUG SERVER: Mot de passe mis à jour pour ${userIdentifiant}`); res.json({ success: true, message: 'Mot de passe modifié avec succès.' }); }
+        else { console.error(`// DEBUG SERVER: Erreur lors de la MàJ du mot de passe pour ${userIdentifiant} (changes=0)`); throw new Error('Mise à jour du mot de passe échouée dans la base de données.'); }
+
+    } catch (error) {
+        console.error(`// DEBUG SERVER: Erreur PUT /api/profile/password pour ${userIdentifiant}:`, error);
+        res.status(500).json({ success: false, message: "Erreur serveur lors de la modification du mot de passe." });
     }
 });
 // -----------------------------------

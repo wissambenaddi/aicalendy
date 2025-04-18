@@ -32,18 +32,19 @@ const translations = {
         dashboard_today_title: "Aujourd'hui", dashboard_appointments_today: "Rendez-vous", dashboard_tasks_due_today: "Tâches à échéance",
         dashboard_quick_stats: "Statistiques Rapides", dashboard_overdue_tasks_stat: "Tâches en retard", dashboard_appointments_week_stat: "RDV cette semaine",
         dashboard_no_appointments_today: "Aucun rendez-vous aujourd'hui.", dashboard_no_tasks_today: "Aucune tâche due aujourd'hui.", dashboard_view_all: "Voir tout",
-        dashboard_recent_tasks_title: "Tâches Récentes / à venir", // Ajouté
-        dashboard_no_recent_tasks: "Aucune tâche récente ou à venir.", // Ajouté (optionnel)
-        task_col_title: "Tâche", // Ajouté
-        task_col_due_date: "Échéance", // Ajouté
-        task_col_status: "Statut", // Ajouté
-        task_status_overdue: "En retard", // Ajouté
-        task_status_pending: "En attente", // Ajouté
+        dashboard_recent_tasks_title: "Tâches Récentes / à venir",
+        dashboard_no_recent_tasks: "Aucune tâche récente ou à venir.",
+        task_col_title: "Tâche",
+        task_col_due_date: "Échéance",
+        task_col_status: "Statut",
+        task_status_overdue: "En retard",
+        task_status_pending: "En attente",
         // --- Section Catégories ---
         dashboard_create_category: "Créer une catégorie", card_actions: "Actions :", action_copy_link: "Copier le lien",
         action_view_appointments: "Voir les rendez-vous", action_edit: "Modifier", action_delete: "Supprimer",
         category_appointments_title: "Rendez-vous pour : {categoryName}", back_to_categories: "Retour aux catégories",
         no_categories_found: "Aucune catégorie créée pour le moment.", no_appointments_in_category: "Aucun rendez-vous planifié pour cette catégorie.",
+        error_loading_categories: "Erreur chargement catégories.", // Ajouté
         // --- Modale Création Catégorie ---
         create_category_title: "Nouvelle Catégorie", category_form_title: "Nom de la catégorie", category_form_description: "Description",
         category_form_color: "Couleur associée", category_form_icon: "Icône / Emoji", category_form_department: "Département lié",
@@ -126,6 +127,18 @@ const translations = {
         profile_page_appointments: "Rendez-vous",
         profile_upload_photo: "Charger une photo",
         profile_edit_signature: "Modifier la signature",
+        // === Clés Modale Changement Mot de Passe ===
+        change_password_title: "Changer le mot de passe",
+        current_password_label: "Mot de passe actuel",
+        new_password_label: "Nouveau mot de passe",
+        confirm_new_password_label: "Confirmer le nouveau mot de passe",
+        password_change_success: "Mot de passe modifié avec succès !",
+        password_change_error: "Erreur lors de la modification du mot de passe.",
+        error_all_fields_required: "Tous les champs sont requis.", // Générique
+        error_passwords_dont_match: "Les nouveaux mots de passe ne correspondent pas.", // Générique
+        error_password_too_short: "Le nouveau mot de passe doit faire au moins 6 caractères.", // Générique
+        error_current_password_incorrect: "Le mot de passe actuel est incorrect.", // Spécifique
+        error_network_or_server: "Erreur réseau ou serveur.", // Générique
         // --- Dropdown Profil Header ---
         dropdown_profile: "Mon Profil", dropdown_logout: "Se déconnecter",
         // --- Page d'inscription ---
@@ -144,30 +157,62 @@ const translations = {
     },
     en: {
         // --- Landing Page ---
-        login: "Login", register: "Register", hero_title: "Simplify scheduling your appointments...", hero_subtitle: "Create custom calendars...", cta_try_free: "Try for free", how_it_works_title: "How does it work?", step1_title: "1. Create Category", step1_desc: "Define the type...", step2_title: "2. Set Availability", step2_desc: "Indicate your free times...", step3_title: "3. Share Link", step3_desc: "Get a unique link...", step4_title: "4. Receive Bookings", step4_desc: "Appointments added...", features_title: "Why AiCalendy?", feature1_title: "Flexibility", feature1_desc: "Create many categories...", feature2_title: "Time Savings", feature2_desc: "Eliminate back-and-forth...", feature3_title: "Smooth Experience", feature3_desc: "Simple interface...", feature4_title: "Easy Integration", feature4_desc: "Connect existing calendars...", feature5_title: "All Professions", feature5_desc: "Ideal for HR, sales...", cta_bottom_title: "Ready to simplify?", cta_bottom_subtitle: "Join thousands...", cta_bottom_button1: "Start free trial", cta_bottom_button2: "Discover features", footer_copyright: "&copy; 2025 AiCalendy...", footer_privacy: "Privacy Policy", footer_terms: "Terms of Use",
+        login: "Login", register: "Register", hero_title: "Simplify scheduling your appointments, whatever your business.",
+        hero_subtitle: "Create custom calendars for your interviews, demos, consultations, and more, and let your guests choose their ideal slot.",
+        cta_try_free: "Try AiCalendy for free", how_it_works_title: "How does it work?", step1_title: "1. Create a Category",
+        step1_desc: "Define the type of appointment (interview, demo...).", step2_title: "2. Set Availability",
+        step2_desc: "Indicate your free days and times for this category.", step3_title: "3. Share the Link",
+        step3_desc: "Get a unique link to send to your guests.", step4_title: "4. Receive Bookings",
+        step4_desc: "Appointments are added automatically.", features_title: "Why choose AiCalendy?", feature1_title: "Total Flexibility",
+        feature1_desc: "Create as many calendar categories as needed, tailored to each requirement.", feature2_title: "Significant Time Savings",
+        feature2_desc: "Eliminate back-and-forth emails to find the right time slot.", feature3_title: "Smooth Guest Experience",
+        feature3_desc: "Simple and intuitive interface for choosing a time slot.", feature4_title: "Easy Integration",
+        feature4_desc: "Connect AiCalendy to your existing calendars (Google, Outlook...).", feature5_title: "Suitable for All Professions",
+        feature5_desc: "Ideal for HR, sales, marketing, consultants, etc.", cta_bottom_title: "Ready to simplify your scheduling?",
+        cta_bottom_subtitle: "Join thousands of professionals saving time with AiCalendy.", cta_bottom_button1: "Start my free trial",
+        cta_bottom_button2: "Discover features", footer_copyright: "&copy; 2025 AiCalendy. All rights reserved.",
+        footer_privacy: "Privacy Policy", footer_terms: "Terms of Use",
         // --- Dashboard ---
-        sidebar_dashboard: "Dashboard", sidebar_categories: "My Categories", sidebar_tasks: "My Tasks", sidebar_appointments: "My Appointments", sidebar_profile: "My Profile", sidebar_logout: "Logout", header_username: "User Name", header_role: "Administrator", dashboard_section_title: "Main Dashboard", categories_section_title: "My Appointment Categories", tasks_section_title: "My Tasks", appointments_section_title: "My Appointments", profile_section_title: "My Profile",
+        sidebar_dashboard: "Dashboard", sidebar_categories: "My Categories", sidebar_tasks: "My Tasks",
+        sidebar_appointments: "My Appointments", sidebar_profile: "My Profile", sidebar_logout: "Logout",
+        header_username: "User Name", header_role: "Administrator",
+        dashboard_section_title: "Main Dashboard", categories_section_title: "My Appointment Categories",
+        tasks_section_title: "My Tasks", appointments_section_title: "My Appointments", profile_section_title: "My Profile",
         // --- Dashboard KPIs / Lists ---
-        dashboard_today_title: "Today", dashboard_appointments_today: "Appointments", dashboard_tasks_due_today: "Tasks Due", dashboard_quick_stats: "Quick Stats", dashboard_overdue_tasks_stat: "Overdue Tasks", dashboard_appointments_week_stat: "Appointments this week", dashboard_no_appointments_today: "No appointments today.", dashboard_no_tasks_today: "No tasks due today.", dashboard_view_all: "View all",
-        dashboard_recent_tasks_title: "Recent / Upcoming Tasks", // Added
-        dashboard_no_recent_tasks: "No recent or upcoming tasks.", // Added (optional)
-        task_col_title: "Task", // Added
-        task_col_due_date: "Due Date", // Added
-        task_col_status: "Status", // Added
-        task_status_overdue: "Overdue", // Added
-        task_status_pending: "Pending", // Added
+        dashboard_today_title: "Today", dashboard_appointments_today: "Appointments", dashboard_tasks_due_today: "Tasks Due",
+        dashboard_quick_stats: "Quick Stats", dashboard_overdue_tasks_stat: "Overdue Tasks", dashboard_appointments_week_stat: "Appointments this week",
+        dashboard_no_appointments_today: "No appointments today.", dashboard_no_tasks_today: "No tasks due today.", dashboard_view_all: "View all",
+        dashboard_recent_tasks_title: "Recent / Upcoming Tasks",
+        dashboard_no_recent_tasks: "No recent or upcoming tasks.",
+        task_col_title: "Task",
+        task_col_due_date: "Due Date",
+        task_col_status: "Status",
+        task_status_overdue: "Overdue",
+        task_status_pending: "Pending",
         // --- Categories Section ---
-        dashboard_create_category: "Create category", card_actions: "Actions:", action_copy_link: "Copy link", action_view_appointments: "View appointments", action_edit: "Edit", action_delete: "Delete", category_appointments_title: "Appointments for: {categoryName}", back_to_categories: "Back to categories", no_categories_found: "No categories created yet.", no_appointments_in_category: "No appointments scheduled for this category.",
+        dashboard_create_category: "Create category", card_actions: "Actions:", action_copy_link: "Copy link",
+        action_view_appointments: "View appointments", action_edit: "Edit", action_delete: "Delete",
+        category_appointments_title: "Appointments for: {categoryName}", back_to_categories: "Back to categories",
+        no_categories_found: "No categories created yet.", no_appointments_in_category: "No appointments scheduled for this category.",
+        error_loading_categories: "Error loading categories.",
         // --- Create Category Modal ---
-        create_category_title: "New Category", category_form_title: "Category Name", category_form_description: "Description", category_form_color: "Associated Color", category_form_icon: "Icon / Emoji", category_form_department: "Linked Department", category_form_assignee: "Assignee", category_form_cancel: "Cancel", category_form_create: "Create Category",
+        create_category_title: "New Category", category_form_title: "Category Name", category_form_description: "Description",
+        category_form_color: "Associated Color", category_form_icon: "Icon / Emoji", category_form_department: "Linked Department",
+        category_form_assignee: "Assignee", category_form_cancel: "Cancel", category_form_create: "Create Category",
         // --- Category Delete Confirmation ---
         category_delete_confirm_title: "Confirm Deletion", category_delete_confirm_text: "Are you sure you want to delete the category \"{categoryName}\"? Linked appointments will be dissociated.",
         // --- Tasks Section ---
         no_tasks_found: "No tasks found.",
         // --- Create Task Modal ---
-        dashboard_create_task: "Create Task", create_task_title: "New Task", task_form_title: "Title", task_form_description: "Description", task_form_due_date: "Due Date", task_form_assignee: "Assignee", task_form_priority: "Priority", task_form_priority_low: "Low", task_form_priority_medium: "Medium", task_form_priority_high: "High", task_form_status: "Status", task_form_status_todo: "To Do", task_form_status_inprogress: "In Progress", task_form_status_done: "Done", task_form_category: "Category/Department", task_form_cancel: "Cancel", task_form_create: "Create Task",
+        dashboard_create_task: "Create Task", create_task_title: "New Task", task_form_title: "Title",
+        task_form_description: "Description", task_form_due_date: "Due Date", task_form_assignee: "Assignee",
+        task_form_priority: "Priority", task_form_priority_low: "Low", task_form_priority_medium: "Medium", task_form_priority_high: "High",
+        task_form_status: "Status", task_form_status_todo: "To Do", task_form_status_inprogress: "In Progress", task_form_status_done: "Done",
+        task_form_category: "Category/Department", task_form_cancel: "Cancel", task_form_create: "Create Task",
         // --- Task Action Modal ---
-        task_action_modal_title: "Task Actions", task_action_change_status: "Change Status", task_action_delete: "Delete", task_action_select_status: "New status:", task_action_confirm_status: "Confirm Status", task_action_cancel: "Cancel", task_delete_confirm_title: "Confirm Deletion", task_delete_confirm_text: "Are you sure you want to delete this task?",
+        task_action_modal_title: "Task Actions", task_action_change_status: "Change Status", task_action_delete: "Delete",
+        task_action_select_status: "New status:", task_action_confirm_status: "Confirm Status", task_action_cancel: "Cancel",
+        task_delete_confirm_title: "Confirm Deletion", task_delete_confirm_text: "Are you sure you want to delete this task?",
          // --- Appointments Section/List Keys ---
          appointments_section_title: "My Appointments", appointment_status_confirmed: "Confirmed", appointment_status_pending: "Pending", appointment_status_canceled: "Canceled", appointment_action_details: "Details", appointment_action_reschedule: "Reschedule", appointment_action_cancel: "Cancel", no_appointments_found: "No appointments found.",
         // --- Create Appointment Modal Keys ---
@@ -221,6 +266,18 @@ const translations = {
         profile_page_appointments: "Appointments",
         profile_upload_photo: "Upload Photo",
         profile_edit_signature: "Edit Signature",
+         // === Password Change Modal Keys ===
+         change_password_title: "Change Password",
+         current_password_label: "Current Password",
+         new_password_label: "New Password",
+         confirm_new_password_label: "Confirm New Password",
+         password_change_success: "Password changed successfully!",
+         password_change_error: "Error changing password.",
+         error_all_fields_required: "All fields are required.", // Generic
+         error_passwords_dont_match: "New passwords do not match.", // Generic
+         error_password_too_short: "New password must be at least 6 characters.", // Generic
+         error_current_password_incorrect: "Current password is incorrect.", // Specific
+         error_network_or_server: "Network or server error.", // Generic
          // --- User Dropdown ---
          dropdown_profile: "My Profile", dropdown_logout: "Logout",
          // --- Registration Page ---
@@ -247,6 +304,7 @@ function setLanguage(lang) {
         // Gestion des placeholders comme {categoryName}
         if (translationText && translationText.includes('{')) {
             // Ne pas remplacer ici, laisser le code JS spécifique le faire
+            // Ou implémenter une logique de remplacement si nécessaire pour certains éléments statiques
         }
 
         if (translationText !== undefined) {
@@ -263,17 +321,32 @@ function setLanguage(lang) {
         } else { console.warn(`Clé "${key}" non trouvée pour lang "${lang}".`); }
     });
 
-    // Traduire les options des <select>
-    const taskPrioritySelect = document.getElementById('task-priority');
-    if(taskPrioritySelect) { /* ... */ }
-    const taskStatusSelect = document.getElementById('task-status');
-     if(taskStatusSelect) { /* ... */ }
-    const taskActionStatusSelect = document.getElementById('task-action-new-status');
-     if(taskActionStatusSelect) { /* ... */ }
+    // Traduire les options des <select> (exemple pour tâches)
+    function translateSelectOptions(selectId, keys) {
+        const selectElement = document.getElementById(selectId);
+        if (selectElement) {
+            selectElement.querySelectorAll('option').forEach(option => {
+                const key = keys[option.value];
+                if (key) {
+                    option.textContent = translations[lang]?.[key] || option.value;
+                }
+            });
+        }
+    }
+
+    translateSelectOptions('task-priority', { '1': 'task_form_priority_low', '2': 'task_form_priority_medium', '3': 'task_form_priority_high' });
+    translateSelectOptions('task-status', { 'todo': 'task_form_status_todo', 'inprogress': 'task_form_status_inprogress', 'done': 'task_form_status_done' });
+    translateSelectOptions('task-action-new-status', { 'todo': 'task_form_status_todo', 'inprogress': 'task_form_status_inprogress', 'done': 'task_form_status_done' });
+
+    // Traduire placeholder pour selects catégorie (si nécessaire)
     const apptCategorySelect = document.getElementById('appointment-category');
-    if (apptCategorySelect && apptCategorySelect.options[0] && apptCategorySelect.options[0].value === "") { /* ... */ }
+    if (apptCategorySelect && apptCategorySelect.options[0] && apptCategorySelect.options[0].value === "") {
+        apptCategorySelect.options[0].textContent = translations[lang]?.['appointment_form_select_category'] || 'Sélectionner...';
+    }
     const editApptCategorySelect = document.getElementById('edit-appointment-category');
-    if (editApptCategorySelect && editApptCategorySelect.options[0] && editApptCategorySelect.options[0].value === "") { /* ... */ }
+    if (editApptCategorySelect && editApptCategorySelect.options[0] && editApptCategorySelect.options[0].value === "") {
+        editApptCategorySelect.options[0].textContent = translations[lang]?.['appointment_form_select_category'] || 'Sélectionner...';
+    }
 }
 
 /** Initialise les boutons de langue */

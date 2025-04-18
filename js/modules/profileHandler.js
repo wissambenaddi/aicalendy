@@ -35,14 +35,42 @@ const profileUpdateForm = document.getElementById('profile-update-form');
 const formFirstNameInput = document.getElementById('profile-firstName');
 const formLastNameInput = document.getElementById('profile-lastName');
 const formEmailInput = document.getElementById('profile-email');
-const formPhoneInput = document.getElementById('profile-phone'); // <<< Nouveau
-const formAddressInput = document.getElementById('profile-address'); // <<< Nouveau
-const formBirthdateInput = document.getElementById('profile-birthdate'); // <<< Nouveau
-const formTimezoneInput = document.getElementById('profile-timezone'); // <<< Nouveau
-const formTeamInput = document.getElementById('profile-team'); // <<< Nouveau
-const formSpecialtyInput = document.getElementById('profile-specialty'); // <<< Nouveau
+const formPhoneInput = document.getElementById('profile-phone');
+const formAddressInput = document.getElementById('profile-address');
+const formBirthdateInput = document.getElementById('profile-birthdate');
+const formTimezoneInput = document.getElementById('profile-timezone');
+const formTeamInput = document.getElementById('profile-team');
+const formSpecialtyInput = document.getElementById('profile-specialty');
 const messageElement = document.getElementById('profile-update-message');
 
+// Références bouton et modale Mot de Passe
+const changePasswordButton = document.getElementById('profile-button-change-password');
+const changePasswordModal = document.getElementById('change-password-modal');
+const changePasswordForm = document.getElementById('change-password-form');
+const currentPasswordInput = document.getElementById('current-password');
+const newPasswordInput = document.getElementById('new-password');
+const confirmNewPasswordInput = document.getElementById('confirm-new-password');
+const cancelChangePasswordBtn = document.getElementById('cancel-change-password-btn');
+const changePasswordErrorElement = document.getElementById('change-password-error');
+const changePasswordSuccessElement = document.getElementById('change-password-success');
+
+
+// --- Fonctions Modale Mot de Passe ---
+function showChangePasswordModal() {
+    if (changePasswordModal) {
+        changePasswordForm?.reset();
+        if(changePasswordErrorElement) changePasswordErrorElement.textContent = '';
+        if(changePasswordSuccessElement) changePasswordSuccessElement.textContent = '';
+        changePasswordModal.classList.add('active');
+        currentPasswordInput?.focus();
+    } else { console.error("Modale 'change-password-modal' non trouvée."); }
+}
+
+function hideChangePasswordModal() {
+    if (changePasswordModal) {
+        changePasswordModal.classList.remove('active');
+    }
+}
 
 // --- Chargement et Affichage des Données ---
 
@@ -77,12 +105,12 @@ export async function loadProfileData() {
     if (formFirstNameInput) formFirstNameInput.value = '';
     if (formLastNameInput) formLastNameInput.value = '';
     if (formEmailInput) formEmailInput.value = '';
-    if (formPhoneInput) formPhoneInput.value = ''; // <<< Nouveau
-    if (formAddressInput) formAddressInput.value = ''; // <<< Nouveau
-    if (formBirthdateInput) formBirthdateInput.value = ''; // <<< Nouveau
-    if (formTimezoneInput) formTimezoneInput.value = ''; // <<< Nouveau
-    if (formTeamInput) formTeamInput.value = ''; // <<< Nouveau
-    if (formSpecialtyInput) formSpecialtyInput.value = ''; // <<< Nouveau
+    if (formPhoneInput) formPhoneInput.value = '';
+    if (formAddressInput) formAddressInput.value = '';
+    if (formBirthdateInput) formBirthdateInput.value = '';
+    if (formTimezoneInput) formTimezoneInput.value = '';
+    if (formTeamInput) formTeamInput.value = '';
+    if (formSpecialtyInput) formSpecialtyInput.value = '';
 
 
     try {
@@ -135,12 +163,12 @@ export async function loadProfileData() {
         if (formFirstNameInput) formFirstNameInput.value = profile.firstName || '';
         if (formLastNameInput) formLastNameInput.value = profile.lastName || '';
         if (formEmailInput) formEmailInput.value = profile.email || '';
-        if (formPhoneInput) formPhoneInput.value = profile.phone || ''; // <<< Nouveau
-        if (formAddressInput) formAddressInput.value = profile.address || ''; // <<< Nouveau
-        if (formBirthdateInput) formBirthdateInput.value = profile.birthdate || ''; // <<< Nouveau (format YYYY-MM-DD)
-        if (formTimezoneInput) formTimezoneInput.value = profile.timezone || ''; // <<< Nouveau
-        if (formTeamInput) formTeamInput.value = profile.team || ''; // <<< Nouveau
-        if (formSpecialtyInput) formSpecialtyInput.value = profile.specialty || ''; // <<< Nouveau
+        if (formPhoneInput) formPhoneInput.value = profile.phone || '';
+        if (formAddressInput) formAddressInput.value = profile.address || '';
+        if (formBirthdateInput) formBirthdateInput.value = profile.birthdate || ''; // Format YYYY-MM-DD
+        if (formTimezoneInput) formTimezoneInput.value = profile.timezone || '';
+        if (formTeamInput) formTeamInput.value = profile.team || '';
+        if (formSpecialtyInput) formSpecialtyInput.value = profile.specialty || '';
 
     } catch (error) {
         console.error("Erreur loadProfileData:", error);
@@ -155,13 +183,42 @@ export async function loadProfileData() {
 /** Initialise les écouteurs d'événements spécifiques à la section Profil */
 export function initProfileEventListeners() {
     console.log("Initialisation des listeners pour la section Profil...");
+    // Formulaire principal
     if (profileUpdateForm) {
         profileUpdateForm.removeEventListener('submit', handleProfileUpdateSubmit); // Eviter doublons
         profileUpdateForm.addEventListener('submit', handleProfileUpdateSubmit);
     } else {
-        console.warn("Formulaire de mise à jour du profil '#profile-update-form' non trouvé.");
+        console.warn("Formulaire '#profile-update-form' non trouvé.");
     }
-    // TODO: Ajouter ici les listeners pour les boutons "Changer mot de passe", "Charger photo", etc.
+
+    // Bouton "Changer mot de passe"
+    if (changePasswordButton) {
+        changePasswordButton.removeEventListener('click', showChangePasswordModal);
+        changePasswordButton.addEventListener('click', showChangePasswordModal);
+    } else {
+        console.warn("Bouton '#profile-button-change-password' non trouvé.");
+    }
+
+    // Modale Changement Mot de Passe
+    if (cancelChangePasswordBtn) {
+        cancelChangePasswordBtn.removeEventListener('click', hideChangePasswordModal); // Eviter doublons
+        cancelChangePasswordBtn.addEventListener('click', hideChangePasswordModal);
+    }
+    if (changePasswordModal) {
+        changePasswordModal.removeEventListener('click', handlePasswordModalOverlayClick); // Eviter doublons
+        changePasswordModal.addEventListener('click', handlePasswordModalOverlayClick);
+    }
+    if (changePasswordForm) {
+         changePasswordForm.removeEventListener('submit', handleChangePasswordSubmit); // Eviter doublons
+        changePasswordForm.addEventListener('submit', handleChangePasswordSubmit);
+    }
+}
+
+// Handler pour clic sur l'overlay de la modale mot de passe
+function handlePasswordModalOverlayClick(event) {
+     if (event.target === changePasswordModal) {
+        hideChangePasswordModal();
+    }
 }
 
 /** Handler pour la soumission du formulaire de mise à jour du profil */
@@ -177,20 +234,19 @@ async function handleProfileUpdateSubmit(event) {
     if(messageElement) messageElement.textContent = '';
 
     const formData = new FormData(profileUpdateForm);
-    // === MODIFIÉ : Récupérer toutes les données du formulaire ===
+    // Récupérer toutes les données du formulaire
     const profileData = {
         firstName: formData.get('firstName'),
         lastName: formData.get('lastName'),
         email: formData.get('email'),
-        phone: formData.get('phone') || null, // Envoyer null si vide
+        phone: formData.get('phone') || null,
         address: formData.get('address') || null,
-        birthdate: formData.get('birthdate') || null, // Garder YYYY-MM-DD
+        birthdate: formData.get('birthdate') || null,
         timezone: formData.get('timezone') || null,
         team: formData.get('team') || null,
         specialty: formData.get('specialty') || null
-        // Ajouter d'autres champs si le formulaire est étendu (language, theme...)
+        // Ajouter d'autres champs si le formulaire est étendu
     };
-    // ===========================================================
 
     console.log("Données MàJ Profil (avant envoi):", profileData);
 
@@ -224,6 +280,61 @@ async function handleProfileUpdateSubmit(event) {
             messageElement.textContent = error.message || translations[currentLang]?.['profile_update_error'] || "Erreur MàJ profil.";
             messageElement.className = 'text-sm error';
         }
+    } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = originalButtonText;
+    }
+}
+
+/** Handler pour la soumission du formulaire de changement de mot de passe */
+async function handleChangePasswordSubmit(event) {
+    event.preventDefault();
+    const submitButton = changePasswordForm.querySelector('button[type="submit"]');
+    const originalButtonTextKey = "appointment_form_save"; // Réutiliser clé existante
+    const currentLang = document.documentElement.lang || 'fr';
+    const originalButtonText = translations[currentLang]?.[originalButtonTextKey] || "Enregistrer";
+
+    // Récupérer les valeurs
+    const currentPassword = currentPasswordInput.value;
+    const newPassword = newPasswordInput.value;
+    const confirmNewPassword = confirmNewPasswordInput.value;
+
+    // Réinitialiser messages
+    if(changePasswordErrorElement) changePasswordErrorElement.textContent = '';
+    if(changePasswordSuccessElement) changePasswordSuccessElement.textContent = '';
+
+    // Validation simple
+    if (!currentPassword || !newPassword || !confirmNewPassword) {
+        if(changePasswordErrorElement) changePasswordErrorElement.textContent = translations[currentLang]?.['error_all_fields_required'] || "Tous les champs sont requis.";
+        return;
+    }
+    if (newPassword !== confirmNewPassword) {
+        if(changePasswordErrorElement) changePasswordErrorElement.textContent = translations[currentLang]?.['error_passwords_dont_match'] || "Les nouveaux mots de passe ne correspondent pas.";
+        return;
+    }
+    if (newPassword.length < 6) { // Exemple de validation simple
+         if(changePasswordErrorElement) changePasswordErrorElement.textContent = translations[currentLang]?.['error_password_too_short'] || "Le nouveau mot de passe doit faire au moins 6 caractères.";
+        return;
+    }
+
+    submitButton.disabled = true;
+    submitButton.textContent = "Sauvegarde..."; // TODO: Traduire
+
+    try {
+        const result = await api.changePassword({ currentPassword, newPassword }); // Appel API
+        if (result.success) {
+            if(changePasswordSuccessElement) changePasswordSuccessElement.textContent = translations[currentLang]?.['password_change_success'] || "Mot de passe modifié avec succès !";
+            changePasswordForm.reset();
+            // Optionnel: fermer la modale après un délai
+            setTimeout(hideChangePasswordModal, 2000);
+        } else {
+             // L'API devrait renvoyer un message d'erreur spécifique
+             if(changePasswordErrorElement) changePasswordErrorElement.textContent = result.message || (translations[currentLang]?.['password_change_error'] || "Erreur lors de la modification.");
+        }
+    } catch (error) {
+        console.error("Erreur changement mot de passe:", error);
+        // Afficher l'erreur spécifique renvoyée par l'API si possible
+        if(changePasswordErrorElement) changePasswordErrorElement.textContent = error.message || (translations[currentLang]?.['error_network_or_server'] || "Erreur réseau ou serveur.");
     } finally {
         submitButton.disabled = false;
         submitButton.textContent = originalButtonText;
