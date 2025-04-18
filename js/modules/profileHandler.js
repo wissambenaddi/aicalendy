@@ -35,7 +35,13 @@ const profileUpdateForm = document.getElementById('profile-update-form');
 const formFirstNameInput = document.getElementById('profile-firstName');
 const formLastNameInput = document.getElementById('profile-lastName');
 const formEmailInput = document.getElementById('profile-email');
-const messageElement = document.getElementById('profile-update-message'); // Renommé pour clarté
+const formPhoneInput = document.getElementById('profile-phone'); // <<< Nouveau
+const formAddressInput = document.getElementById('profile-address'); // <<< Nouveau
+const formBirthdateInput = document.getElementById('profile-birthdate'); // <<< Nouveau
+const formTimezoneInput = document.getElementById('profile-timezone'); // <<< Nouveau
+const formTeamInput = document.getElementById('profile-team'); // <<< Nouveau
+const formSpecialtyInput = document.getElementById('profile-specialty'); // <<< Nouveau
+const messageElement = document.getElementById('profile-update-message');
 
 
 // --- Chargement et Affichage des Données ---
@@ -67,9 +73,17 @@ export async function loadProfileData() {
     if (prefsLanguageElement) prefsLanguageElement.textContent = '-';
     if (prefsDefaultPageElement) prefsDefaultPageElement.textContent = '-';
     if (prefsSignatureElement) prefsSignatureElement.textContent = '-';
+    // Initialiser le formulaire
     if (formFirstNameInput) formFirstNameInput.value = '';
     if (formLastNameInput) formLastNameInput.value = '';
     if (formEmailInput) formEmailInput.value = '';
+    if (formPhoneInput) formPhoneInput.value = ''; // <<< Nouveau
+    if (formAddressInput) formAddressInput.value = ''; // <<< Nouveau
+    if (formBirthdateInput) formBirthdateInput.value = ''; // <<< Nouveau
+    if (formTimezoneInput) formTimezoneInput.value = ''; // <<< Nouveau
+    if (formTeamInput) formTeamInput.value = ''; // <<< Nouveau
+    if (formSpecialtyInput) formSpecialtyInput.value = ''; // <<< Nouveau
+
 
     try {
         const profile = await api.fetchProfile(); // Utilise api.js
@@ -121,7 +135,12 @@ export async function loadProfileData() {
         if (formFirstNameInput) formFirstNameInput.value = profile.firstName || '';
         if (formLastNameInput) formLastNameInput.value = profile.lastName || '';
         if (formEmailInput) formEmailInput.value = profile.email || '';
-        // TODO: Pré-remplir les NOUVEAUX champs du formulaire quand ils seront ajoutés au HTML
+        if (formPhoneInput) formPhoneInput.value = profile.phone || ''; // <<< Nouveau
+        if (formAddressInput) formAddressInput.value = profile.address || ''; // <<< Nouveau
+        if (formBirthdateInput) formBirthdateInput.value = profile.birthdate || ''; // <<< Nouveau (format YYYY-MM-DD)
+        if (formTimezoneInput) formTimezoneInput.value = profile.timezone || ''; // <<< Nouveau
+        if (formTeamInput) formTeamInput.value = profile.team || ''; // <<< Nouveau
+        if (formSpecialtyInput) formSpecialtyInput.value = profile.specialty || ''; // <<< Nouveau
 
     } catch (error) {
         console.error("Erreur loadProfileData:", error);
@@ -158,43 +177,43 @@ async function handleProfileUpdateSubmit(event) {
     if(messageElement) messageElement.textContent = '';
 
     const formData = new FormData(profileUpdateForm);
-    // Récupérer UNIQUEMENT les champs modifiables par ce formulaire pour l'instant
+    // === MODIFIÉ : Récupérer toutes les données du formulaire ===
     const profileData = {
         firstName: formData.get('firstName'),
         lastName: formData.get('lastName'),
-        email: formData.get('email')
-        // TODO: Récupérer les autres valeurs quand les inputs seront ajoutés
-        // phone: formData.get('phone'),
-        // address: formData.get('address'),
-        // ...etc...
+        email: formData.get('email'),
+        phone: formData.get('phone') || null, // Envoyer null si vide
+        address: formData.get('address') || null,
+        birthdate: formData.get('birthdate') || null, // Garder YYYY-MM-DD
+        timezone: formData.get('timezone') || null,
+        team: formData.get('team') || null,
+        specialty: formData.get('specialty') || null
+        // Ajouter d'autres champs si le formulaire est étendu (language, theme...)
     };
+    // ===========================================================
 
     console.log("Données MàJ Profil (avant envoi):", profileData);
 
     try {
         // Utilisation de la fonction importée depuis api.js
-        // Envoyer seulement les données que l'API peut gérer pour l'instant
-        const result = await api.updateProfile({
-             firstName: profileData.firstName,
-             lastName: profileData.lastName,
-             email: profileData.email
-             // TODO: Ajouter les autres champs ici quand l'API les gérera
-        });
+        const result = await api.updateProfile(profileData); // Envoyer l'objet complet
         console.log("Profil mis à jour:", result.profile);
         if(messageElement) {
             messageElement.textContent = translations[currentLang]?.['profile_update_success'] || "Profil mis à jour !";
             messageElement.className = 'text-sm success';
         }
-        loadProfileData(); // Recharger les données affichées
+        loadProfileData(); // Recharger les données affichées ET le formulaire
         // Mettre à jour le nom dans le header
         const userNameElementHeader = document.getElementById('user-name-display');
         if(userNameElementHeader && result.profile) {
             userNameElementHeader.textContent = `${result.profile.firstName || ''} ${result.profile.lastName || ''}`.trim();
+            // Optionnel: Mettre à jour aussi le localStorage si utilisé ailleurs
             const storedUser = localStorage.getItem('loggedInUser');
             if(storedUser) {
                 try {
                     const userData = JSON.parse(storedUser);
                     userData.name = `${result.profile.firstName || ''} ${result.profile.lastName || ''}`.trim();
+                    // Mettre à jour d'autres champs si nécessaire dans localStorage
                     localStorage.setItem('loggedInUser', JSON.stringify(userData));
                 } catch(e) { console.error("Erreur MàJ localStorage:", e); }
             }

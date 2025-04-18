@@ -108,7 +108,9 @@ async function initializeDatabase() {
             avatarUrl TEXT,
             lastLoginTime INTEGER, -- Timestamp ms UTC
             lastLoginIp TEXT,
-            lastLoginBrowser TEXT
+            lastLoginBrowser TEXT,
+            team TEXT, -- Ajouté pour le profil
+            specialty TEXT -- Ajouté pour le profil
         )`);
         console.log("Table 'users' vérifiée/créée.");
 
@@ -722,13 +724,15 @@ app.get('/api/profile', async (req, res) => {
     console.log(`Requête reçue sur GET /api/profile pour ${userIdentifiant}`);
     res.setHeader('Cache-Control', 'no-store');
     try {
-        const sql = `SELECT identifiant, email, firstName, lastName, role, phone, address, birthdate, timezone, language, theme, homeSection, signature, avatarUrl, lastLoginTime, lastLoginIp, lastLoginBrowser FROM users WHERE identifiant = ?`;
+        const sql = `SELECT identifiant, email, firstName, lastName, role, phone, address, birthdate, timezone, language, theme, homeSection, signature, avatarUrl, lastLoginTime, lastLoginIp, lastLoginBrowser, team, specialty FROM users WHERE identifiant = ?`; // Ajout team, specialty
         const profileData = await dbGet(sql, [userIdentifiant]);
         if (!profileData) { return res.status(404).json({ success: false, message: 'Profil non trouvé.' }); }
         const profile = {
             identifiant: profileData.identifiant, email: profileData.email, firstName: profileData.firstName, lastName: profileData.lastName, role: profileData.role, phone: profileData.phone, address: profileData.address, birthdate: profileData.birthdate, timezone: profileData.timezone, language: profileData.language, theme: profileData.theme, homeSection: profileData.homeSection, signature: profileData.signature, avatarUrl: profileData.avatarUrl,
+            team: profileData.team, // Ajouté
+            specialty: profileData.specialty, // Ajouté
             security: { last_login: profileData.lastLoginTime, last_ip: profileData.lastLoginIp, last_browser: profileData.lastLoginBrowser, auth_method: 'Email/Mdp' },
-            stats: { category_count: null, appointment_count: null, attendance_rate: null }
+            stats: { category_count: null, appointment_count: null, attendance_rate: null } // TODO: Calculer stats
         };
         res.json({ success: true, profile: profile });
     } catch (error) {
@@ -740,7 +744,7 @@ app.get('/api/profile', async (req, res) => {
 app.put('/api/profile', async (req, res) => {
     const userIdentifiant = 'admin'; // TODO: Auth
     console.log(`Requête reçue sur PUT /api/profile pour ${userIdentifiant}:`, req.body);
-    const { firstName, lastName, email, phone, address, birthdate, timezone, language, theme, homeSection, signature, avatarUrl } = req.body;
+    const { firstName, lastName, email, phone, address, birthdate, timezone, team, specialty /* Ajouter: language, theme, homeSection, signature, avatarUrl */ } = req.body;
     if (!firstName || !lastName || !email) { return res.status(400).json({ success: false, message: 'Prénom, nom et email sont requis.' }); }
     // TODO: Ajouter validations
     try {
@@ -748,12 +752,31 @@ app.put('/api/profile', async (req, res) => {
         const existingUser = await dbGet(emailCheckSql, [email, userIdentifiant]);
         if (existingUser) { return res.status(409).json({ success: false, message: 'Cet email est déjà utilisé par un autre compte.' }); }
 
-        const updateSql = `UPDATE users SET firstName = ?, lastName = ?, email = ?, phone = ?, address = ?, birthdate = ?, timezone = ?, language = ?, theme = ?, homeSection = ?, signature = ?, avatarUrl = ? WHERE identifiant = ?`;
-        const params = [ firstName, lastName, email, phone || null, address || null, birthdate || null, timezone || null, language || 'fr', theme || 'light', homeSection || 'dashboard', signature || null, avatarUrl || null, userIdentifiant ];
+        // Construire la requête UPDATE dynamiquement serait plus robuste, mais pour l'instant :
+        const updateSql = `UPDATE users SET
+            firstName = ?, lastName = ?, email = ?, phone = ?, address = ?,
+            birthdate = ?, timezone = ?, team = ?, specialty = ?
+            -- Ajouter language = ?, theme = ?, homeSection = ?, signature = ?, avatarUrl = ? ici si besoin
+            WHERE identifiant = ?`;
+        const params = [
+            firstName, lastName, email,
+            phone || null, address || null, birthdate || null, timezone || null,
+            team || null, specialty || null, // Ajouté
+            // Ajouter les autres champs ici
+            userIdentifiant
+        ];
+        console.log("// DEBUG SERVER: Exécution UPDATE Profile:", updateSql, params);
         const result = await dbRun(updateSql, params);
         if (result.changes === 0) { return res.status(404).json({ success: false, message: 'Utilisateur non trouvé.' }); }
         console.log(`Profil ${userIdentifiant} mis à jour.`);
-        const updatedProfile = await dbGet(`SELECT identifiant, email, firstName, lastName, role, phone, address, birthdate, timezone, language, theme, homeSection, signature, avatarUrl FROM users WHERE identifiant = ?`, [userIdentifiant]);
+        // Renvoyer le profil complet mis à jour (sans le mot de passe)
+        const updatedProfileData = await dbGet(`SELECT identifiant, email, firstName, lastName, role, phone, address, birthdate, timezone, language, theme, homeSection, signature, avatarUrl, lastLoginTime, lastLoginIp, lastLoginBrowser, team, specialty FROM users WHERE identifiant = ?`, [userIdentifiant]);
+        const updatedProfile = {
+            identifiant: updatedProfileData.identifiant, email: updatedProfileData.email, firstName: updatedProfileData.firstName, lastName: updatedProfileData.lastName, role: updatedProfileData.role, phone: updatedProfileData.phone, address: updatedProfileData.address, birthdate: updatedProfileData.birthdate, timezone: updatedProfileData.timezone, language: updatedProfileData.language, theme: updatedProfileData.theme, homeSection: updatedProfileData.homeSection, signature: updatedProfileData.signature, avatarUrl: updatedProfileData.avatarUrl,
+            team: updatedProfileData.team, specialty: updatedProfileData.specialty, // Ajouté
+            security: { last_login: updatedProfileData.lastLoginTime, last_ip: updatedProfileData.lastLoginIp, last_browser: updatedProfileData.lastLoginBrowser, auth_method: 'Email/Mdp' },
+            stats: { category_count: null, appointment_count: null, attendance_rate: null }
+        };
         res.json({ success: true, message: 'Profil mis à jour avec succès.', profile: updatedProfile });
     } catch (error) {
         console.error(`Erreur PUT /api/profile pour ${userIdentifiant}:`, error);

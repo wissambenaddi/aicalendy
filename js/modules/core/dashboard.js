@@ -122,6 +122,18 @@ async function loadDashboardData() {
              if (recentTasksContainer) recentTasksContainer.innerHTML = `<p class="text-sm text-gray-500 p-4 italic">Aucune tâche récente ou à venir.</p>`;
         }
 
+        // Logique du graphique (commentée ou supprimée car remplacée)
+        /*
+        const chartCanvas = document.getElementById('progress-chart');
+        if (chartCanvas && typeof Chart !== 'undefined') {
+            const ctx = chartCanvas.getContext('2d');
+            if (progressChartInstance) { progressChartInstance.destroy(); }
+            const labels = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+            const chartData = data.weeklyProgressData || Array(7).fill(0);
+            progressChartInstance = new Chart(ctx, { // ... options ... });
+        }
+        */
+
     } catch (error) {
         console.error("Erreur loadDashboardData:", error);
         if (appointmentsListEl) appointmentsListEl.innerHTML = '<li class="dashboard-list-empty text-red-600">Erreur chargement</li>';
@@ -130,7 +142,7 @@ async function loadDashboardData() {
     }
 }
 
-/** Fonction pour afficher le tableau des tâches récentes */
+/** Fonction pour afficher le tableau des tâches recentes */
 function renderRecentTasksTable(tasks) {
     const container = document.getElementById('recent-tasks-list-container');
     if (!container) { console.error("Conteneur '#recent-tasks-list-container' non trouvé."); return; }

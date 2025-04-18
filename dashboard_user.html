@@ -13,7 +13,7 @@
 
     <link rel="stylesheet" href="css/style.css"> <link rel="stylesheet" href="css/pages/dashboard.css"> <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 </head>
-<body class="flex h-screen overflow-hidden"> <aside class="w-64 bg-white border-r border-gray-200 flex flex-col flex-shrink-0 z-10">
+<body class="flex h-screen overflow-hidden bg-gray-100"> <aside class="w-64 bg-white border-r border-gray-200 flex flex-col flex-shrink-0 z-10">
         <div class="h-16 border-b border-gray-200 flex-shrink-0 flex items-center justify-center px-4">
              <a href="index.html" class="text-2xl font-bold text-indigo-600">AiCalendy</a>
         </div>
@@ -112,7 +112,7 @@
                          </div>
                      </div>
                  </div>
-                 </div>
+            </div>
 
             <div id="categories-content" class="main-section">
                 <div class="text-center py-10 text-gray-500">Chargement...</div>
@@ -167,19 +167,61 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="bg-white p-6 rounded-lg shadow-md">
                             <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2" data-translate-key="profile_update_title">Mettre à jour mes informations</h2>
                             <form id="profile-update-form" class="space-y-4">
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div> <label for="profile-firstName" class="block text-sm font-medium text-gray-700" data-translate-key="profile_label_firstname">Prénom</label> <input type="text" id="profile-firstName" name="firstName" required class="input-field mt-1"> </div>
-                                    <div> <label for="profile-lastName" class="block text-sm font-medium text-gray-700" data-translate-key="profile_label_lastname">Nom</label> <input type="text" id="profile-lastName" name="lastName" required class="input-field mt-1"> </div>
+                                    <div>
+                                        <label for="profile-firstName" class="block text-sm font-medium text-gray-700" data-translate-key="profile_label_firstname">Prénom</label>
+                                        <input type="text" id="profile-firstName" name="firstName" required class="input-field mt-1">
+                                    </div>
+                                    <div>
+                                        <label for="profile-lastName" class="block text-sm font-medium text-gray-700" data-translate-key="profile_label_lastname">Nom</label>
+                                        <input type="text" id="profile-lastName" name="lastName" required class="input-field mt-1">
+                                    </div>
                                 </div>
-                                <div> <label for="profile-email" class="block text-sm font-medium text-gray-700" data-translate-key="profile_label_email">Adresse e-mail</label> <input type="email" id="profile-email" name="email" required class="input-field mt-1"> </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="profile-email" class="block text-sm font-medium text-gray-700" data-translate-key="profile_label_email">Adresse e-mail</label>
+                                        <input type="email" id="profile-email" name="email" required class="input-field mt-1">
+                                    </div>
+                                     <div>
+                                        <label for="profile-phone" class="block text-sm font-medium text-gray-700" data-translate-key="profile_label_secondary_phone">Tél. secondaire</label>
+                                        <input type="tel" id="profile-phone" name="phone" placeholder="Ex: 0612345678" class="input-field mt-1">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="profile-address" class="block text-sm font-medium text-gray-700" data-translate-key="profile_label_address">Adresse postale</label>
+                                    <textarea id="profile-address" name="address" rows="3" placeholder="1 rue de l'exemple&#10;75000 VILLE" class="input-field mt-1"></textarea>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="profile-birthdate" class="block text-sm font-medium text-gray-700" data-translate-key="profile_label_dob">Date de naissance</label>
+                                        <input type="date" id="profile-birthdate" name="birthdate" class="input-field mt-1">
+                                    </div>
+                                    <div>
+                                        <label for="profile-timezone" class="block text-sm font-medium text-gray-700" data-translate-key="profile_label_timezone">Fuseau horaire</label>
+                                        <input type="text" id="profile-timezone" name="timezone" placeholder="Ex: Europe/Paris" class="input-field mt-1">
+                                        </div>
+                                </div>
+                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="profile-team" class="block text-sm font-medium text-gray-700" data-translate-key="profile_label_team">Équipe / Service</label>
+                                        <input type="text" id="profile-team" name="team" class="input-field mt-1">
+                                    </div>
+                                    <div>
+                                        <label for="profile-specialty" class="block text-sm font-medium text-gray-700" data-translate-key="profile_label_specialty">Fonction / Spécialité</label>
+                                        <input type="text" id="profile-specialty" name="specialty" class="input-field mt-1">
+                                    </div>
+                                </div>
                                 <div id="profile-update-message" class="text-sm" aria-live="polite"></div>
-                                <div class="text-right pt-2"> <button type="submit" class="btn-primary" data-translate-key="profile_button_save">Enregistrer les modifications</button> </div>
+                                <div class="text-right pt-2">
+                                    <button type="submit" class="btn-primary" data-translate-key="profile_button_save">Enregistrer les modifications</button>
+                                </div>
                             </form>
                         </div>
-                    </div>
+                         </div>
                     <div class="xl:col-span-1 space-y-6">
                         <div class="bg-white p-6 rounded-lg shadow-md">
                             <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2" data-translate-key="profile_security_title">Informations de Sécurité</h2>
