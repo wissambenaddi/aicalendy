@@ -1,117 +1,165 @@
 /**
  * Fichier : js/modules/auth.js
- * Description : Gère la logique côté client pour l'authentification.
- * Stocke les informations utilisateur dans localStorage après connexion réussie.
+ * Description : Gère la logique côté client pour l'authentification (connexion, inscription),
+ *              le toggle de mot de passe et l'indicateur de force.
  */
 
 import { translations } from './translator.js';
-// import { setLanguage } from './translator.js'; // Import si nécessaire ailleurs
 
-// --- Fonctions Indicateur de Force (inchangées) ---
-function checkPasswordStrength(password) { /* ... code inchangé ... */
-    if (!password) return 0; const hasLetters = /[a-zA-Z]/.test(password); const hasNumbers = /[0-9]/.test(password);
-    if (hasLetters && hasNumbers) { return password.length >= 8 ? 3 : 2; } else if (hasLetters || hasNumbers) { return 1; } else { return 1; }
+// --- Fonctions Indicateur Force MDP ---
+/**
+ * Évalue la force d'un mot de passe.
+ * @param {string} password
+ * @returns {'weak'|'medium'|'strong'}
+ */
+function checkPasswordStrength(password) {
+  let score = 0;
+  if (!password || password.length < 6) return 'weak';
+  if (password.length >= 8) score++;
+  if (password.length >= 10) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[a-z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+  if (score < 3) return 'weak';
+  if (score < 5) return 'medium';
+  return 'strong';
 }
-function updateStrengthIndicator(indicatorId, strengthLevel) { /* ... code inchangé ... */
-    const indicatorElement = document.getElementById(indicatorId); if (!indicatorElement) return;
-    const barElement = indicatorElement.querySelector('.strength-bar'); const textElement = indicatorElement.querySelector('.strength-text');
-    if (!barElement || !textElement) { console.error(`Missing elements: ${indicatorId}`); return; }
-    const strengthKeys = { 1: 'password_strength_weak', 2: 'password_strength_medium', 3: 'password_strength_strong' };
-    const strengthClasses = { 1: 'weak', 2: 'medium', 3: 'strong' };
-    barElement.classList.remove('weak', 'medium', 'strong'); textElement.classList.remove('weak', 'medium', 'strong');
-    textElement.textContent = ''; indicatorElement.style.display = 'none';
-    if (strengthLevel > 0) {
-        const levelKey = strengthKeys[strengthLevel]; const levelClass = strengthClasses[strengthLevel];
-        const currentLang = document.documentElement.lang || 'fr';
-        barElement.classList.add(levelClass); textElement.classList.add(levelClass);
-        const translatedText = translations[currentLang]?.[levelKey];
-        if (translatedText) { textElement.textContent = translatedText; }
-        else { textElement.textContent = levelClass.charAt(0).toUpperCase() + levelClass.slice(1); console.warn(`Translation not found for key ${levelKey} in lang ${currentLang}`); }
-        indicatorElement.style.display = 'block';
-    }
-}
-// --- Fin Fonctions Indicateur ---
 
+/**
+ * Met à jour l'indicateur visuel de force du mot de passe.
+ * @param {HTMLElement} container
+ * @param {'weak'|'medium'|'strong'} level
+ */
+function updateStrengthIndicator(container, level) {
+  const bar = container.querySelector('.strength-bar');
+  const text = container.querySelector('.strength-text');
+  const lang = document.documentElement.lang || 'fr';
+  if (!bar || !text) return;
+
+  container.style.display = 'block';
+  bar.className = `strength-bar ${level}`;
+  text.className = `strength-text ${level}`;
+
+  let key = 'password_strength_' + level;
+  text.textContent = translations[lang]?.[key] || level;
+}
+// --- Fin Indicateur ---
+
+// --- Toggle mot de passe (HTML utilise data-target) ---
 document.addEventListener('DOMContentLoaded', () => {
-    const loginForm = document.getElementById('login-form');
-    const registerForm = document.getElementById('register-form');
-    const passwordInput = document.getElementById('password');
-    const confirmPasswordInput = document.getElementById('confirm-password');
+  // SSO buttons (facultatif)
+  const googleBtn = document.querySelector('.sso-button.google');
+  const outlookBtn = document.querySelector('.sso-button.outlook');
+  if (googleBtn) googleBtn.addEventListener('click', () => window.location.href = '/auth/google');
+  if (outlookBtn) outlookBtn.addEventListener('click', () => window.location.href = '/auth/outlook');
 
-    // Listeners indicateur force (si page inscription)
-    if (registerForm) { /* ... listeners inchangés ... */
-        if (passwordInput) { passwordInput.addEventListener('input', () => { updateStrengthIndicator('password-strength-indicator', checkPasswordStrength(passwordInput.value)); }); }
-        if (confirmPasswordInput) { confirmPasswordInput.addEventListener('input', () => { updateStrengthIndicator('confirm-password-strength-indicator', checkPasswordStrength(confirmPasswordInput.value)); }); }
-    }
+  // Indicateur de force lors de la saisie du mdp
+  const pwdInput = document.getElementById('password');
+  const strengthCont = document.getElementById('password-strength-indicator');
+  if (pwdInput && strengthCont) {
+    pwdInput.addEventListener('input', e => {
+      const val = e.target.value;
+      if (val) {
+        const lvl = checkPasswordStrength(val);
+        updateStrengthIndicator(strengthCont, lvl);
+      } else {
+        strengthCont.style.display = 'none';
+      }
+    });
+  }
 
-    // --- Logique Connexion ---
-    if (loginForm) {
-        loginForm.addEventListener('submit', async (event) => {
-             event.preventDefault();
-             const loginIdentifier = loginForm.loginIdentifier.value;
-             const password = loginForm.password.value;
-             const submitButton = loginForm.querySelector('button[type="submit"]');
-             const originalButtonTextKey = "login_button";
-             const currentLang = document.documentElement.lang || 'fr';
-             const originalButtonText = translations[currentLang]?.[originalButtonTextKey] || "Se connecter";
-             submitButton.disabled = true;
-             submitButton.textContent = 'Connexion...';
-             console.log('Tentative de connexion avec:', { loginIdentifier, password: '***' });
-             try {
-                 const response = await fetch('/api/login', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ loginIdentifier, password }) });
-                 const data = await response.json();
-                 if (response.ok && data.success && data.user) { // Vérifier aussi la présence de data.user
-                     console.log('Connexion réussie:', data);
+  // Toggle show/hide password
+  document.querySelectorAll('.toggle-password').forEach(btn => {
+    const targetId = btn.getAttribute('data-target');
+    const input = document.getElementById(targetId);
+    if (!input) return;
+    btn.addEventListener('click', () => {
+      const isPwd = input.type === 'password';
+      input.type = isPwd ? 'text' : 'password';
+      btn.classList.toggle('is-visible');
+      btn.setAttribute('aria-label', isPwd ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
+    });
+  });
 
-                     // === AJOUT : Stocker les infos utilisateur dans localStorage ===
-                     try {
-                         localStorage.setItem('loggedInUser', JSON.stringify(data.user));
-                         console.log('User info stored in localStorage');
-                     } catch (storageError) {
-                         console.error('Failed to store user info in localStorage:', storageError);
-                         // Gérer l'erreur si localStorage n'est pas dispo ou plein
-                     }
-                     // ==============================================================
-
-                     window.location.href = 'dashboard_user.html'; // Redirection
-                 } else {
-                     console.error('Erreur de connexion:', data.message); alert(`Erreur de connexion: ${data.message || 'Identifiant/Email ou mot de passe incorrect.'}`);
-                 }
-             } catch (error) {
-                 console.error('Erreur lors de la tentative de connexion (réseau ou autre):', error); alert('Une erreur réseau est survenue. Veuillez réessayer.');
-             } finally {
-                  submitButton.disabled = false;
-                  submitButton.textContent = originalButtonText;
-             }
+  // Formulaire connexion
+  const loginForm = document.getElementById('login-form');
+  if (loginForm) {
+    loginForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn = loginForm.querySelector('button[type=submit]');
+      const orig = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = 'Connexion...';
+      try {
+        const data = Object.fromEntries(new FormData(loginForm).entries());
+        const res = await fetch('/api/login', {
+          method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data)
         });
-    }
+        const json = await res.json();
+        if (res.ok && json.success && json.user) {
+          localStorage.setItem('loggedInUser', JSON.stringify(json.user));
+          window.location.href = 'dashboard_user.html';
+        } else {
+          alert(`Erreur de connexion: ${json.message||'Identifiant ou mot de passe incorrect.'}`);
+          btn.disabled = false;
+          btn.textContent = orig;
+        }
+      } catch (err) {
+        alert('Erreur réseau lors de la connexion.');
+        btn.disabled = false;
+        btn.textContent = orig;
+      }
+    });
+  }
 
-    // --- Logique Inscription ---
-    if (registerForm) {
-        registerForm.addEventListener('submit', async (event) => {
-             // ... (code d'inscription inchangé) ...
-             event.preventDefault();
-             const firstName = registerForm.firstName.value; const lastName = registerForm.lastName.value;
-             const email = registerForm.email.value; const password = registerForm.password.value;
-             const confirmPassword = registerForm['confirm-password'].value; const termsAccepted = registerForm.terms.checked;
-             const submitButton = registerForm.querySelector('button[type="submit"]');
-             const originalButtonTextKey = "create_account_button"; const currentLang = document.documentElement.lang || 'fr';
-             const originalButtonText = translations[currentLang]?.[originalButtonTextKey] || "Créer mon compte";
-             console.log('Tentative d\'inscription avec:', { firstName, lastName, email, password: '***', confirmPassword: '***', termsAccepted });
-             if (!firstName || !lastName) { alert('Veuillez renseigner votre nom et prénom.'); return; }
-             if (password !== confirmPassword) { alert('Les mots de passe ne correspondent pas.'); return; }
-             if (!termsAccepted) { alert('Vous devez accepter les conditions d\'utilisation.'); return; }
-             const strength = checkPasswordStrength(password); if (strength < 2) { alert('Le mot de passe est trop faible. Il doit contenir des lettres et des chiffres.'); return; }
-              submitButton.disabled = true; submitButton.textContent = 'Création...';
-             try {
-                  const response = await fetch('/api/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ firstName, lastName, email, password }) });
-                  const data = await response.json();
-                  if (response.ok && data.success) {
-                      console.log('Inscription réussie:', data); alert('Compte créé ! Veuillez consulter vos emails pour activer votre compte.'); window.location.href = 'connexion_account.html';
-                  } else { console.error('Erreur d\'inscription:', data.message); alert(`Erreur d'inscription: ${data.message || 'Impossible de créer le compte'}`); }
-             } catch (error) { console.error('Erreur lors de la tentative d\'inscription (réseau ou autre):', error); alert('Une erreur réseau est survenue lors de l\'inscription.');
-             } finally { submitButton.disabled = false; submitButton.textContent = originalButtonText; }
+  // Formulaire inscription
+  const registerForm = document.getElementById('register-form');
+  if (registerForm) {
+    registerForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn = registerForm.querySelector('button[type=submit]');
+      const orig = btn.textContent;
+      const pwd = document.getElementById('password').value;
+      const confirm = document.getElementById('confirm-password').value;
+      if (pwd !== confirm) return alert('Les mots de passe ne correspondent pas.');
+      if (!document.getElementById('terms')?.checked) return alert('Veuillez accepter les conditions.');
+      btn.disabled = true;
+      btn.textContent = 'Création...';
+      try {
+        const form = new FormData(registerForm);
+        const payload = {
+          firstName: form.get('firstName'),
+          lastName: form.get('lastName'),
+          email: form.get('email'),
+          password: form.get('password')
+        };
+        const res = await fetch('/api/register', {
+          method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)
         });
-    }
+        const json = await res.json();
+        if (res.ok && json.success) {
+          alert(json.message||'Compte créé !');
+          window.location.href = 'connexion_account.html';
+        } else {
+          alert(`Erreur d'inscription: ${json.message||'Une erreur est survenue.'}`);
+          btn.disabled = false;
+          btn.textContent = orig;
+        }
+      } catch {
+        alert('Erreur réseau lors de l\'inscription.');
+        btn.disabled = false;
+        btn.textContent = orig;
+      }
+    });
+  }
 
-}); // Fin de DOMContentLoaded
+  // Message d'activation sur connexion
+  if (window.location.pathname.includes('connexion_account.html')) {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('activated') === 'true') {
+      alert('Votre compte a été activé avec succès !');
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }
+});

@@ -294,6 +294,7 @@ app.get('/api/activate', async (req, res) => {
         console.log(`Compte ${user.identifiant} activé.`);
         // Rediriger vers la page de connexion avec un message de succès
         res.redirect('/connexion_account.html?activated=true');
+        //activation du compte avec http://localhost:8080/api/activate?token='numéro de token'
     } catch (error) {
         console.error("Erreur lors de l'activation:", error);
         res.status(500).send('Erreur serveur lors de l\'activation.');
